@@ -1,6 +1,7 @@
 import express from "express";
-import featureRouter from "./routers/feature.router";
 import environment from "dotenv";
+
+import adminAuthRouter from "./routers/admin.auth.router"
 
 environment.config();
 
@@ -9,8 +10,7 @@ const PORT = process.env.SERVER_PORT_DEV;
 
 app.use(express.json());
 
-// jalur utama dari api
-app.get("/api", featureRouter);
+app.use("/api/admin-auth", adminAuthRouter);
 
 app.listen(PORT, () => {
   console.log(`Listening on port : ${PORT}`);

@@ -1,0 +1,373 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multischema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["finpro"]
+}
+
+model Users {
+  user_id       Int      @id @default(autoincrement())
+  username      String   @unique
+  email         String   @unique
+  password_hash String?
+  role          Role     @default(USER)
+  referral_code String?  @unique
+  register_code String?
+  refresh_token String?
+  is_verified   Boolean  @default(false)
+  image         String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  Store             Stores?
+  UserAuthProviders UserAuthProviders[]
+  UserVouchers      UserVouchers[]
+  Address           Address[]
+  Cart              Carts[]
+
+  @@schema("finpro")
+}
+
+model Stores {
+  store_id       Int      @id @default(autoincrement())
+  user_id        Int?     @unique
+  store_name     String
+  latitude       Decimal  @db.Decimal(9, 6)
+  longitude      Decimal  @db.Decimal(9, 6)
+  store_location String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  User      Users?        @relation(fields: [user_id], references: [user_id])
+  Inventory Inventories[]
+  Discount  Discounts[]
+  Sales     Sales[]
+  Orders    Orders[]
+
+  @@schema("finpro")
+}
+
+model Categories {
+  category_id   Int      @id @default(autoincrement())
+  category_name String   @unique
+  created_at    DateTime @default(now())
+
+  products Products[]
+  Sales    Sales[]
+
+  @@schema("finpro")
+}
+
+model Products {
+  product_id   Int      @id @default(autoincrement())
+  category_id  Int
+  product_name String   @unique
+  description  String
+  quantity     Int
+  price        Decimal  @db.Decimal(10, 2)
+  availability Boolean  @default(true)
+  image        String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  Category      Categories     @relation(fields: [category_id], references: [category_id])
+  Inventory     Inventories[]
+  ProductImages ProductImage[]
+  Sales         Sales[]
+
+  @@schema("finpro")
+}
+
+model Inventories {
+  inventory_id     Int      @id @default(autoincrement())
+  store_id         Int
+  product_id       Int
+  stock            Int
+  discounted_price Decimal? @db.Decimal(10, 2)
+  updated_at       DateTime @updatedAt
+
+  Store        Stores         @relation(fields: [store_id], references: [store_id])
+  Product      Products       @relation(fields: [product_id], references: [product_id])
+  StockJournal StockJournal[]
+  Discounts    Discounts[]
+  CartItems    CartItems[]
+
+  @@schema("finpro")
+}
+
+model StockJournal {
+  journal_id      Int             @id @default(autoincrement())
+  inventory_id    Int
+  change_type     ChangeType
+  change_quantity Int
+  prev_stock      Int
+  new_stock       Int
+  change_category ChangeCategory? @default(OTHERS)
+  created_at      DateTime        @default(now())
+
+  Inventory Inventories @relation(fields: [inventory_id], references: [inventory_id])
+
+  @@schema("finpro")
+}
+
+model ProductImage {
+  image_id      Int     @id @default(autoincrement())
+  product_id    Int
+  product_image String
+  is_primary    Boolean @default(false)
+
+  Product Products @relation(fields: [product_id], references: [product_id])
+
+  @@schema("finpro")
+}
+
+model Discounts {
+  discount_id     Int          @id @default(autoincrement())
+  inventory_id    Int?
+  store_id        Int
+  type            DiscountType
+  value           Decimal?     @db.Decimal(10, 2)
+  min_purchase    Decimal?     @db.Decimal(10, 2)
+  max_discount    Decimal?     @db.Decimal(10, 2)
+  bogo_product_id Int?
+  is_active       Boolean      @default(true)
+  image           String?
+  start_date      DateTime
+  end_date        DateTime
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  Inventory Inventories? @relation(fields: [inventory_id], references: [inventory_id])
+  Store     Stores       @relation(fields: [store_id], references: [store_id])
+
+  @@schema("finpro")
+}
+
+model Vouchers {
+  voucher_id      Int              @id @default(autoincrement())
+  code            String           @unique
+  type            VoucherType
+  discount_type   DiscountTypeEnum
+  discount_amount Decimal          @db.Decimal(10, 2)
+  min_purchase    Decimal?         @db.Decimal(10, 2)
+  max_discount    Decimal?         @db.Decimal(10, 2)
+  is_active       Boolean          @default(true)
+  expiration_date DateTime
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+
+  UserVouchers UserVouchers[]
+
+  @@schema("finpro")
+}
+
+model UserVouchers {
+  user_voucher_id Int       @id @default(autoincrement())
+  user_id         Int
+  voucher_id      Int
+  is_used         Boolean   @default(false)
+  used_at         DateTime?
+
+  User    Users    @relation(fields: [user_id], references: [user_id])
+  Voucher Vouchers @relation(fields: [voucher_id], references: [voucher_id])
+
+  @@schema("finpro")
+}
+
+model Address {
+  address_id Int      @id @default(autoincrement())
+  user_id    Int
+  latitude   Decimal  @db.Decimal(9, 6)
+  longitude  Decimal  @db.Decimal(9, 6)
+  address    String
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now())
+  update_at  DateTime @updatedAt
+
+  User   Users    @relation(fields: [user_id], references: [user_id])
+  Orders Orders[]
+
+  @@schema("finpro")
+}
+
+model Carts {
+  cart_id    Int      @id @default(autoincrement())
+  user_id    Int
+  cart_price Decimal  @db.Decimal(10, 2)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  User      Users       @relation(fields: [user_id], references: [user_id])
+  CartItems CartItems[]
+  Orders    Orders?
+
+  @@schema("finpro")
+}
+
+model CartItems {
+  cart_item_id  Int      @id @default(autoincrement())
+  cart_id       Int
+  inventory_id  Int
+  quantity      Int
+  product_price Decimal  @db.Decimal(10, 2)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  Cart      Carts       @relation(fields: [cart_id], references: [cart_id])
+  Inventory Inventories @relation(fields: [inventory_id], references: [inventory_id])
+
+  @@schema("finpro")
+}
+
+model Orders {
+  order_id        Int         @id @default(autoincrement())
+  cart_id         Int         @unique
+  store_id        Int
+  address_id      Int
+  cart_price      Decimal     @db.Decimal(10, 2)
+  order_status    OrderStatus @default(PENDING_PAYMENT)
+  shipping_method String
+  shipping_price  Decimal     @db.Decimal(10, 2)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  Cart     Carts     @relation(fields: [cart_id], references: [cart_id])
+  Store    Stores    @relation(fields: [store_id], references: [store_id])
+  Address  Address   @relation(fields: [address_id], references: [address_id])
+  Payments Payments?
+
+  @@schema("finpro")
+}
+
+model Payments {
+  payment_id        Int           @id @default(autoincrement())
+  order_id          Int           @unique
+  total_price       Decimal       @db.Decimal(10, 2)
+  payment_method    PaymentMethod
+  payment_status    PaymentStatus @default(PENDING)
+  payment_reference String?
+  pop_image         String?
+  payment_date      DateTime
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  Order Orders @relation(fields: [order_id], references: [order_id])
+
+  @@schema("finpro")
+}
+
+model Sales {
+  sales_id    Int @id @default(autoincrement())
+  store_id    Int
+  product_id  Int
+  category_id Int
+  month       Int
+  year        Int
+  total_sales Int
+
+  Store    Stores     @relation(fields: [store_id], references: [store_id])
+  Product  Products   @relation(fields: [product_id], references: [product_id])
+  Category Categories @relation(fields: [category_id], references: [category_id])
+
+  @@schema("finpro")
+}
+
+model UserAuthProviders {
+  auth_provider_id Int          @id @default(autoincrement())
+  user_id          Int
+  provider_name    AuthProvider
+  provider_user_id String
+  access_token     String?
+  refresh_token    String?
+  token_expiry     DateTime?
+  created_at       DateTime     @default(now())
+
+  User Users @relation(fields: [user_id], references: [user_id])
+
+  @@schema("finpro")
+}
+
+enum Role {
+  USER
+  STORE_ADMIN
+  SUPER_ADMIN
+
+  @@schema("finpro")
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  AWAITING_CONFIRMATION
+  PROCESSING
+  SENT
+  ORDER_CONFIRMED
+  CANCELLED
+
+  @@schema("finpro")
+}
+
+enum PaymentMethod {
+  MANUAL_TRANSFER
+  MIDTRANS
+
+  @@schema("finpro")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+
+  @@schema("finpro")
+}
+
+enum ChangeType {
+  INCREASE
+  DECREASE
+
+  @@schema("finpro")
+}
+
+enum ChangeCategory {
+  SOLD
+  STOCK_CHANGE
+  OTHERS
+
+  @@schema("finpro")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  NOMINAL
+  BOGO
+
+  @@schema("finpro")
+}
+
+enum VoucherType {
+  PERCENTAGE
+  NOMINAL
+
+  @@schema("finpro")
+}
+
+enum DiscountTypeEnum {
+  SHIPPING_DISCOUNT
+  PRODUCT_DISCOUNT
+  CART_DISCOUNT
+
+  @@schema("finpro")
+}
+
+enum AuthProvider {
+  GOOGLE
+  FACEBOOK
+
+  @@schema("finpro")
+}
