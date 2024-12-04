@@ -1,17 +1,17 @@
 import {Router} from "express"
-import {AdminAuthController} from "../controllers/admin.auth.controller"
+import {SuperAdminController} from "../controllers/super.admin.controller"
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 
 const router = Router()
-const adminAuthController = new AdminAuthController()
+const superAdminController = new SuperAdminController()
 const authenticateJwt = new AuthJwtMiddleware();
 
 
-router.post("/register", 
+router.get("/store-admin", 
     // authenticateJwt.authenticateJwt.bind(authenticateJwt),
     // authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
-    adminAuthController.register.bind(adminAuthController)
+    superAdminController.getAllStoreAdmins.bind(superAdminController)
 );
 
 export default router;
