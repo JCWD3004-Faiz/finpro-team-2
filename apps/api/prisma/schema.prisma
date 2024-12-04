@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["multischema"]
 }
 
@@ -28,6 +28,17 @@ model Users {
   UserVouchers      UserVouchers[]
   Address           Address[]
   Cart              Carts[]
+
+  @@schema("finpro")
+}
+
+model PendingRegistrations {
+  id                 Int      @id @default(autoincrement())
+  email              String   
+  username           String?  
+  verification_token String?
+  expires_at         DateTime
+  created_at         DateTime @default(now())
 
   @@schema("finpro")
 }
