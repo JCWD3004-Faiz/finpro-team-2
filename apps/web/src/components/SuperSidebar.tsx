@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from "js-cookie";
 import { FaChartLine, FaBars, FaTimes, FaStore, FaTh, FaUsers, FaShoppingBag, FaSignOutAlt } from 'react-icons/fa';
 
 interface SuperSidebarProps {
@@ -7,6 +8,12 @@ interface SuperSidebarProps {
 }
 
 function SuperSidebar ({ isSidebarOpen, toggleSidebar }: SuperSidebarProps) {
+
+  function logOut() {
+    Cookies.remove("access_token");
+    window.location.href = "/";
+  }
+
   return (
     <div className="flex">
       <div
@@ -67,17 +74,19 @@ function SuperSidebar ({ isSidebarOpen, toggleSidebar }: SuperSidebarProps) {
             >
               {isSidebarOpen ? <FaTimes /> : <FaBars />}
             </button>
-            <a href="/admin/settings" className="md:hidden hover:bg-gray-700 rounded ml-60 flex items-center">
+            <button onClick={logOut}
+            className="md:hidden hover:bg-gray-700 rounded ml-56 flex items-center">
               <FaSignOutAlt className="mr-3"/>
               Log Out
-            </a>
+            </button>
           </div>
 
           <div className="hidden md:flex space-x-6">
-            <a href="/admin/settings" className="hover:bg-gray-700 px-3 rounded flex items-center">
+            <button onClick={logOut}
+            className="hover:bg-gray-700 px-3 rounded flex items-center">
               <FaSignOutAlt className="mr-3"/>
               Log Out
-            </a>
+            </button>
           </div>
         </div>
 

@@ -4,9 +4,12 @@ import SuperSidebar from '@/components/SuperSidebar';
 import { StoreAdmin } from '@/utils/adminInterface';
 import axios from 'axios';
 import { CgSpinner } from 'react-icons/cg';
+import Cookies from 'js-cookie';
 
 function ManageAdmins() {
   const router = useRouter();
+  const access_token = Cookies.get("access_token");
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [storeAdmin, setStoreAdmin] = useState<StoreAdmin[]>([]);
@@ -15,9 +18,9 @@ function ManageAdmins() {
     setLoading(true);
     try {
       const response = await axios.get("/api/super-admin/store-admin", {
-        // headers: {
-        //   Authorization: `Bearer ${accessToken}`,
-        // },
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
       });
       setStoreAdmin(response.data.data);
     } catch (error) {
@@ -36,7 +39,7 @@ function ManageAdmins() {
   };
 
   return (
-    <div className="bg-slate-50 w-screen h-screen text-gray-800">
+    <div className="bg-slate-100 w-screen h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}/>
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64`}>
         <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">

@@ -46,7 +46,7 @@ function RegisterAdmin() {
   }
   
   return (
-    <div className="bg-slate-50 w-screen h-screen text-gray-800">
+    <div className="bg-slate-100 w-screen h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64`}>
       <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">

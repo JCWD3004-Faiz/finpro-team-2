@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from 'js-cookie';
 import { FaChartLine, FaBars, FaTimes, FaTh, FaSignOutAlt, FaBoxOpen, FaClipboardList } from 'react-icons/fa';
 import { BiSolidDiscount } from 'react-icons/bi';
 
@@ -8,6 +9,13 @@ interface StoreSidebarProps {
 }
 
 function StoreSidebar ({ isSidebarOpen, toggleSidebar }: StoreSidebarProps) {
+
+  function logOut() {
+    Cookies.remove("access_token");
+    Cookies.remove("storeId");
+    window.location.href = "/";
+  }
+
   return (
     <div className="flex">
       <div
@@ -27,7 +35,7 @@ function StoreSidebar ({ isSidebarOpen, toggleSidebar }: StoreSidebarProps) {
 
         <ul className="space-y-4 mt-8">
           <li>
-            <a href="/admin-store/" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
+            <a href="/admin-store/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
               <FaTh className="mr-3" />
               Dashboard
             </a>
@@ -68,17 +76,19 @@ function StoreSidebar ({ isSidebarOpen, toggleSidebar }: StoreSidebarProps) {
             >
               {isSidebarOpen ? <FaTimes /> : <FaBars />}
             </button>
-            <a href="/admin/settings" className="md:hidden hover:bg-gray-700 rounded ml-60 flex items-center">
+            <button onClick={logOut}
+            className="md:hidden hover:bg-gray-700 rounded ml-56 flex items-center">
               <FaSignOutAlt className="mr-3"/>
               Log Out
-            </a>
+            </button>
           </div>
 
           <div className="hidden md:flex space-x-6">
-            <a href="/admin/settings" className="hover:bg-gray-700 px-3 rounded flex items-center">
+            <button onClick={logOut}
+            className="hover:bg-gray-700 px-3 rounded flex items-center">
               <FaSignOutAlt className="mr-3"/>
               Log Out
-            </a>
+            </button>
           </div>
         </div>
 
