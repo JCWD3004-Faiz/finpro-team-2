@@ -6,8 +6,8 @@ import userAuthRouter from "./routers/user.auth.router";
 import environment from "dotenv";
 import cors from "cors";
 
-import adminAuthRouter from "./routers/admin.auth.router"
 import superAdminRouter from "./routers/super.admin.router"
+import storeAdminRouter from "./routers/store.admin.router"
 
 environment.config();
 
@@ -21,12 +21,12 @@ app.use(
   })
 );
 
-app.use("/api/admin-auth", adminAuthRouter);
 
 
 app.use("/api/auth", userAuthRouter);
 
 app.use("/api/super-admin", superAdminRouter);
+app.use("/api/store-admin", storeAdminRouter);
 
 
 app.listen(PORT, () => {

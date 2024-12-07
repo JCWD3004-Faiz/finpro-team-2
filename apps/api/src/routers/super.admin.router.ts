@@ -7,10 +7,15 @@ const router = Router()
 const superAdminController = new SuperAdminController()
 const authenticateJwt = new AuthJwtMiddleware();
 
+router.post("/register", 
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
+    superAdminController.registerAdmin.bind(superAdminController)
+);
 
 router.get("/store-admin", 
-    // authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    // authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
     superAdminController.getAllStoreAdmins.bind(superAdminController)
 );
 
