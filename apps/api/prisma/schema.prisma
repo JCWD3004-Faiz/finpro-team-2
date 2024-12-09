@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["multischema"]
 }
 
@@ -32,6 +32,20 @@ model Users {
   @@schema("finpro")
 }
 
+model PendingRegistrations {
+  id                 Int      @id @default(autoincrement())
+  email              String   @unique
+  username           String?  @unique
+  verification_token String?
+  attempts           Int
+  last_attempt       DateTime @default(now())
+  is_blocked         Boolean  @default(false)
+  expires_at         DateTime
+  created_at         DateTime @default(now())
+
+  @@schema("finpro")
+}
+
 model Stores {
   store_id       Int      @id @default(autoincrement())
   user_id        Int?     @unique
@@ -39,6 +53,7 @@ model Stores {
   latitude       Decimal  @db.Decimal(9, 6)
   longitude      Decimal  @db.Decimal(9, 6)
   store_location String
+  is_deleted     Boolean  @default(false)
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -54,6 +69,7 @@ model Stores {
 model Categories {
   category_id   Int      @id @default(autoincrement())
   category_name String   @unique
+  is_deleted    Boolean  @default(false)
   created_at    DateTime @default(now())
 
   products Products[]
@@ -71,6 +87,7 @@ model Products {
   price        Decimal  @db.Decimal(10, 2)
   availability Boolean  @default(true)
   image        String?
+  is_deleted   Boolean  @default(false)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
@@ -138,6 +155,7 @@ model Discounts {
   image           String?
   start_date      DateTime
   end_date        DateTime
+  is_deleted      Boolean      @default(false)
   created_at      DateTime     @default(now())
   updated_at      DateTime     @updatedAt
 
