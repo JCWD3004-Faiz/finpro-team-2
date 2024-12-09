@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <Provider store={store}>
       {!noNavbarPaths && <Navbar />}
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
-      <Footer />
+      {!noNavbarPaths && <Footer />}
     </Provider>
     </>
   );
