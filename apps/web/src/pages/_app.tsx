@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import store from "@/redux/store"; // Path to your Redux store
 import Navbar from "../components/navbar";
+import Footer from "../components/footer"
 import axios from "axios";
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
@@ -16,9 +17,12 @@ export default function App({ Component, pageProps }: AppProps) {
   const noNavbarPaths = router.pathname.startsWith("/admin");
 
   return (
+    <>
     <Provider store={store}>
       {!noNavbarPaths && <Navbar />}
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
+      <Footer />
     </Provider>
+    </>
   );
 }
