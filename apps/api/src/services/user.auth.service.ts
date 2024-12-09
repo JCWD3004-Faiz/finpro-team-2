@@ -126,9 +126,5 @@ export class UserAuthService {
   }
   
 }
-
-cron.schedule("*/1 * * * *", async () => {
-  console.log("Testing Cronnnasdflsakdjf");
-})
 initializeCron();
 

@@ -7,7 +7,6 @@ export async function initializeCron() {
   await prisma.$connect();
 
   cron.schedule("*/1 * * * *", async () => {
-    console.log("Running cron job to unblock users...");
 
     try {
       const blockedUsers = await prisma.pendingRegistrations.findMany({
@@ -17,7 +16,6 @@ export async function initializeCron() {
       });
 
       if (blockedUsers.length === 0) {
-        console.log("No blocked users found.");
         return;
       }
 
@@ -35,8 +33,6 @@ export async function initializeCron() {
               attempts: 0, // Reset attempts
             },
           });
-
-          console.log(`Unblocked user: ${user.email}`);
         }
       }
     } catch (error) {

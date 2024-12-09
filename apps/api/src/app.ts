@@ -1,5 +1,4 @@
 import express from "express";
-import featureRouter from "./routers/feature.router";
 import oauthRouter from "./routers/oauth.router";
 import userAuthRouter from "./routers/user.auth.router";
 
