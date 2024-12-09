@@ -2,7 +2,7 @@ import React from "react";
 
 const Navbar: React.FC = () => {
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white dark:bg-black shadow-lg z-50 h-[8vh]">
+    <nav className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 h-[8vh]">
       <div className="flex items-center h-full px-4 w-full">
         {/* Logo Section */}
         <div className="absolute left-4 flex items-center">
