@@ -42,5 +42,21 @@ export class SuperAdminController {
     }
   }
 
+  async assignStoreAdmin(req: Request, res: Response): Promise<void> {
+    try {
+      const { store_id, user_id } = req.body;
+      const result = await this.superAdminService.assignStoreAdmin(store_id, user_id);
+      res.status(200).send({
+        message: "Store Admin successfully assigned.",
+        data: result,
+        status: res.statusCode,
+      });
+    } catch (error:any) {
+      res.status(400).send({
+        message: `Failed to assign Store Admin. ${error.message}`,
+        status: res.statusCode,
+      });
+    }
+  }
 
 }

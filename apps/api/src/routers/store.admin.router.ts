@@ -15,12 +15,14 @@ router.get("/assigned-store/:user_id",
 
 router.get("/admin/:user_id", 
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt), 
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
     storeAdminController.getAdminById.bind(storeAdminController)
 );
 
 router.get("/store/:store_id", 
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
     authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt), 
     storeAdminController.getStoreById.bind(storeAdminController)
 );

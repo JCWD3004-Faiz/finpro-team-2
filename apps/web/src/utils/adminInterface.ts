@@ -5,6 +5,12 @@ export interface StoreAdmin {
     store_name: string;
 }
 
+export interface Register {
+    username: string;
+    email: string;
+    password_hash: string;
+}
+
 
 export interface User {
     user_id: number;

@@ -1,23 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import StoreSidebar from "@/components/StoreSidebar";
+import { useDispatch, useSelector } from 'react-redux';
 import { FaChartLine, FaBoxOpen, FaClipboardList } from 'react-icons/fa';
 import { BiSolidDiscount } from 'react-icons/bi';
 import { CgSpinner } from 'react-icons/cg';
-import axios from 'axios';
+import StoreSidebar from "@/components/StoreSidebar";
+import { AppDispatch, RootState } from "@/redux/store"; // Import RootState to use selector types
+import { fetchStoreByStoreId, resetState } from "@/redux/slices/storeAdminSlice";
 import Cookies from 'js-cookie';
 
 function StoreDashboard() {
-  const router = useRouter();
-  const access_token = Cookies.get("access_token");
   const storeId = Cookies.get("storeId");
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [storeName, setStoreName] = useState<string>("");
-  const [storeLocation, setStoreLocation] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Use Redux to select the state
+  const { storeName, storeLocation, loading, error, isSidebarOpen } = useSelector(
+    (state: RootState) => state.storeAdmin
+  );
+
+  // Fetch the store data when the component mounts
+  useEffect(() => {
+    if (storeId) {
+      dispatch(fetchStoreByStoreId(parseInt(storeId)));
+    }
+    return () => {
+      // Reset state when component unmounts (optional)
+      dispatch(resetState());
+    };
+  }, [dispatch, storeId]);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    dispatch({ type: 'storeAdmin/toggleSidebar' }); // Assuming you have a toggle action
   };
 
   const handleContainerClick = (url: string) => {
@@ -29,34 +43,16 @@ function StoreDashboard() {
     router.push(url);
   };
 
-  async function fetchStoreById() {
-    try {
-      const response = await axios.get(`/api/store-admin/store/${storeId}`, {
-        headers: {Authorization: `Bearer ${access_token}`},
-      });
-      if (response && response.data) {
-        setStoreName(response.data.data.store_name);
-        setStoreLocation(response.data.data.store_location);
-      }
-    } catch (err) {
-      console.error("Error fetching store data", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchStoreById();
-  }, []);
-
   return (
     <div className="bg-slate-100 w-screen h-full text-gray-800">
       <StoreSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6 relative`}>
         {loading ? (
-        <div className="flex flex-col items-center justify-center space-y-4 h-[82vh]">
-            <CgSpinner className="animate-spin text-6xl  text-teal-500"/>
-        </div>
+          <div className="flex flex-col items-center justify-center space-y-4 h-[82vh]">
+            <CgSpinner className="animate-spin text-6xl text-teal-500"/>
+          </div>
+        ) : error ? (
+          <div className="text-red-600 text-center">{error}</div> // Display error message if any
         ) : (
           <>
             <h1 className="text-4xl font-semibold text-gray-900">{storeName} Dashboard</h1>

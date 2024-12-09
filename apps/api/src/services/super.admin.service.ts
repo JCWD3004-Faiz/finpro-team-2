@@ -40,4 +40,30 @@ export class SuperAdminService {
       throw new Error("Unable to fetch store admins.");
     }
   }
+
+  async assignStoreAdmin(store_id: number, user_id: number) {
+    try {
+      const user = await this.prisma.users.findUnique({ where: { user_id } });
+      if (!user || user.role !== 'STORE_ADMIN') throw new Error("Only users with the 'STORE_ADMIN' role can be assigned to a store.");
+      const [currentStore, existingAdminStore] = await Promise.all([
+        this.prisma.stores.findUnique({ where: { store_id } }),
+        this.prisma.stores.findUnique({ where: { user_id } }),
+      ]);
+      if (existingAdminStore && existingAdminStore.store_id !== store_id) {
+        await this.prisma.stores.update({ where: { store_id: existingAdminStore.store_id }, data: { user_id: null } });
+      }
+      if (currentStore?.user_id) {
+        await this.prisma.users.update({ where: { user_id: currentStore.user_id }, data: { is_verified: false } });
+      }
+      await Promise.all([
+        this.prisma.stores.update({ where: { store_id }, data: { user_id } }),
+        this.prisma.users.update({ where: { user_id }, data: { is_verified: true } })
+      ]);
+      return { store: currentStore, user };
+    } catch (error) {
+      console.error("Error assigning store admin:", error);
+      throw new Error("Unable to assign store admin.");
+    }
+  }
+  
 }

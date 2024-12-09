@@ -1,10 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import environment from "dotenv";
 import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
 environment.config();
 
 export class AuthJwtMiddleware {
+
+    private prisma: PrismaClient;
+
+    constructor() {
+      this.prisma = new PrismaClient();
+    }
+
+
     authenticateJwt(req: Request, res: Response, next: NextFunction): void {
         const token = req.headers.authorization?.split(" ")[1] as string;
         if (!token) {
@@ -36,9 +45,9 @@ export class AuthJwtMiddleware {
 
     authorizeUserId(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction): void => {
-            const userId = (req as any).user.id;
-            const resourceId = req.params.userId || req.body.userId;
-            if (String(userId) !== String(resourceId)) {
+            const user_id = (req as any).user.id;
+            const resourceId = req.params.user_id || req.body.user_id;
+            if (String(user_id) !== String(resourceId)) {
                 res.status(403).send({
                     message: "Forbidden: You can only access your own resources",
                     status: res.statusCode,
@@ -48,4 +57,21 @@ export class AuthJwtMiddleware {
             next();
         };
     }
+
+    authorizeStoreAdmin(): (req: Request, res: Response, next: NextFunction) => void {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+            const storeId = parseInt(req.params.store_id || req.body.store_id); 
+            const user_id = (req as any).user.id;
+            const store = await this.prisma.stores.findUnique({ where: { store_id: storeId } });
+            if (!store || store.user_id !== user_id) {
+                res.status(403).send({
+                    message: "Forbidden: You can only access stores associated with your account",
+                    status: res.statusCode,
+                });
+                return
+            }
+            next();
+        };
+    }
+    
 }

@@ -1,50 +1,52 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useDispatch,useSelector  } from 'react-redux';
+import { useRouter } from 'next/router';
+import { registerStoreAdmin } from '@/redux/slices/superAdminSlice';
 import { registerAdminSchema } from '@/utils/registerAdminSchema';
 import SuperSidebar from '@/components/SuperSidebar';
-
-interface Register {
-  username: string;
-  email: string;
-  password_hash: string;
-}
+import { AppDispatch, RootState } from '@/redux/store';
+import { Register } from '@/utils/adminInterface';
 
 function RegisterAdmin() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
+  const [errors, setErrors] = useState<{ 
+    username?: string; 
+    email?: string; 
+    password_hash?: string
+  }>({});
+  
   const [credentials, setCredentials] = useState<Register>({
-    username: "",
-    email: "",
-    password_hash: "",
+    username: '',
+    email: '',
+    password_hash: '',
   });
 
-  const [errors, setErrors] = useState<{
-    username?: string;
-    email?: string;
-    password_hash?: string;
-    register_code?: string;
-  }>({});
+  const { isSidebarOpen } = useSelector(
+    (state: RootState) => state.superAdmin
+  );
+
+  const toggleSidebar = () => {
+    dispatch({ type: 'superAdmin/toggleSidebar' });
+  };
 
   async function submitRegister(e: any) {
     e.preventDefault(); setErrors({});
     try {
       registerAdminSchema.parse(credentials);
-      const response = await axios.post("/api/admin-auth/register", {...credentials, role: "STORE_ADMIN"});
-      if (response) {
-        alert("Register success"); window.location.href = "/admin-super/admins";
-      }
+      await dispatch(registerStoreAdmin(credentials)).unwrap();
+      alert('Register success');
+      router.push('/admin-super/admins');
     } catch (error: any) {
       const newErrors = error.errors?.reduce((acc: any, err: any) => {
-        acc[err.path[0]] = err.message; return acc }, {}) || {};
+        acc[err.path[0]] = err.message; return acc;
+      }, {}) || {};
       setErrors(newErrors);
-      if (!Object.keys(newErrors).length) alert("Failed to register");
+      if (!Object.keys(newErrors).length) alert('Failed to register');
     }
   }
-  
+
   return (
     <div className="bg-slate-100 w-screen h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />

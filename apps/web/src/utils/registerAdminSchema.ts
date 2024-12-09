@@ -5,5 +5,5 @@ export const registerAdminSchema = zod.object({
     email: zod.string().email("Invalid email address"),
     password_hash: zod
     .string()
-    .min(6, "Password must be at least 6 characters"),
+    .min(6, "Must be at least 6 characters"),
 });

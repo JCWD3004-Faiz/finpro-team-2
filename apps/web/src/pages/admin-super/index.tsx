@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useDispatch,useSelector  } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
 import { useRouter } from 'next/router';
 import { FaStore, FaShoppingBag, FaUsers, FaChartLine } from 'react-icons/fa';
 import SuperSidebar from '@/components/SuperSidebar';
 
 function SuperDashboard() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
+  const { isSidebarOpen } = useSelector(
+    (state: RootState) => state.superAdmin
+  );
+
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    dispatch({ type: 'superAdmin/toggleSidebar' });
   };
 
   const handleContainerClick = (url: string) => {

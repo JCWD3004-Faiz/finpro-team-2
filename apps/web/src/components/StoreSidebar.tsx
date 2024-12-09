@@ -12,7 +12,7 @@ function StoreSidebar ({ isSidebarOpen, toggleSidebar }: StoreSidebarProps) {
 
   function logOut() {
     Cookies.remove("access_token");
-    Cookies.remove("storeId");
+    Cookies.remove("storeId", { path: '/admin-store' })
     window.location.href = "/";
   }
 

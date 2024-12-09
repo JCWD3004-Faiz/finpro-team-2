@@ -1,66 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
-import useAuth from '@/hooks/useAuth';
-import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
 import { CgSpinner } from 'react-icons/cg';
+import { RootState, AppDispatch } from '@/redux/store';
+import { fetchStoreByUserId, fetchAdminById } from '@/redux/slices/storeAdminSlice';
+import Cookies from 'js-cookie';
+import useAuth from '@/hooks/useAuth';
 
 function StoreDashboardGate() {
   const user = useAuth();
-  const access_token = Cookies.get("access_token");
-  const [storeName, setStoreName] = useState<string>("");
-  const [adminName, setAdminName] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); 
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
-  async function fetchStoreByUserId() {
-    try {
-      const response = await axios.get(`/api/store-admin/assigned-store/${user?.id}`, {
-        headers: { Authorization: `Bearer ${access_token}`},
-      });
-      if (response && response.data) {
-        setStoreName(response.data.data.store_name);
-        Cookies.set('storeId', response.data.data.store_id, { expires: 7, path: '/admin-store' });
-      }
-    } catch (err: any) {
-      if (err.response.status === 404) {
-        setError('Store not found for your account.');
-      }
-    }
-  }
 
-  async function fetchAdminById() {
-    try {
-      const response = await axios.get(`/api/store-admin/admin/${user?.id}`, {
-        headers: {Authorization: `Bearer ${access_token}`},
-      });
-      if (response && response.data) {
-        setAdminName(response.data.data.username);
-      }
-    } catch (err: any) {
-      if (err.response) {
-        setError('An error occurred while fetching admin data.');
-      }
-    }
-  }
-
-  const handleLogout = () => {
-    Cookies.remove('access_token');
-    Cookies.remove('storeId');
-    router.push('/');
-  };
+  const { storeName, adminName, loading, error } = useSelector((state: RootState) => state.storeAdmin);
 
   useEffect(() => {
     if (user?.id) {
-      const fetchData = async () => {
-        await Promise.all([fetchStoreByUserId(), fetchAdminById()]);
-        setLoading(false);
-      };
-      fetchData();
+      dispatch(fetchStoreByUserId(user.id));
+      dispatch(fetchAdminById(user.id));
     }
-  }, [user]);
+  }, [user, dispatch]);
+
+  const handleLogout = () => {
+    Cookies.remove('access_token');
+    router.push('/');
+  };
+
 
   return (
     <div className="bg-slate-100 w-screen h-screen text-gray-800 flex items-center justify-center">
