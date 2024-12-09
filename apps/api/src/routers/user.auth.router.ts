@@ -16,5 +16,26 @@ router.post(
   "/pending-register",
   userAuthController.pendingRegister.bind(userAuthController)
 );
+router.post(
+  "/reset-password",
+  userAuthController.sendResetPassword.bind(userAuthController)
+);
+
+router.post(
+  "/reset-confirm",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  userAuthController.resetPassword.bind(userAuthController)
+)
+
+router.post(
+  "/verify-email",
+  userAuthController.sendVerificationEmail.bind(userAuthController)
+);
+
+router.post(
+  "/verify-confirm",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  userAuthController.emailVerification.bind(userAuthController)
+)
 
 export default router;

@@ -1,6 +1,6 @@
 import express from "express";
-
 import featureRouter from "./routers/feature.router";
+import oauthRouter from "./routers/oauth.router";
 import userAuthRouter from "./routers/user.auth.router";
 
 import environment from "dotenv";
@@ -9,6 +9,7 @@ import cors from "cors";
 import superAdminRouter from "./routers/super.admin.router"
 import storeAdminRouter from "./routers/store.admin.router"
 
+import passport from "passport";
 environment.config();
 
 const app = express();
@@ -23,7 +24,10 @@ app.use(
 
 
 
+app.use(passport.initialize());
+
 app.use("/api/auth", userAuthRouter);
+app.use("/auth", oauthRouter);
 
 app.use("/api/super-admin", superAdminRouter);
 app.use("/api/store-admin", storeAdminRouter);
