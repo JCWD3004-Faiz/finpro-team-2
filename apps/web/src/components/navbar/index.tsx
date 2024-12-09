@@ -1,6 +1,13 @@
 import React from "react";
+import { useRouter } from "next/router"; // Import useRouter for navigation
 
 const Navbar: React.FC = () => {
+  const router = useRouter(); // Initialize the router object
+
+  const handleLoginClick = () => {
+    router.push("/auth/login-page"); // Redirect to the login page
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white dark:bg-black shadow-lg z-50 h-[8vh]">
       <div className="flex items-center h-full px-4 w-full">
@@ -29,7 +36,10 @@ const Navbar: React.FC = () => {
           <span className="material-symbols-outlined text-black text-3xl">
             person
           </span>
-          <span className="material-symbols-outlined text-black text-3xl">
+          <span
+            className="material-symbols-outlined text-black text-3xl cursor-pointer"
+            onClick={handleLoginClick} // Attach the click handler
+          >
             login
           </span>
         </div>
@@ -39,6 +49,7 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
 
 
 
