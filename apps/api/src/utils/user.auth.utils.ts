@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
-import jwt, {JwtPayload} from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../config/config";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = config.JWT_SECRET as string;
 
 export function generateReferralCode(length: number = 6): string {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -20,31 +21,44 @@ export const validatePassword = async (
   return bcrypt.compare(inputPassword, String(hash));
 };
 
-export const generateVerifiationToken = (data: {username: string, email: string}) => {
-  return jwt.sign(
-    {email: data.email, username: data.username},
-    JWT_SECRET,
-    { expiresIn: "1h" }
-  );
-}
+export const generateResetPasswordToken = (data: {email: string}) => {
+  return jwt.sign({email: data.email}, JWT_SECRET, {
+    expiresIn: "1h",
+  });
+};
 
-export const generateAccessToken = (user: { user_id: number; role: string; is_verified: boolean }) => {
+export const generateVerifiationToken = (data: {
+  username: string;
+  email: string;
+}) => {
+  return jwt.sign({ email: data.email, username: data.username }, JWT_SECRET, {
+    expiresIn: "1h",
+  });
+};
+
+export const generateAccessToken = (user: {
+  user_id: number;
+  role: string;
+  is_verified: boolean;
+}) => {
   return jwt.sign(
-    { id: user.user_id, role: user.role, is_verified: user.is_verified},
+    { id: user.user_id, role: user.role, is_verified: user.is_verified },
     JWT_SECRET,
     { expiresIn: "1h" }
   );
 };
 
-export const generateTokens = (user: { user_id: number; role: string; is_verified: boolean }) => {
+export const generateTokens = (user: {user_id: number; role: string; is_verified: boolean;}) => {
   const accessToken = jwt.sign(
-    { id: user.user_id, role: user.role, is_verified:  user.is_verified},
+    { id: user.user_id, role: user.role, is_verified: user.is_verified },
     JWT_SECRET,
     { expiresIn: "1h" }
   );
-  const refreshToken = jwt.sign({ id: user.user_id }, JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  const refreshToken = jwt.sign(
+    { id: user.user_id, role: user.role, is_verified: user.is_verified },
+    JWT_SECRET,
+    { expiresIn: "7d", }
+  );
   return { accessToken, refreshToken };
 };
 
@@ -61,7 +75,22 @@ export function extractToken(authHeader?: string): string {
 
 export function verifyToken(token: string, secretKey: string): JwtPayload {
   const decoded = jwt.verify(token, secretKey);
-  if (typeof decoded !== "object" || !("email" in decoded) || !("username" in decoded)) {
+  if (
+    typeof decoded !== "object" ||
+    !("email" in decoded) ||
+    !("username" in decoded)
+  ) {
+    throw new Error("Invalid token payload");
+  }
+  return decoded as JwtPayload;
+}
+
+export function verifyTokenResetPassword(token: string, secretKey: string): JwtPayload {
+  const decoded = jwt.verify(token, secretKey);
+  if (
+    typeof decoded !== "object" ||
+    !("email" in decoded) 
+  ) {
     throw new Error("Invalid token payload");
   }
   return decoded as JwtPayload;
