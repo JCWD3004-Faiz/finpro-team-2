@@ -85,6 +85,19 @@ export function verifyToken(token: string, secretKey: string): JwtPayload {
   return decoded as JwtPayload;
 }
 
+export function verifyTokenUserId(token: string, secretKey: string): JwtPayload {
+  const decoded = jwt.verify(token, secretKey);
+  if (
+    typeof decoded !== "object" ||
+    !("id" in decoded) ||
+    !("role" in decoded) ||
+    !("is_verified" in decoded)
+  ) {
+    throw new Error("Invalid token payload");
+  }
+  return decoded as JwtPayload;
+}
+
 export function verifyTokenResetPassword(token: string, secretKey: string): JwtPayload {
   const decoded = jwt.verify(token, secretKey);
   if (

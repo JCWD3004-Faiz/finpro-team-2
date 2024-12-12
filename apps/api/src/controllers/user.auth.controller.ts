@@ -85,7 +85,7 @@ export class UserAuthController {
     try {
       const data: { username: string; email: string } = req.body;
       const responseData = await this.sendEmailService.sendVerifyEmail(data);
-      await EmailService.sendPasswordRegisterEmail(responseData.email);
+      await EmailService.sendVerificationEmail(responseData.email);
       res.status(201).send({
         message: "Successfully sent verification email",
         status: res.statusCode,
