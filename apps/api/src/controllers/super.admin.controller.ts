@@ -27,10 +27,10 @@ export class SuperAdminController {
   }
 
   async getAllStoreAdmins(req: Request, res: Response){
-    const event = await this.superAdminService.getAllStoreAdmins();
-    if (event) {
+    const data = await this.superAdminService.getAllStoreAdmins();
+    if (data) {
       res.status(200).send ({
-        data: event,
+        data: data,
         status: res.statusCode,
       });
     } else {
@@ -43,17 +43,16 @@ export class SuperAdminController {
   }
 
   async assignStoreAdmin(req: Request, res: Response): Promise<void> {
-    try {
-      const { store_id, user_id } = req.body;
-      const result = await this.superAdminService.assignStoreAdmin(store_id, user_id);
+    const { store_id, user_id } = req.body;
+    const data = await this.superAdminService.assignStoreAdmin(store_id, user_id);
+    if (data) {
       res.status(200).send({
         message: "Store Admin successfully assigned.",
-        data: result,
         status: res.statusCode,
       });
-    } catch (error:any) {
+    } else {
       res.status(400).send({
-        message: `Failed to assign Store Admin. ${error.message}`,
+        message: "Failed to assign Store Admin.",
         status: res.statusCode,
       });
     }

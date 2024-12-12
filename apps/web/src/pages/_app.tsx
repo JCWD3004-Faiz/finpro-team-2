@@ -13,7 +13,7 @@ axios.defaults.baseURL = "http://localhost:8000/";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const accessDenied = useCheckAccess(); // This will return the access status
+  const accessDenied = useCheckAccess();
   const noNavbarPaths = router.pathname.startsWith("/admin");
 
   return (
