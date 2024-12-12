@@ -23,6 +23,6 @@ router.post("/assign",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
     superAdminController.assignStoreAdmin.bind(superAdminController)
-  );
+);
 
 export default router;
