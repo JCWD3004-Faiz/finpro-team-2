@@ -1,7 +1,6 @@
 import express from "express";
 import oauthRouter from "./routers/oauth.router";
 import userAuthRouter from "./routers/user.auth.router";
-import userProfileRouter from "./routers/user.profile.router";
 
 import environment from "dotenv";
 import cors from "cors";
@@ -38,7 +37,6 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/super-admin", superAdminRouter);
 app.use("/api/store-admin", storeAdminRouter);
-app.use("/api/user-profile", userProfileRouter);
 
 
 app.listen(PORT, () => {

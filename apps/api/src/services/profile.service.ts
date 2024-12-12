@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import cloudinary from "../config/cloudinary";
 import axios from "axios";
 
 export class ProfileService {
@@ -76,5 +77,17 @@ export class ProfileService {
         } catch (error: any) {
             return { error: error.message || "An error occurred while changing the default address." };
         }
+    }
+
+    async updateUserProfilePic(data: { id: number; image: string }) {
+        const uploadResponse = await cloudinary.uploader.upload(data.image, {
+          folder: "userProfile",
+        });
+        return this.prisma.users.update({
+          where: { user_id: data.id },
+          data: {
+            image: uploadResponse.secure_url,
+          },
+        });
     }
 }
