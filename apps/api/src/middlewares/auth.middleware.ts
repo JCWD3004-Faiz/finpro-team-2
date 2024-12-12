@@ -73,5 +73,25 @@ export class AuthJwtMiddleware {
             next();
         };
     }
+
+    authorizeStoreAdminByInventory(): (req: Request, res: Response, next: NextFunction) => void {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> =>{
+            const inventoryId = parseInt(req.params.inventory_id, 10);
+            const userId = (req as any).user.id;
+            const inventory = await this.prisma.inventories.findUnique({
+                where: { inventory_id: inventoryId },
+                include: { Store: true }, 
+            });
+            if (!inventory || inventory.Store.user_id !== userId) {
+                res.status(403).send({
+                  message: "Forbidden: You can only access inventories associated with your account",
+                  status: res.statusCode,
+                });
+                return;
+            }
+        
+            next();
+        }
+    }
     
 }
