@@ -1,10 +1,10 @@
 // components/CategoryContainer.tsx
 import React from 'react';
-import ProductCard from '../product-card'; // Import the ProductCard component
+import ProductCard from '../product-card'; 
 
 interface CategoryContainerProps {
-  categoryName: string; // Name of the category to display
-  products: { // Array of products to display in this category
+  categoryName: string; 
+  products: { 
     productName: string;
     productDescription: string;
     productImage: string;
@@ -12,7 +12,6 @@ interface CategoryContainerProps {
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({ categoryName, products }) => {
-  // If no products are passed, render a fallback message
   if (!products || products.length === 0) {
     return (
       <div className="category-container w-full bg-white relative">

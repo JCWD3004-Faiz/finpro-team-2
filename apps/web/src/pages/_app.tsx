@@ -2,27 +2,40 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { Provider } from "react-redux";
-import store from "@/redux/store"; // Path to your Redux store
+import store from "@/redux/store";
 import Navbar from "../components/navbar";
-import Footer from "../components/footer"
+import Footer from "../components/footer";
 import axios from "axios";
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
+import LocationHeader from "../components/location-header"; // Import LocationHeader component
 
 axios.defaults.baseURL = "http://localhost:8000/";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const accessDenied = useCheckAccess();
-  const noNavbarPaths = router.pathname.startsWith("/admin");
+
+  const accessDenied = useCheckAccess(); 
+
+  const noNavbarPaths = ["/auth/login-page", "/auth/register", "/auth/login-and-register", "/admin"];
+  
+  const shouldHideLayout = noNavbarPaths.includes(router.pathname);
+  
+  // Define paths where you want to show the LocationHeader
+  const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
+  const shouldShowLocationHeader = showLocationHeaderPaths.includes(router.pathname);
 
   return (
-    <>
     <Provider store={store}>
-      {!noNavbarPaths && <Navbar />}
+      {/* Conditionally render LocationHeader */}
+      {shouldShowLocationHeader && <LocationHeader />}  {/* Conditionally render LocationHeader */}
+      
+      {!shouldHideLayout && <Navbar />} {/* Conditionally render Navbar */}
+      
+      {/* Conditionally render Component based on access or not */}
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
-      {!noNavbarPaths && <Footer />}
+      
+      {!shouldHideLayout && <Footer />} {/* Conditionally render Footer */}
     </Provider>
-    </>
   );
 }
