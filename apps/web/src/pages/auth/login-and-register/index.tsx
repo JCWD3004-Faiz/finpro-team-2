@@ -9,7 +9,7 @@ const Login: React.FC = () => {
     password: '',
   });
   const [isRegisterClicked, setIsRegisterClicked] = useState(false); // State to trigger register click
-  const [isLoginFaded, setIsLoginFaded] = useState(false); // State for fading effect
+  const [isContentShifted, setIsContentShifted] = useState(false); // State to shift content alignment
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,10 +52,10 @@ const Login: React.FC = () => {
     // Trigger the sliding effect
     setIsRegisterClicked(true);
 
-    // Use setTimeout to fade the LOGIN header after the transition
+    // Delay the shifting of content to align with the slide animation
     setTimeout(() => {
-      setIsLoginFaded(true);
-    }, 300); // Set the timeout slightly after the sliding effect starts
+      setIsContentShifted(true);
+    }, 500); // Matches the transition duration of the slide animation
   };
 
   return (
@@ -67,18 +67,18 @@ const Login: React.FC = () => {
       >
         {/* Header */}
         <h1
-  className={`text-5xl font-bold mb-6 transform transition-transform duration-500 opacity-transition ${
-    isRegisterClicked ? 'translate-x-positive' : ''
-  } ${isLoginFaded ? 'opacity-0' : 'opacity-100'}`}
->
-          LOGIN
+          className={`text-5xl font-bold mb-6 transition-all duration-500 ${
+            isContentShifted ? 'text-right' : 'text-left'
+          }`}
+        >
+          FRUGGER
         </h1>
 
         {/* Login Form */}
         <form
           onSubmit={handleSubmit}
-          className={`flex flex-col transform transition-transform duration-500 ${
-            isRegisterClicked ? 'translate-x-positive' : ''
+          className={`flex flex-col transition-all duration-500 ${
+            isContentShifted ? 'items-end' : 'items-start'
           }`}
         >
           <div className="mb-4 w-96">
@@ -135,3 +135,5 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+

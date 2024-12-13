@@ -1,3 +1,4 @@
+/* globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,3 +21,25 @@ body {
   font-family: 'Parkinsans', Arial, Helvetica, sans-serif; /* Use Parkinsans font */
 }
 
+/* Custom class for sliding the white box */
+.translate-x-negative {
+  transform: translateX(-100%);
+}
+
+.transition-transform {
+  transition: transform 0.5s ease;
+}
+
+.translate-x-positive {
+  transform: translateX(43%);
+}
+
+/* Smooth alignment transitions */
+.transition-all {
+  transition: all 0.5s ease;
+}
+
+/* Smooth opacity transitions */
+.opacity-transition {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}

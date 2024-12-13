@@ -8,6 +8,7 @@ import Footer from "../components/footer";
 import axios from "axios";
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
+import LocationHeader from "../components/location-header"; // Import LocationHeader component
 
 axios.defaults.baseURL = "http://localhost:8000/";
 
@@ -15,13 +16,19 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const accessDenied = useCheckAccess(); 
 
-  const noNavbarPaths = ["/auth/login-page", "/auth/register", "/admin"];
+  const noNavbarPaths = ["/auth/login-page", "/auth/register", "/auth/login-and-register", "/admin"];
   
-
   const shouldHideLayout = noNavbarPaths.includes(router.pathname);
+  
+  // Define paths where you want to show the LocationHeader
+  const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
+  const shouldShowLocationHeader = showLocationHeaderPaths.includes(router.pathname);
 
   return (
     <Provider store={store}>
+      {/* Conditionally render LocationHeader */}
+      {shouldShowLocationHeader && <LocationHeader />}  {/* Conditionally render LocationHeader */}
+      
       {!shouldHideLayout && <Navbar />} {/* Conditionally render Navbar */}
       
       {/* Conditionally render Component based on access or not */}
