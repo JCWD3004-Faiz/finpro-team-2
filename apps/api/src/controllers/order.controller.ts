@@ -20,12 +20,12 @@ export class OrderController {
           });
         } else {
           res.status(404).send({
-            message: "Event not found",
+            message: "Orders not found",
             status: res.statusCode,
             details: res.statusMessage,
           });
         }
-      }
+    }
       
       async getOrderById(req: Request, res: Response){
         const order_id = Number(req.params.order_id);

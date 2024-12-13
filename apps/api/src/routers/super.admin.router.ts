@@ -25,4 +25,34 @@ router.post("/assign",
     superAdminController.assignStoreAdmin.bind(superAdminController)
 );
 
+router.delete("/delete-admin/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    superAdminController.deleteStoreAdmin.bind(superAdminController)
+);
+
+router.post("/create-store",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    superAdminController.createStore.bind(superAdminController)
+);
+
+router.get("/stores",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
+    superAdminController.getAllStores.bind(superAdminController)
+);
+
+router.patch("/update-store/:store_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    superAdminController.updateStore.bind(superAdminController)
+);
+
+router.put("/delete-store/:store_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    superAdminController.deleteStore.bind(superAdminController)
+);
+
 export default router;
