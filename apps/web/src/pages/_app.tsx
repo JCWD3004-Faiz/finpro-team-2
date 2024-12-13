@@ -16,10 +16,9 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   const accessDenied = useCheckAccess(); 
-
-  const noNavbarPaths = ["/auth/login-page", "/auth/register", "/auth/login-and-register", "/admin"];
   
-  const shouldHideLayout = noNavbarPaths.includes(router.pathname);
+  const hideNavAdmin = router.pathname.startsWith("/admin");
+  const hideNavAuth = router.pathname.startsWith("/auth")
   
   // Define paths where you want to show the LocationHeader
   const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
@@ -30,12 +29,12 @@ export default function App({ Component, pageProps }: AppProps) {
       {/* Conditionally render LocationHeader */}
       {shouldShowLocationHeader && <LocationHeader />}  {/* Conditionally render LocationHeader */}
       
-      {!shouldHideLayout && <Navbar />} {/* Conditionally render Navbar */}
+      {!hideNavAdmin && !hideNavAuth && <Navbar />} {/* Conditionally render Navbar */}
       
       {/* Conditionally render Component based on access or not */}
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
       
-      {!shouldHideLayout && <Footer />} {/* Conditionally render Footer */}
+      {!hideNavAdmin && !hideNavAuth && <Footer />} {/* Conditionally render Footer */}
     </Provider>
   );
 }
