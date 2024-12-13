@@ -1,4 +1,4 @@
-import {sendEmailPasswordReset, sendEmailRegistration} from "../config/nodemailer"
+import {sendEmailPasswordReset, sendEmailRegistration, sendEmailVerification} from "../config/nodemailer"
 
 
 class EmailService {
@@ -8,6 +8,10 @@ class EmailService {
 
   static async sendPasswordResetEmail(email: string): Promise<void> {
     await sendEmailPasswordReset(email);
+  }
+
+  static async sendVerificationEmail(email: string): Promise<void> {
+    await sendEmailVerification(email);
   }
 }
 

@@ -28,6 +28,7 @@ model Users {
   UserVouchers      UserVouchers[]
   Address           Address[]
   Cart              Carts[]
+  Orders    Orders[]
 
   @@schema("finpro")
 }
@@ -53,6 +54,7 @@ model Stores {
   latitude       Decimal  @db.Decimal(9, 6)
   longitude      Decimal  @db.Decimal(9, 6)
   store_location String
+  city_id        Int
   is_deleted     Boolean  @default(false)
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
@@ -202,6 +204,8 @@ model Address {
   latitude   Decimal  @db.Decimal(9, 6)
   longitude  Decimal  @db.Decimal(9, 6)
   address    String
+  city_id    Int
+  city_name  String
   is_default Boolean  @default(false)
   created_at DateTime @default(now())
   update_at  DateTime @updatedAt
@@ -243,18 +247,20 @@ model CartItems {
 }
 
 model Orders {
-  order_id        Int         @id @default(autoincrement())
-  cart_id         Int         @unique
+  order_id        Int             @id @default(autoincrement())
+  cart_id         Int             @unique
+  user_id         Int
   store_id        Int
   address_id      Int
-  cart_price      Decimal     @db.Decimal(10, 2)
-  order_status    OrderStatus @default(PENDING_PAYMENT)
-  shipping_method String
-  shipping_price  Decimal     @db.Decimal(10, 2)
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
+  cart_price      Decimal         @db.Decimal(10, 2)
+  order_status    OrderStatus     @default(PENDING_PAYMENT)
+  shipping_method ShippingMethod  @default(jne)
+  shipping_price  Decimal         @db.Decimal(10, 2)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
 
   Cart     Carts     @relation(fields: [cart_id], references: [cart_id])
+  User      Users    @relation(fields: [user_id], references: [user_id])
   Store    Stores    @relation(fields: [store_id], references: [store_id])
   Address  Address   @relation(fields: [address_id], references: [address_id])
   Payments Payments?
@@ -325,6 +331,14 @@ enum OrderStatus {
   SENT
   ORDER_CONFIRMED
   CANCELLED
+
+  @@schema("finpro")
+}
+
+enum ShippingMethod {
+  jne
+  pos
+  tiki
 
   @@schema("finpro")
 }

@@ -7,7 +7,6 @@ const Footer: React.FC = () => {
                 <p className="font-bold text-4xl ml-4">Hop hop goes the FRUGGER.</p>
             </div>
         </footer>
-
     );
 };
 

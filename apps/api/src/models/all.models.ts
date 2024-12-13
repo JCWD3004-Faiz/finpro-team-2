@@ -180,7 +180,7 @@ export interface Order {
     address_id: number;
     cart_price: number;
     order_status: OrderStatus;
-    shipping_method: string;
+    shipping_method: ShippingMethod;
     shipping_price: number;
     created_at: Date;
     updated_at: Date;
@@ -193,6 +193,12 @@ export enum OrderStatus {
     SENT = 'SENT',
     ORDER_CONFIRMED = 'ORDER_CONFIRMED',
     CANCELLED = 'CANCELLED',
+}
+
+export enum ShippingMethod {
+    jne = 'jne',
+    tiki = 'tiki',
+    pos = 'pos',
 }
   
 export interface Payment {

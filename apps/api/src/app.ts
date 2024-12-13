@@ -5,8 +5,12 @@ import userAuthRouter from "./routers/user.auth.router";
 import environment from "dotenv";
 import cors from "cors";
 
+import profileRouter from "./routers/profile.router";
+import cartRouter from "./routers/cart.router";
+import orderRouter from "./routers/order.router";
 import superAdminRouter from "./routers/super.admin.router"
 import storeAdminRouter from "./routers/store.admin.router"
+import inventoryRouter from "./routers/inventory.router"
 
 import passport from "passport";
 environment.config();
@@ -27,7 +31,10 @@ app.use(passport.initialize());
 
 app.use("/api/auth", userAuthRouter);
 app.use("/auth", oauthRouter);
-
+app.use("/api/inventory", inventoryRouter);
+app.use("/api/profile", profileRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 app.use("/api/super-admin", superAdminRouter);
 app.use("/api/store-admin", storeAdminRouter);
 
