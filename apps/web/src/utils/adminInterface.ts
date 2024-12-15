@@ -40,6 +40,8 @@ export interface Store {
     latitude: number;
     longitude: number;
     store_location: string;
+    city_id: number
+    store_admin?: string;
     created_at: Date;
     updated_at: Date;
 }

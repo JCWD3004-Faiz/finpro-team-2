@@ -87,10 +87,11 @@ export class SuperAdminService {
     );
     const { lat, lng } = data.results[0]?.geometry || {};
     if (!lat || !lng) return {error: "No geocoding results found."};
-      const store = await this.prisma.stores.create({
+      const baseStore = await this.prisma.stores.create({
         data: { store_name, store_location, city_id, latitude:lat, longitude:lng },
       });
-      return store;
+      const storeInventories = await this.createStoreInventories(baseStore.store_id)
+      return {message: "Store created successfully", store: {...baseStore, storeInventories} }
     } catch (error) {
       console.error("Error creating store:", error);
       throw new Error("Unable to create store.");
@@ -98,9 +99,19 @@ export class SuperAdminService {
   }
 
   async getAllStores() {
-    return this.prisma.stores.findMany({
-      where: { is_deleted: false },
-    });
+    try {
+      const allStores = await this.prisma.stores.findMany({
+        where: { is_deleted: false },
+        include: { User: { select: { username: true } } },
+      });
+      return allStores.map(store => ({
+        store_id: store.store_id, store_name: store.store_name, store_location: store.store_location,
+        store_admin: store.User ? store.User.username : "Unassigned", created_at: store.created_at
+      }));
+    } catch (error) {
+      console.error("Error fetching stores: ", error);
+      throw new Error("Unable to fetch stores.");
+    }
   }
 
   async updateStore(store_id: number, store_name: string, store_location: string, city_id: number) {
@@ -141,6 +152,24 @@ export class SuperAdminService {
     } catch (error) {
       console.error("Error deleting store:", error);
       throw new Error("Unable to delete store.");
+    }
+  }
+
+  async createStoreInventories(store_id: number) {
+    try {
+      const products = await this.prisma.products.findMany({
+        where: { is_deleted: false },
+      });
+      if (products.length === 0) return { error: "No available products to add to inventory." };  
+      const inventoryEntries = products.map(product => ({
+        store_id, product_id: product.product_id,
+        stock: 0, discounted_price: product.price,
+      }));
+      const createdInventories = await this.prisma.inventories.createMany({data: inventoryEntries});
+      return createdInventories;
+    } catch (error) {
+      console.error("Error creating store inventories:", error);
+      throw new Error("Unable to create store inventories.");
     }
   }
   

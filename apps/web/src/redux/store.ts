@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import storeAdminReducer from './slices/storeAdminSlice';
 import superAdminReducer from './slices/superAdminSlice';
+import globalReducer from './slices/globalSlice';
 
 const store = configureStore({
   reducer: {
     superAdmin: superAdminReducer,
     storeAdmin: storeAdminReducer,
+    global: globalReducer,
   },
 });
 

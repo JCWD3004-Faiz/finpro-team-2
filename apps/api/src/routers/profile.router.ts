@@ -36,4 +36,8 @@ router.post(
     profileController.updateUserProfilePic.bind(profileController)
 );
 
+router.get("/cities",
+    profileController.getRajaOngkirCities.bind(profileController)
+);
+
 export default router;

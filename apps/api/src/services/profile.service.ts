@@ -70,4 +70,17 @@ export class ProfileService {
           },
         });
     }
+
+    async getRajaOngkirCities(){
+        try {
+            const response = await axios.get('https://api.rajaongkir.com/starter/city/', {
+              headers: {key: 'b1f603cff73c782c3462bd7a05936e46'},
+            });
+            const cities = response.data.rajaongkir.results.map((city: any) => ({
+            city_id: city.city_id, city_name: city.city_name}));
+            return cities;
+        } catch (error) {
+            return { error: 'Error fetching city data' };
+        }
+    }
 }

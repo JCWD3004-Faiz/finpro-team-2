@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { CgSpinner } from 'react-icons/cg';
+import { MdDelete } from 'react-icons/md';
 import { fetchStoreAdmins } from '@/redux/slices/superAdminSlice'; // Import the thunk
 import { AppDispatch, RootState } from '@/redux/store';
 import SuperSidebar from '@/components/SuperSidebar';
@@ -15,7 +16,6 @@ function ManageAdmins() {
     (state: RootState) => state.superAdmin
   );
 
-  // Fetch all store admins when the component mounts
   useEffect(() => {
     dispatch(fetchStoreAdmins());
   }, [dispatch]);
@@ -62,8 +62,8 @@ function ManageAdmins() {
                       <td className="py-3 px-1 text-center border-b-2 border-zinc-50">{admin.email}</td>
                       <td className="py-3 px-1 text-center border-b-2 border-zinc-50">{admin.store_name}</td>
                       <td className="py-3 px-2 text-center whitespace-nowrap border-b-2 border-zinc-50">
-                        <button className="mx-2 py-2 px-4 border-2 bg-white border-rose-600 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform">
-                          Delete
+                      <button className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform">
+                          <MdDelete className="text-2xl"/>
                         </button>
                       </td>
                     </tr>
