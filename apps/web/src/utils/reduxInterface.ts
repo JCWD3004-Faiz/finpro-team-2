@@ -12,7 +12,9 @@ export interface SuperAdminState {
       locationName: string;
       cityId: number;
     };
+    editAdminData: {storeName: string; storeId: number}
     locationSuggestions: { city_name: string; city_id: number }[];
+    storeSuggestions: {store_name: string; store_id: number}[];
     suggestionsPosition: { top: number; left: number };
 }
 

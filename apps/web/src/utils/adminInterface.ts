@@ -3,6 +3,7 @@ export interface StoreAdmin {
     username: string;
     email: string;
     store_name: string;
+    created_at: Date;
 }
 
 export interface Register {
@@ -25,6 +26,8 @@ export interface User {
     image?: string;
     created_at?: Date;
     updated_at?: Date;
+    store_name?: string;
+    store_id?: number
 }
 
 export enum Role {

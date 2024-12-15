@@ -34,6 +34,7 @@ function RegisterAdmin() {
   async function submitRegister(e: any) {
     e.preventDefault(); setErrors({});
     try {
+      console.log("cred",credentials)
       registerAdminSchema.parse(credentials);
       await dispatch(registerStoreAdmin(credentials)).unwrap();
       alert('Register success');

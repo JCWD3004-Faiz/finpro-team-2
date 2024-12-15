@@ -41,12 +41,8 @@ function ManageStores() {
     if (editId === store.store_id) {
       if (isValidLocation(editStoreData.locationName)) {
         const updatedCityId = editStoreData.cityId !== 0 ? editStoreData.cityId : store.city_id;
-        const updatePayload: any = {
-          store_id: store.store_id,
-          store_name: editStoreData.storeName,
-          store_location: editStoreData.locationName,
-          city_id: updatedCityId,
-        };
+        const updatePayload: any = { store_id: store.store_id, store_name: editStoreData.storeName, 
+          store_location: editStoreData.locationName, city_id: updatedCityId};
         dispatch(updateStore(updatePayload));
         dispatch(resetEditState());
       } else {
@@ -54,10 +50,7 @@ function ManageStores() {
       }
     } else {
       dispatch(setEditId(store.store_id));
-      dispatch(setEditStoreData({
-        storeName: store.store_name,
-        locationName: store.store_location,
-        cityId: store.city_id,
+      dispatch(setEditStoreData({ storeName: store.store_name, locationName: store.store_location, cityId: store.city_id,
       }));
     }
   };
@@ -115,45 +108,37 @@ function ManageStores() {
                     <th className="py-3 px-12 text-center">Store Name</th>
                     <th className="py-3 px-12 text-center">Location</th>
                     <th className="py-3 px-10 text-center">Assigned Admin</th>
+                    <th className="py-3 px-10 text-center">Created Date</th>
                     <th className="py-3 px-6 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allStores.map((store: Store) => (
                     <tr key={store.store_id} onClick={() => handleRowClick(`/admin-super/inventory/${store.store_id}`)}
-                      className="text-gray-700 bg-white hover:bg-indigo-50 hover:cursor-pointer transition-color transform"
-                    >
+                      className="text-gray-700 bg-white hover:bg-indigo-50 hover:cursor-pointer transition-color transform">
                       <td className="py-3 px-1 text-center">
                         {editId === store.store_id ? (
-                          <input type="text" value={editStoreData.storeName}
-                            onChange={(e) => handleChange(e, 'storeName')}
-                            className="text-center border-b-2 border-indigo-600 focus:outline-none"
-                          />
-                        ) : ( store.store_name )
-                        }
+                          <input type="text" value={editStoreData.storeName} onChange={(e) => handleChange(e, 'storeName')}
+                            className="text-center border-b-2 border-indigo-600 focus:outline-none"/>
+                        ) : ( store.store_name )}
                       </td>
                       <td className="py-3 px-1 text-center">
                         {editId === store.store_id ? (
                           <div className="relative">
-                            <input type="text" value={editStoreData.locationName}
-                              onChange={(e) => handleChange(e, 'locationName')}
-                              className="text-center border-b-2 border-indigo-600 focus:outline-none"
-                            />
-                          </div>
-                        ) : ( store.store_location )
-                        }
+                            <input type="text" value={editStoreData.locationName} onChange={(e) => handleChange(e, 'locationName')}
+                              className="text-center border-b-2 border-indigo-600 focus:outline-none"/>
+                          </div> 
+                        ) : ( store.store_location )}
                       </td>
                       <td className="py-3 px-1 text-center">{store.store_admin}</td>
+                      <td className="py-3 px-1 text-center">{new Date(store.created_at).toLocaleDateString()}</td>
                       <td className="py-3 px-2 text-center whitespace-nowrap">
                         <button onClick={(e) => { e.stopPropagation(); handleEditClick(store)}}
-                          className="mx-2 py-2 px-2 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform"
-                        >
-                          {editId === store.store_id ? 
-                          ( <MdSaveAs className="text-2xl" /> ) : ( <MdEditSquare className="text-2xl" /> )}
+                          className="mx-2 py-2 px-2 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
+                          {editId === store.store_id ? ( <MdSaveAs className="text-2xl" /> ) : ( <MdEditSquare className="text-2xl" /> )}
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); handleDeleteStore(store.store_id)}}
-                          className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform"
-                        >
+                        className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform">
                           <MdDelete className="text-2xl" />
                         </button>
                       </td>
@@ -164,9 +149,7 @@ function ManageStores() {
                   <div className="absolute z-50 bg-white border border-gray-300 shadow-md rounded-lg max-h-40 overflow-auto"
                   style={{ top: `${suggestionsPosition.top}px`, left: `${suggestionsPosition.left}px`, width: '200px',}}>
                     {locationSuggestions.map((suggestion, index) => (
-                      <div key={index} onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
-                      >
+                      <div key={index} onClick={() => handleSuggestionClick(suggestion)} className="px-4 py-2 hover:bg-indigo-100 cursor-pointer">
                         {suggestion.city_name}
                       </div>
                     ))}

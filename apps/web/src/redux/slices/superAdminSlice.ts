@@ -11,7 +11,9 @@ const initialState: SuperAdminState = {
   allStores: [],
   editId: null,
   editStoreData: { storeName: '', locationName: '', cityId: 0 },
+  editAdminData: {storeName: '', storeId: 0},
   locationSuggestions: [],
+  storeSuggestions: [],
   suggestionsPosition: { top: 0, left: 0 },
 };
 
@@ -32,7 +34,9 @@ export const registerStoreAdmin = createAsyncThunk(
   'superAdmin/registerStoreAdmin',
   async (credentials: { username: string; email: string; password_hash: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/super-admin/register', { ...credentials, role: 'STORE_ADMIN' });
+      const response = await axios.post('/api/super-admin/register', { ...credentials, role: 'STORE_ADMIN' }, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue('Error registering admin');
@@ -74,6 +78,30 @@ export const updateStore = createAsyncThunk(
   }
 );
 
+export const assignStoreAdmin = createAsyncThunk(
+  'superAdmin/assignAdmin',
+  async ({ store_id, user_id }: { store_id:number; user_id: number}, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`/api/super-admin/assign`, { user_id, store_id }, { 
+        headers: { Authorization: `Bearer ${access_token}` } });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error assigning admin');
+    }
+  }
+)
+
+export const deleteStoreAdmin = createAsyncThunk('superAdmin/deleteStoreAdmin', async (user_id:number, { rejectWithValue }) => {
+    try {
+      await axios.delete(`/api/super-admin/delete-admin/${user_id}`, { headers: { Authorization: `Bearer ${access_token}` } });
+      return user_id;
+    } catch (error) {
+      return rejectWithValue('Error deleting admin');
+    }
+  }
+)
+
+
 const asyncActionHandler = (state: SuperAdminState, action: any, successCallback?: (state: SuperAdminState, action: any) => void) => {
   state.loading = action.type.endsWith('pending');
   if (action.type.endsWith('rejected')) {
@@ -89,8 +117,10 @@ const superAdminSlice = createSlice({
   reducers: {
     toggleSidebar: (state) => { state.isSidebarOpen = !state.isSidebarOpen; },
     setEditId: (state, action) => { state.editId = action.payload; },
-    setEditStoreData: (state, action) => { state.editStoreData = action.payload; },
+    setEditStoreData: (state, action) => { state.editStoreData = action.payload },
+    setEditAdminData: (state, action) => { state.editAdminData = action.payload },
     setLocationSuggestions: (state, action) => { state.locationSuggestions = action.payload; },
+    setStoreSuggestions: (state, action) => { state.storeSuggestions = action.payload },
     setSuggestionsPosition: (state, action) => { state.suggestionsPosition = action.payload; },
     resetEditState: (state) => { state.editId = null; state.locationSuggestions = []; },
   },
@@ -114,7 +144,7 @@ const superAdminSlice = createSlice({
 
       .addCase(deleteStore.pending, (state) => asyncActionHandler(state, { type: 'deleteStore/pending' }))
       .addCase(deleteStore.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
-        state.allStores = state.allStores.filter(store => store.user_id !== action.payload);
+        state.allStores = state.allStores.filter(store => store.store_id !== action.payload);
       }))
       .addCase(deleteStore.rejected, (state, action) => asyncActionHandler(state, action))
 
@@ -125,9 +155,25 @@ const superAdminSlice = createSlice({
           store.store_id === updatedStore.store_id ? updatedStore : store
         );
       }))
-      .addCase(updateStore.rejected, (state, action) => asyncActionHandler(state, action));
+      .addCase(updateStore.rejected, (state, action) => asyncActionHandler(state, action))
+
+      .addCase(assignStoreAdmin.pending, (state) => asyncActionHandler(state, { type: 'assignAdmin/pending' }))
+      .addCase(assignStoreAdmin.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
+        const assignedAdmin = action.payload;
+        state.storeAdmins = state.storeAdmins.map(admin =>
+          admin.user_id === assignedAdmin.user_id ? assignedAdmin : admin
+        );
+      }))
+      .addCase(assignStoreAdmin.rejected, (state, action) => asyncActionHandler(state, action))
+
+      .addCase(deleteStoreAdmin.pending, (state) => asyncActionHandler(state, { type: 'deleteStoreAdmin/pending' }))
+      .addCase(deleteStoreAdmin.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
+        const userIdToDelete = action.payload;
+        state.storeAdmins = state.storeAdmins.filter(admin => admin.user_id !== userIdToDelete);
+      }))
+      .addCase(deleteStoreAdmin.rejected, (state, action) => asyncActionHandler(state, action));
   },
 });
 
-export const { toggleSidebar, setEditId, setEditStoreData, setLocationSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
+export const { toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
 export default superAdminSlice.reducer;

@@ -30,11 +30,12 @@ export class SuperAdminService {
     try {
       const storeAdmins = await this.prisma.users.findMany({
         where: { role: 'STORE_ADMIN' },
-        include: { Store: { select: { store_name: true } } },
+        include: { Store: { select: { store_id:true, store_name: true } } },
       });
       return storeAdmins.map(admin => ({
         user_id: admin.user_id, username: admin.username, email: admin.email,
-        store_name: admin.Store ? admin.Store.store_name : "Unassigned",
+        store_id: admin.Store ? admin.Store.store_id : null,
+        store_name: admin.Store ? admin.Store.store_name : "Unassigned", created_at: admin.created_at,
       }));
     } catch (error) {
       console.error("Error fetching store admins: ", error);
