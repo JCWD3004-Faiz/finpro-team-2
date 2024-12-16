@@ -156,12 +156,23 @@ export class InventoryService {
     page: number = 1,
     pageSize: number = 10,
     sortField: "stock" | "product_name" = "stock",
-    sortOrder: "asc" | "desc" = "asc"
+    sortOrder: "asc" | "desc" = "asc",
+    search: string = ""
   ) {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
+
+    const whereCondition: any = {
+      store_id,
+      Product: {
+        product_name: {
+          contains: search, 
+          mode: "insensitive", 
+        },
+      },
+    };
     const inventories = await this.prisma.inventories.findMany({
-      where: { store_id },
+      where: search ? whereCondition : { store_id },
       skip,
       take,
       orderBy:
@@ -178,6 +189,11 @@ export class InventoryService {
         Product: {
           select: {
             product_name: true,
+            Category: {
+              select: {
+                category_name: true,
+              }
+            }
           },
         },
       },

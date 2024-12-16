@@ -53,13 +53,15 @@ export class InventoryController {
       const pageSize = parseInt(req.query.pageSize as string) || 10;
       const sortField = (req.query.sortField as string) || "stock";
       const sortOrder = (req.query.sortOrder as string) || "asc";
+      const search = (req.query.search as string) || "";
 
       const inventories = await this.inventoryService.getInventoriesByStoreId(
         storeId,
         page,
         pageSize,
         sortField as "stock" | "product_name",
-        sortOrder as "asc" | "desc"
+        sortOrder as "asc" | "desc",
+        search,
       );
       res.status(201).send({
         message: "Get inventories successfull",
