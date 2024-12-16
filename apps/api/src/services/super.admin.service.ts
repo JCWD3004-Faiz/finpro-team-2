@@ -35,7 +35,7 @@ export class SuperAdminService {
       return storeAdmins.map(admin => ({
         user_id: admin.user_id, username: admin.username, email: admin.email,
         store_id: admin.Store ? admin.Store.store_id : null,
-        store_name: admin.Store ? admin.Store.store_name : "Unassigned", created_at: admin.created_at,
+        store_name: admin.Store ? admin.Store.store_name : "-", created_at: admin.created_at,
       }));
     } catch (error) {
       console.error("Error fetching store admins: ", error);
@@ -112,16 +112,51 @@ export class SuperAdminService {
     }
   }
 
-  async getAllStores() {
+  async getAllStores(
+    page: number = 1,
+    pageSize: number = 10,
+    sortField: "admin" | "created_at" = "admin",
+    sortOrder: "asc" | "desc" = "asc",
+    search:string = "", 
+  ) {
     try {
+      const whereCondition: any = {
+        store_name: {
+          contains: search,
+          mode: "insensitive",
+        }
+      }
+      const skip = (page - 1) * pageSize;
+      const take = pageSize;      
+      let orderBy: any = {};
+      if (sortField === "created_at") {
+        orderBy = { created_at: sortOrder };
+      } else if (sortField === "admin") {
+        orderBy = { User: { username: sortOrder } };
+      }  
       const allStores = await this.prisma.stores.findMany({
-        where: { is_deleted: false },
+        where: search ? whereCondition : { is_deleted: false },
+        skip,
+        take,
+        orderBy: orderBy,
         include: { User: { select: { username: true } } },
       });
-      return allStores.map(store => ({
-        store_id: store.store_id, store_name: store.store_name, store_location: store.store_location,
-        store_admin: store.User ? store.User.username : "Unassigned", created_at: store.created_at
+      const mappedStores = allStores.map(store => ({
+        store_id: store.store_id,
+        store_name: store.store_name,
+        store_location: store.store_location,
+        store_admin: store.User ? store.User.username : "-",
+        created_at: store.created_at,
       }));
+      const totalItems = await this.prisma.stores.count({
+        where: { is_deleted: false },
+      });
+      return {
+        data: mappedStores,
+        currentPage: page,
+        totalPages: Math.ceil(totalItems / pageSize),
+        totalItems,
+      };
     } catch (error) {
       console.error("Error fetching stores: ", error);
       throw new Error("Unable to fetch stores.");
@@ -186,5 +221,4 @@ export class SuperAdminService {
       throw new Error("Unable to create store inventories.");
     }
   }
-  
 }

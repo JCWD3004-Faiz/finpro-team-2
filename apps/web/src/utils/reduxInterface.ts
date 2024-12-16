@@ -5,7 +5,6 @@ export interface SuperAdminState {
     loading: boolean;
     error: string | null;
     isSidebarOpen: boolean;
-    allStores: Store[];
     editId: number | null;
     editStoreData: {
       storeName: string;
@@ -16,6 +15,18 @@ export interface SuperAdminState {
     locationSuggestions: { city_name: string; city_id: number }[];
     storeSuggestions: {store_name: string; store_id: number, store_admin:string}[];
     suggestionsPosition: { top: number; left: number; width:number };
+    allStores: Store[];
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    searchQuery: string;
+    sortField: string;
+}
+
+export interface FetchAllStoresParams {
+  page: number;
+  sortField: string;
+  sortOrder: string;
 }
 
 export interface StoreAdminState {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
@@ -8,19 +8,53 @@ import { MdDelete, MdEditSquare, MdSaveAs } from 'react-icons/md';
 import { Store } from '@/utils/adminInterface';
 import { fetchAllStores, deleteStore, updateStore } from '@/redux/slices/superAdminSlice';
 import { fetchCities } from '@/redux/slices/globalSlice';
-import { setEditId, setEditStoreData, setLocationSuggestions, setSuggestionsPosition, resetEditState } from '@/redux/slices/superAdminSlice';
+import Pagination from '@/components/pagination';
+import { setSortField, setEditId, setEditStoreData, setLocationSuggestions, setSuggestionsPosition, resetEditState } from '@/redux/slices/superAdminSlice';
+import { setSortOrder, setCurrentPage } from '@/redux/slices/manageInventorySlice';
+import { FaSort } from 'react-icons/fa';
 
 function ManageStores() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
+  const { sortField, isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
+  const {
+    sortOrder,
+    currentPage,
+    totalPages,
+  } = useSelector((state: RootState) => state.manageInventory);
   const { cities } = useSelector((state: RootState) => state.global);
   const tableRef = useRef<HTMLTableElement | null>(null);
 
+
+
   useEffect(() => {
-    dispatch(fetchAllStores());
+    dispatch(fetchAllStores({ page: currentPage, sortField, sortOrder}));
     dispatch(fetchCities());
-  }, [dispatch]);
+  }, [dispatch, currentPage, sortField, sortOrder]);
+
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      dispatch(setCurrentPage(page));
+    }
+  };
+
+  const handleSort = (field: string) => {
+    const updatedSortOrder =
+      sortField === field && sortOrder === "asc" ? "desc" : "asc";
+    if (sortField === field) {
+      dispatch(setSortOrder(updatedSortOrder));
+    } else {
+      dispatch(setSortField(field));
+      dispatch(setSortOrder("asc"));
+    }
+    dispatch(
+      fetchAllStores({
+        page: 1,
+        sortField: field,
+        sortOrder: updatedSortOrder,
+      })
+    );
+  };  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,42 +132,53 @@ function ManageStores() {
           </button>
         </div>
         <div className="md:px-5">
-          {loading ? (
-            <div className="flex justify-center items-center h-96">
-              <CgSpinner className="animate-spin text-6xl text-indigo-500" />
-            </div>
-          ) : (
-            <div className="flex overflow-x-auto max-w-[343px] min-w-full shadow-xl rounded-md">
-              <table ref={tableRef} className="min-w-full bg-white text-sm">
+            <div className="overflow-x-auto">
+              <table ref={tableRef} className="min-w-full bg-white text-sm shadow-2xl rounded-lg overflow-hidden">
                 <thead>
-                  <tr className="bg-slate-200 text-gray-700">
-                    <th className="py-3 px-12 text-center">Store Name</th>
-                    <th className="py-3 px-12 text-center">Location</th>
-                    <th className="py-3 px-10 text-center">Assigned Admin</th>
-                    <th className="py-3 px-10 text-center">Created Date</th>
+                  <tr className="bg-gray-800 text-white uppercase text-xs">
+                    <th className="py-3 px-3 text-left">Store Name</th>
+                    <th className="py-3 px-3 text-left">Location</th>
+                    <th
+                    onClick={() => handleSort("admin")} 
+                    className="py-3 px-3 cursor-pointer">
+                      <div className='flex items-center'>
+                        Assigned Admin
+                      <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                      {sortField === "admin"}
+                      </div>
+                    </th>
+                    <th 
+                    onClick={() => handleSort("created_at")}
+                    className="py-3 px-3 cursor-pointer flex items-center">
+                      Created Date
+                      <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                      {sortField === "created_at"}
+                    </th>
                     <th className="py-3 px-6 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {allStores.map((store: Store) => (
+                  {allStores.map((store: Store, index) => (
                     <tr key={store.store_id} onClick={() => handleRowClick(`/admin-super/stores/inventory/${store.store_id}`)}
-                      className="text-gray-700 bg-white hover:bg-indigo-50 hover:cursor-pointer transition-color transform">
-                      <td className="py-3 px-1 text-center">
+                      className={`${
+                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                      } border-b hover:bg-gray-200 hover:cursor-pointer transition-colors`}>
+                      <td className="py-3 px-3">
                         {editId === store.store_id ? (
                           <input type="text" value={editStoreData.storeName} onChange={(e) => handleChange(e, 'storeName')}
-                            className="text-center border-b-2 border-indigo-600 focus:outline-none"/>
+                            className="border-b-2 border-indigo-600 focus:outline-none"/>
                         ) : ( store.store_name )}
                       </td>
-                      <td className="py-3 px-1 text-center">
+                      <td className="py-3 px-3">
                         {editId === store.store_id ? (
                           <div className="relative">
                             <input type="text" value={editStoreData.locationName} onChange={(e) => handleChange(e, 'locationName')}
-                              className="text-center border-b-2 border-indigo-600 focus:outline-none"/>
+                              className="border-b-2 border-indigo-600 focus:outline-none"/>
                           </div> 
                         ) : ( store.store_location )}
                       </td>
-                      <td className="py-3 px-1 text-center">{store.store_admin}</td>
-                      <td className="py-3 px-1 text-center">{new Date(store.created_at).toLocaleDateString()}</td>
+                      <td className="py-3 px-3">{store.store_admin}</td>
+                      <td className="py-3 px-3">{new Date(store.created_at).toLocaleDateString()}</td>
                       <td className="py-3 px-2 text-center whitespace-nowrap">
                         <button onClick={(e) => { e.stopPropagation(); handleEditClick(store)}}
                           className="mx-2 py-2 px-2 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
@@ -159,7 +204,11 @@ function ManageStores() {
                 )}
               </table>
             </div>
-          )}
+          <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>
