@@ -81,6 +81,9 @@ export interface Inventory {
     updated_at: Date;
     Product?: {
         product_name?: string
+        Category?: {
+            category_name?: string
+        }
     }
 }
 

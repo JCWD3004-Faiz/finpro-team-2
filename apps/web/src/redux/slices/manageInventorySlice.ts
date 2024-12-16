@@ -11,6 +11,7 @@ interface ManageInventoryState {
   sortOrder: string;
   currentPage: number;
   totalPages: number;
+  totalItems: number;
   loading: boolean;
   error: string | null;
 }
@@ -23,6 +24,7 @@ const initialState: ManageInventoryState = {
   sortOrder: "asc",
   currentPage: 1,
   totalPages: 1,
+  totalItems: 0,
   loading: false,
   error: null,
 };
@@ -57,17 +59,19 @@ export const fetchInventoriesByStoreId = createAsyncThunk(
       page = 1,
       sortField = "stock",
       sortOrder = "asc",
+      search = ""
     }: {
       storeId: number;
       page?: number;
       sortField?: string;
       sortOrder?: string;
+      search?: string
     },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.get(
-        `/api/inventory/${storeId}?page=${page}&pageSize=10&sortField=${sortField}&sortOrder=${sortOrder}`,
+        `/api/inventory/${storeId}?page=${page}&pageSize=10&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
         {
           headers: { Authorization: `Bearer ${access_token}` },
         }
@@ -181,6 +185,7 @@ const manageInventorySlice = createSlice({
         state.loading = false;
         state.inventories = action.payload.data || [];
         state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
       })
       .addCase(fetchInventoriesByStoreId.rejected, (state, action) => {
         state.loading = false;
