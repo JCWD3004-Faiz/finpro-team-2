@@ -43,10 +43,14 @@ export interface Store {
     latitude: number;
     longitude: number;
     store_location: string;
-    city_id: number
+    city_id: number;
+    is_deleted: boolean;
     store_admin?: string;
     created_at: Date;
     updated_at: Date;
+    User?: {
+        username?: string
+    }
 }
   
 export interface Category {
@@ -75,6 +79,14 @@ export interface Inventory {
     stock: number;
     discounted_price?: number;
     updated_at: Date;
+    Product?: {
+        product_name?: string
+    }
+}
+
+export interface InventoryCheckbox {
+    inventory_id: number;
+    product_name: string 
 }
   
 export interface StockJournal {

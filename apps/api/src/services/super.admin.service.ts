@@ -43,6 +43,19 @@ export class SuperAdminService {
     }
   }
 
+  async getStoreByStoreId(store_id: number){
+    return await this.prisma.stores.findUnique({
+      where: {store_id},
+      include: {
+        User: {
+          select: {
+            username: true
+          }
+        }
+      }
+    })
+  }
+
   async assignStoreAdmin(store_id: number, user_id: number) {
     try {
       const user = await this.prisma.users.findUnique({ where: { user_id } });

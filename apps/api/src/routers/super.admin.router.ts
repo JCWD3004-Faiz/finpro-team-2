@@ -25,6 +25,13 @@ router.post("/assign",
     superAdminController.assignStoreAdmin.bind(superAdminController)
 );
 
+
+router.get("/store/:id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    superAdminController.getStoreByStoreId.bind(superAdminController),
+)
+
 router.delete("/delete-admin/:user_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
@@ -54,5 +61,6 @@ router.put("/delete-store/:store_id",
     authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
     superAdminController.deleteStore.bind(superAdminController)
 );
+
 
 export default router;
