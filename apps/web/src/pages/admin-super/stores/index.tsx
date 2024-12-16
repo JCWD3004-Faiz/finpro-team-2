@@ -24,8 +24,9 @@ function ManageStores() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (tableRef.current && !tableRef.current.contains(event.target as Node)) {dispatch(resetEditState())}
-    };
+      if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+        dispatch(resetEditState())
+      }};
     document.addEventListener('mousedown', handleClickOutside);
     return () => {document.removeEventListener('mousedown', handleClickOutside)};
   }, [dispatch]);
@@ -76,7 +77,7 @@ function ManageStores() {
   };
 
   const getLocationSuggestions = (input: string) => {
-    return cities.filter((city) => city.city_name.toLowerCase().startsWith(input.toLowerCase()));
+    return cities.filter((city) => city.city_name.toLowerCase().includes(input.toLowerCase()));
   };
 
   const isValidLocation = (location: string) => {
@@ -84,14 +85,15 @@ function ManageStores() {
   };
 
   return (
-    <div className="bg-slate-100 w-screen h-screen text-gray-800">
+    <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64`}>
         <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">
           Store Management
         </h1>
         <div className="md:ml-6 ml-1 mb-2">
-          <button className="bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
+          <button onClick={() => router.push({ pathname: '/admin-super/stores/create' })}
+          className="bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
             Create New Store
           </button>
         </div>

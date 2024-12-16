@@ -14,8 +14,8 @@ export interface SuperAdminState {
     };
     editAdminData: {storeName: string; storeId: number}
     locationSuggestions: { city_name: string; city_id: number }[];
-    storeSuggestions: {store_name: string; store_id: number}[];
-    suggestionsPosition: { top: number; left: number };
+    storeSuggestions: {store_name: string; store_id: number, store_admin:string}[];
+    suggestionsPosition: { top: number; left: number; width:number };
 }
 
 export interface StoreAdminState {

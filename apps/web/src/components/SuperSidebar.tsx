@@ -57,13 +57,13 @@ function SuperSidebar ({ isSidebarOpen, toggleSidebar }: SuperSidebarProps) {
             </a>
           </li>
           <li>
-            <a href="/admin-super/admins" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
+            <a href="/admin-super/vouchers" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
               <FaTicketAlt className="mr-3" />
               Vouchers
             </a>
           </li>
           <li>
-            <a href="/admin-super/admins" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
+            <a href="/admin-super/orders" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
               <FaClipboardList className="mr-3" />
               Orders
             </a>

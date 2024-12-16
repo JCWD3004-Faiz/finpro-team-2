@@ -14,7 +14,7 @@ const initialState: SuperAdminState = {
   editAdminData: {storeName: '', storeId: 0},
   locationSuggestions: [],
   storeSuggestions: [],
-  suggestionsPosition: { top: 0, left: 0 },
+  suggestionsPosition: { top: 0, left: 0, width: 0},
 };
 
 const access_token = Cookies.get('access_token');
@@ -101,6 +101,20 @@ export const deleteStoreAdmin = createAsyncThunk('superAdmin/deleteStoreAdmin', 
   }
 )
 
+export const createStore = createAsyncThunk(
+  'superAdmin/createStore',
+  async (credentials: { store_name: string; store_location: string; city_id: number }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/api/super-admin/create-store', {...credentials }, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      console.log("API response data:", response.data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error creating store');
+    }
+  }
+)
 
 const asyncActionHandler = (state: SuperAdminState, action: any, successCallback?: (state: SuperAdminState, action: any) => void) => {
   state.loading = action.type.endsWith('pending');
@@ -171,7 +185,15 @@ const superAdminSlice = createSlice({
         const userIdToDelete = action.payload;
         state.storeAdmins = state.storeAdmins.filter(admin => admin.user_id !== userIdToDelete);
       }))
-      .addCase(deleteStoreAdmin.rejected, (state, action) => asyncActionHandler(state, action));
+      .addCase(deleteStoreAdmin.rejected, (state, action) => asyncActionHandler(state, action))
+
+      .addCase(createStore.pending, (state) => asyncActionHandler(state, { type: 'createStore/pending' }))
+      .addCase(createStore.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
+        state.allStores.push(action.payload);
+        console.log("Updated allStores:", state.allStores);  // Log the updated state
+
+      }))
+      .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action));
   },
 });
 

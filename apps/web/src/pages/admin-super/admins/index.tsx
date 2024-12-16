@@ -31,7 +31,10 @@ function ManageAdmins() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (tableRef.current && !tableRef.current.contains(event.target as Node)) {dispatch(resetEditState())}}
+      if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+        dispatch(resetEditState())
+        dispatch(setStoreSuggestions([]));
+      }}
     if (isTableRendered) {document.addEventListener('mousedown', handleClickOutside)}
     return () => {document.removeEventListener('mousedown', handleClickOutside)}
   }, [dispatch, isTableRendered]);
@@ -77,7 +80,7 @@ function ManageAdmins() {
   };
 
   const getStoreSuggestions = (input: string) => {
-    return allStores.filter((store) => store.store_name.toLowerCase().startsWith(input.toLowerCase()));
+    return allStores.filter((store) => store.store_name.toLowerCase().includes(input.toLowerCase()));
   };
 
   const isValidStoreName = (storeName: string) => {
@@ -93,7 +96,7 @@ function ManageAdmins() {
         </h1>
         <div className="md:ml-6 ml-1 mb-2">
           <button onClick={() => router.push({ pathname: '/admin-super/admins/register' })}
-            className="bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
+          className="bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
             Register Admin
           </button>
         </div>
@@ -147,7 +150,9 @@ function ManageAdmins() {
                   <div className="absolute z-50 bg-white border border-gray-300 shadow-md rounded-lg max-h-40 overflow-auto"
                   style={{ top: `${suggestionsPosition.top}px`, left: `${suggestionsPosition.left}px`, width: '200px',}}>
                     {storeSuggestions.map((suggestion, index) => (
-                      <div key={index} onClick={() => handleSuggestionClick(suggestion)} className="px-4 py-2 hover:bg-indigo-100 cursor-pointer">
+                      <div key={index} onClick={() => handleSuggestionClick(suggestion)} 
+                      className={`px-4 py-2 cursor-pointer hover:bg-indigo-100 ${suggestion.store_admin === 'Unassigned' ? 'bg-gray-100' : ''}`}
+                      >
                         {suggestion.store_name}
                       </div>
                     ))}
