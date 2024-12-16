@@ -116,7 +116,7 @@ function ManageStores() {
                 </thead>
                 <tbody>
                   {allStores.map((store: Store) => (
-                    <tr key={store.store_id} onClick={() => handleRowClick(`/admin-super/inventory/${store.store_id}`)}
+                    <tr key={store.store_id} onClick={() => handleRowClick(`/admin-super/stores/inventory/${store.store_id}`)}
                       className="text-gray-700 bg-white hover:bg-indigo-50 hover:cursor-pointer transition-color transform">
                       <td className="py-3 px-1 text-center">
                         {editId === store.store_id ? (
