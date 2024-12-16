@@ -35,7 +35,7 @@ export class SuperAdminService {
       return storeAdmins.map(admin => ({
         user_id: admin.user_id, username: admin.username, email: admin.email,
         store_id: admin.Store ? admin.Store.store_id : null,
-        store_name: admin.Store ? admin.Store.store_name : "Unassigned", created_at: admin.created_at,
+        store_name: admin.Store ? admin.Store.store_name : "-", created_at: admin.created_at,
       }));
     } catch (error) {
       console.error("Error fetching store admins: ", error);
@@ -120,7 +120,7 @@ export class SuperAdminService {
       });
       return allStores.map(store => ({
         store_id: store.store_id, store_name: store.store_name, store_location: store.store_location,
-        store_admin: store.User ? store.User.username : "Unassigned", created_at: store.created_at
+        store_admin: store.User ? store.User.username : "-", created_at: store.created_at
       }));
     } catch (error) {
       console.error("Error fetching stores: ", error);
@@ -186,5 +186,4 @@ export class SuperAdminService {
       throw new Error("Unable to create store inventories.");
     }
   }
-  
 }
