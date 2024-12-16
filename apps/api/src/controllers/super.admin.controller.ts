@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { SuperAdminService } from "../services/super.admin.service";
 import { User } from "../models/admin.models";
+import { sendErrorResponse } from "../utils/response.utils";
 
 
 export class SuperAdminController {
@@ -55,6 +56,21 @@ export class SuperAdminController {
         message: "Failed to assign Store Admin.",
         status: res.statusCode,
       });
+    }
+  }
+
+  async getStoreByStoreId(req: Request, res: Response){
+    try {
+      const storeId = parseInt(req.params.id);
+      const store = await this.superAdminService.getStoreByStoreId(storeId);
+      res.status(200).send({
+        message: "Store found",
+        status: res.statusCode,
+        data: store
+      });
+    } catch (error) {
+      const err = error as Error
+      sendErrorResponse(res, 400, `Failed to get store with the store ID`, err.message);
     }
   }
 

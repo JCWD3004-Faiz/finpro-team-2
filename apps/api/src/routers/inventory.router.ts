@@ -7,10 +7,10 @@ const inventoryController = new InventoryController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 router.post(
-  "/stock-journal/:inventory_id",
+  "/stock-journal/:store_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
-  inventoryController.superAdminUpdateStock.bind(inventoryController)
+  inventoryController.superAdminCreateStockJournal.bind(inventoryController)
 );
 
 router.post(
@@ -21,6 +21,11 @@ router.post(
   inventoryController.storeAdminUpdateStock.bind(inventoryController)
 );
 
-
+router.get(
+  "/:store_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  inventoryController.getInventoriesByStoreId.bind(inventoryController)
+);
 
 export default router;
