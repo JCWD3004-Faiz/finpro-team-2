@@ -108,7 +108,18 @@ export class SuperAdminController {
   }
 
   async getAllStores(req: Request, res: Response){
-    const order = await this.superAdminService.getAllStores();
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const sortField = (req.query.sortField as string) || "stock";
+    const sortOrder = (req.query.sortOrder as string) || "asc";
+    const search = (req.query.search as string) || "";
+    const order = await this.superAdminService.getAllStores(
+      page,
+      pageSize,
+      sortField as "admin" | "created_at",
+      sortOrder as "asc" | "desc",
+      search
+    );
     if (order) {
       res.status(200).send ({
         data: order,

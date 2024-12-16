@@ -151,7 +151,7 @@ function ManageAdmins() {
                   style={{ top: `${suggestionsPosition.top}px`, left: `${suggestionsPosition.left}px`, width: '200px',}}>
                     {storeSuggestions.map((suggestion, index) => (
                       <div key={index} onClick={() => handleSuggestionClick(suggestion)} 
-                      className={`px-4 py-2 cursor-pointer hover:bg-indigo-100 ${suggestion.store_admin === 'Unassigned' ? 'bg-gray-100' : ''}`}
+                      className={`px-4 py-2 cursor-pointer hover:bg-indigo-100 ${suggestion.store_admin === '-' ? 'bg-gray-100' : ''}`}
                       >
                         {suggestion.store_name}
                       </div>
