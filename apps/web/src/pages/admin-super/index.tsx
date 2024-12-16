@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch,useSelector  } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useRouter } from 'next/router';
-import { FaStore, FaShoppingBag, FaUsers, FaChartLine } from 'react-icons/fa';
+import { FaStore, FaShoppingBag, FaUsers, FaChartLine, FaTicketAlt, FaClipboardList } from 'react-icons/fa';
 import SuperSidebar from '@/components/SuperSidebar';
 
 function SuperDashboard() {
@@ -75,6 +75,29 @@ function SuperDashboard() {
             >
               Register Admin
             </button>
+          </div>
+          <div onClick={() => handleContainerClick('/admin-super/vouchers')}
+            className="bg-white p-8 shadow-xl rounded-lg transition-transform transform hover:scale-105 hover:shadow-2xl cursor-pointer flex flex-col items-center justify-between"
+          >
+            <div className="flex items-center mb-4 space-x-3">
+              <FaTicketAlt className="text-indigo-600 text-3xl" />
+              <h2 className="text-2xl font-semibold text-indigo-600">Vouchers</h2>
+            </div>
+            <p className="text-gray-700 my-3 text-center">Manage your vouchers here.</p>
+            <button onClick={(e) => handleButtonClick('/admin-super/admins/register', e)}
+              className="mt-3 bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform"
+            >
+              Create Voucher
+            </button>
+          </div>
+          <div onClick={() => handleContainerClick('/admin-super/orders')}
+            className="bg-white p-8 shadow-xl rounded-lg transition-transform transform hover:scale-105 hover:shadow-2xl cursor-pointer flex flex-col items-center justify-between"
+          >
+            <div className="flex items-center mb-4 space-x-3">
+              <FaClipboardList className="text-indigo-600 text-3xl" />
+              <h2 className="text-2xl font-semibold text-indigo-600">Orders</h2>
+            </div>
+            <p className="text-gray-700 mb-10 text-center">Manage customer orders here.</p>
           </div>
           <div onClick={() => handleContainerClick('/admin-super/reports')}
             className="bg-white p-8 shadow-xl rounded-lg transition-transform transform hover:scale-105 hover:shadow-2xl cursor-pointer flex flex-col items-center justify-between"

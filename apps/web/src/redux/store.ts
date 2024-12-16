@@ -4,6 +4,8 @@ import superAdminReducer from './slices/superAdminSlice';
 import manageInventoryReducer from "./slices/manageInventorySlice";
 import errorReducer from "./slices/errorSlice"
 import successReducer from "./slices/successSlice"
+import globalReducer from './slices/globalSlice';
+
 
 const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ const store = configureStore({
     manageInventory: manageInventoryReducer,
     error: errorReducer,
     success: successReducer,
+    global: globalReducer,
+
   },
 });
 

@@ -59,6 +59,7 @@ export class SuperAdminController {
     }
   }
 
+
   async getStoreByStoreId(req: Request, res: Response){
     try {
       const storeId = parseInt(req.params.id);
@@ -71,6 +72,88 @@ export class SuperAdminController {
     } catch (error) {
       const err = error as Error
       sendErrorResponse(res, 400, `Failed to get store with the store ID`, err.message);
+    }
+  }
+
+  async deleteStoreAdmin(req: Request, res: Response): Promise<void> {
+    const user_id = parseInt(req.params.user_id);
+    const data = await this.superAdminService.deleteStoreAdmin(user_id);
+    if (data && !data.error) {
+      res.status(200).send({
+        message: "Store Admin successfully deleted.",
+        status: res.statusCode,
+      });
+    } else {
+      res.status(404).send({
+        message: "Unable to delete Store Admin",
+        status: res.statusCode,
+      });
+    }
+  }
+
+  async createStore(req: Request, res: Response): Promise<void> {
+    const { store_name, store_location, city_id } = req.body;
+    const data = await this.superAdminService.createStore(store_name, store_location, city_id);
+    if (data) {
+      res.status(201).send({
+        message: "Store successfully created.",
+        status: res.statusCode,
+      });
+    } else {
+      res.status(400).send({
+        message: "Failed to create Store.",
+        status: res.statusCode,
+      });
+    }
+  }
+
+  async getAllStores(req: Request, res: Response){
+    const order = await this.superAdminService.getAllStores();
+    if (order) {
+      res.status(200).send ({
+        data: order,
+        status: res.statusCode,
+      });
+    } else {
+      res.status(404).send({
+        message: "Stores not found",
+        status: res.statusCode,
+        details: res.statusMessage,
+      });
+    }
+  }
+
+  async updateStore(req: Request, res: Response): Promise<void> {
+    const store_id = parseInt(req.params.store_id);
+    const {store_name, store_location, city_id } = req.body;
+    const data = await this.superAdminService.updateStore(store_id, store_name, store_location, city_id);
+    if (data) {
+      res.status(200).send({
+        message: "Store successfully updated.",
+        status: res.statusCode,
+      });
+    } else {
+      res.status(404).send({
+        message: "Unable to update Store",
+        status: res.statusCode,
+      });
+    }
+  }
+
+  async deleteStore(req: Request, res: Response): Promise<void> {
+    const store_id = parseInt(req.params.store_id);
+    const data = await this.superAdminService.deleteStore(store_id);
+    if (data) {
+      res.status(200).send({
+        message: "Store successfully deleted.",
+        status: res.statusCode,
+      });
+    } else {
+      res.status(404).send({
+        message: "Unable to delete store",
+        status: res.statusCode,
+      });
+
     }
   }
 

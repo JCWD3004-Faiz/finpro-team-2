@@ -6,7 +6,7 @@ export class OrderService {
 
     async getAllOrders() {
         return this.prisma.orders.findMany();
-      }
+    }
 
     async getOrderById (order_id: number){
         return this.prisma.orders.findUnique({
