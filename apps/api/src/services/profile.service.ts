@@ -41,39 +41,19 @@ export class ProfileService {
     async changeDefaultAddress(user_id: number, new_address_id: number) {
         try {
             if (!user_id || !new_address_id) throw new Error("Missing required parameters.");
-    
-            // Ensure the new address exists
-            const newAddress = await this.prisma.address.findUnique({
-                where: { address_id: new_address_id }
-            });
-    
-            if (!newAddress) {
-                throw new Error("Address not found.");
-            }
-    
-            // Find the current default address (if any)
+            const newAddress = await this.prisma.address.findUnique({where: { address_id: new_address_id }});
+            if (!newAddress) {throw new Error("Address not found.")}
             const currentDefaultAddress = await this.prisma.address.findFirst({
-                where: {
-                    user_id,
-                    is_default: true,
-                },
+                where: { user_id, is_default: true },
             });
-    
-            // If a default address exists, update it to set is_default to false
             if (currentDefaultAddress) {
                 await this.prisma.address.update({
-                    where: { address_id: currentDefaultAddress.address_id },
-                    data: { is_default: false },
-                });
+                where: { address_id: currentDefaultAddress.address_id }, data: { is_default: false }});
             }
-    
-            // Set the new address as the default
             const updatedAddress = await this.prisma.address.update({
-                where: { address_id: new_address_id },
-                data: { is_default: true },
+                where: { address_id: new_address_id }, data: { is_default: true }
             });
-    
-            return updatedAddress;  // Return the updated address as confirmation
+            return updatedAddress;
         } catch (error: any) {
             return { error: error.message || "An error occurred while changing the default address." };
         }
@@ -89,5 +69,21 @@ export class ProfileService {
             image: uploadResponse.secure_url,
           },
         });
+    }
+
+    async getRajaOngkirCities() {
+        try {
+            const response = await axios.get('https://api.rajaongkir.com/starter/city/', {
+                headers: { key: 'b1f603cff73c782c3462bd7a05936e46' },
+            });
+    
+            const cities = response.data.rajaongkir.results.map((city: any) => ({
+                city_id: city.city_id, city_name: `${city.type} ${city.city_name}`,
+            }));
+    
+            return cities;
+        } catch (error) {
+            return { error: 'Error fetching city data' };
+        }
     }
 }

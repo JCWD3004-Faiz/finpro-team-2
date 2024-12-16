@@ -3,6 +3,7 @@ export interface StoreAdmin {
     username: string;
     email: string;
     store_name: string;
+    created_at: Date;
 }
 
 export interface Register {
@@ -25,6 +26,8 @@ export interface User {
     image?: string;
     created_at?: Date;
     updated_at?: Date;
+    store_name?: string;
+    store_id?: number
 }
 
 export enum Role {
@@ -40,8 +43,14 @@ export interface Store {
     latitude: number;
     longitude: number;
     store_location: string;
+    city_id: number;
+    is_deleted: boolean;
+    store_admin?: string;
     created_at: Date;
     updated_at: Date;
+    User?: {
+        username?: string
+    }
 }
   
 export interface Category {
@@ -70,6 +79,14 @@ export interface Inventory {
     stock: number;
     discounted_price?: number;
     updated_at: Date;
+    Product?: {
+        product_name?: string
+    }
+}
+
+export interface InventoryCheckbox {
+    inventory_id: number;
+    product_name: string 
 }
   
 export interface StockJournal {

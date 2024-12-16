@@ -80,5 +80,20 @@ export class ProfileController {
             sendErrorResponse(res, 400, `Failed to update profile picture`, err.message);
         }
     }
+
+    async getRajaOngkirCities(req: Request, res: Response) {
+        const data = await this.profileService.getRajaOngkirCities();
+        if (data &&!data.error) {
+            res.status(200).send({
+              message: "RajaOngkir cities retrieved successfully",
+              status: res.statusCode, data: data
+            });
+        } else {
+            res.status(400).send({
+              message: "Failed to change retrieve RajaOngkir cities",
+              status: res.statusCode,
+            });
+        }
+    }
     
 }

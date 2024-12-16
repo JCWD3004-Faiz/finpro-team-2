@@ -12,6 +12,7 @@ router.get("/all",
     authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt), 
     orderController.getAllOrders.bind(orderController)
 );
+
 router.get("/:order_id",
     // authenticateJwt.authenticateJwt.bind(authenticateJwt),
     // authenticateJwt.authorizeRole("USER").bind(authenticateJwt), 
