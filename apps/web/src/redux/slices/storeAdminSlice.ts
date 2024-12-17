@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 import { StoreAdminState } from '@/utils/reduxInterface';
 

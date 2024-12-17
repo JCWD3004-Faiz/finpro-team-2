@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "@/redux/store";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import axios from "axios";
+import axios from "@/utils/interceptor"
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
 import LocationHeader from "../components/location-header"; // Import LocationHeader component

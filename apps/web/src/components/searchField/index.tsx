@@ -15,7 +15,7 @@ function SearchField({searchTerm, onSearchChange}: SearchProps) {
       <div className="relative flex-1">
         <IoSearch className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"/>
         <Input
-          placeholder="Search products..."
+          placeholder="Search..."
           className="pl-8"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
