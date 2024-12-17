@@ -38,4 +38,7 @@ router.post(
   userAuthController.emailVerification.bind(userAuthController)
 )
 
+router.post("/refresh-token", userAuthController.refreshToken.bind(userAuthController));
+
+
 export default router;

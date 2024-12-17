@@ -1,33 +1,56 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { CgSpinner } from 'react-icons/cg';
 import { MdDelete, MdSaveAs } from 'react-icons/md';
 import { fetchAllStores, fetchStoreAdmins, assignStoreAdmin, deleteStoreAdmin } from '@/redux/slices/superAdminSlice';
 import { AppDispatch, RootState } from '@/redux/store';
 import SuperSidebar from '@/components/SuperSidebar';
 import { StoreAdmin, User } from '@/utils/adminInterface';
-import { setEditId, setEditAdminData, setStoreSuggestions, setSuggestionsPosition, resetEditState } from '@/redux/slices/superAdminSlice';
-import { FaUserEdit } from 'react-icons/fa';
+import { setSortFieldAdmin, setEditId, setEditAdminData, setStoreSuggestions, setSuggestionsPosition, resetEditState } from '@/redux/slices/superAdminSlice';
+import { FaUserEdit, FaUserPlus } from 'react-icons/fa';
+import { setSortOrder, setCurrentPage } from '@/redux/slices/manageInventorySlice';
+import { FaSort } from 'react-icons/fa';
+import SearchField from '@/components/searchField';
+import useDebounce from '@/hooks/useDebounce';
+import Pagination from '@/components/pagination';
+import { Button } from '@/components/ui/button';
 
 function ManageAdmins() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const tableRef = useRef<HTMLTableElement | null>(null);
   const [isTableRendered, setIsTableRendered] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
     if (tableRef.current) {setIsTableRendered(true)}
   }, []);
 
-  const { storeAdmins, loading, isSidebarOpen, editId, suggestionsPosition, editAdminData, storeSuggestions, allStores } = useSelector(
+  const { sortFieldAdmin, storeAdmins, loading, isSidebarOpen, editId, suggestionsPosition, editAdminData, storeSuggestions, allStores } = useSelector(
     (state: RootState) => state.superAdmin
   )
+  const { sortOrder, currentPage, totalPages } = useSelector((state: RootState) => state.manageInventory);
+  
 
   useEffect(() => {
-    dispatch(fetchStoreAdmins());
-    dispatch(fetchAllStores());
-  }, [dispatch]);
+    dispatch(fetchStoreAdmins({ page: currentPage, sortFieldAdmin, sortOrder, search: debouncedQuery }));
+    dispatch(fetchAllStores({} as any));
+  }, [dispatch, currentPage, sortFieldAdmin, sortOrder, debouncedQuery]);
+
+    const handlePageChange = (page: number) => { if (page > 0 && page <= totalPages) {dispatch(setCurrentPage(page))}};
+  
+    const handleSort = (field: string) => {
+      const updatedSortOrder =
+        sortFieldAdmin === field && sortOrder === "asc" ? "desc" : "asc";
+      if (sortFieldAdmin === field) {
+        dispatch(setSortOrder(updatedSortOrder));
+      } else {
+        dispatch(setSortFieldAdmin(field));
+        dispatch(setSortOrder("asc"));
+      }
+      dispatch(fetchStoreAdmins({ page: 1, sortField: field, sortOrder: updatedSortOrder }));
+    };  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,56 +113,67 @@ function ManageAdmins() {
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64`}>
-        <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">
-          Employee of the Month
+      <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
+        <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
+          Manage Store Admins
         </h1>
-        <div className="md:ml-6 ml-1 mb-2">
-          <button onClick={() => router.push({ pathname: '/admin-super/admins/register' })}
-          className="bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
+        <div className="ml-1 mb-2">
+          <Button size="default" onClick={() => router.push({ pathname: '/admin-super/admins/register' })}>
+            <FaUserPlus/>
             Register Admin
-          </button>
+          </Button>
         </div>
-        <div className="md:px-5">
-          {loading ? (
-            <div className="flex justify-center items-center h-96">
-              <CgSpinner className="animate-spin text-6xl text-indigo-500" />
-            </div>
-          ) : (
-            <div className="flex overflow-x-auto max-w-[343px] min-w-full shadow-xl rounded-md">
-              <table ref={tableRef} className="min-w-full bg-white text-sm">
+        <div className="my-5">
+            <SearchField searchTerm={searchQuery} onSearchChange={setSearchQuery} />
+        </div>
+        <div>
+            <div className="overflow-x-auto">
+              <table ref={tableRef} className="min-w-full bg-white text-sm shadow-2xl rounded-lg overflow-hidden">
                 <thead>
-                  <tr className="bg-slate-200 text-gray-700">
-                    <th className="py-3 px-10 text-center">Username</th>
-                    <th className="py-3 px-6 text-center">Email</th>
-                    <th className="py-3 px-10 text-center">Assigned Store</th>
-                    <th className="py-3 px-10 text-center">Register Date</th>
-                    <th className="py-3 px-6 text-center">Actions</th>
+                  <tr className="bg-gray-800 text-white uppercase text-xs">
+                    <th className="p-4 text-left">Username</th>
+                    <th className="p-4 text-left">Email</th>
+                    <th onClick={() => handleSort("store")} className="p-4 cursor-pointer">
+                      <div className='flex items-center'>
+                        Assigned Store
+                        <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                        {sortFieldAdmin === "store"}
+                      </div>
+                    </th>
+                    <th onClick={() => handleSort("created_at")} className="p-4 cursor-pointer">
+                      <div className='flex items-center'>
+                        Register Date
+                        <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                        {sortFieldAdmin === "created_at"}
+                      </div>
+                    </th>
+                    <th className="py-4 px-6 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {storeAdmins.map((admin:StoreAdmin, key:number) => (
-                    <tr key={key} className="text-gray-700 bg-white">
-                      <td className="py-3 px-1 text-center border-b-2 border-zinc-50">{admin.username}</td>
-                      <td className="py-3 px-1 text-center border-b-2 border-zinc-50">{admin.email}</td>
-                      <td className="py-3 px-1 text-center border-b-2 border-zinc-50">
+                    <tr key={key} className={`${key % 2 === 0 ? "bg-gray-50" : "bg-white"} border-b hover:bg-gray-100 transition-colors`}>
+                      <td className="p-4">{admin.username}</td>
+                      <td className="p-4">{admin.email}</td>
+                      <td className="p-4">
                       {editId === admin.user_id ? (
                           <div className="relative">
                             <input type="text" value={editAdminData.storeName} onChange={(e) => handleChange(e, 'storeName')}
-                              className="text-center border-b-2 border-indigo-600 focus:outline-none"
+                              className="border-b-2 border-indigo-600 focus:outline-none"
                             />
                           </div>
                         ) : ( admin.store_name )
                       }
                       </td>
-                      <td className="py-3 px-1 text-center border-b-2 border-zinc-50">{new Date(admin.created_at).toLocaleDateString()}</td>
-                      <td className="py-3 px-2 text-center whitespace-nowrap border-b-2 border-zinc-50">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(admin)}}
+                      <td className="p-4">{new Date(admin.created_at).toLocaleDateString()}</td>
+                      <td className="py-3 px-2 text-center whitespace-nowrap">
+                        <button title="Assign store admin" onClick={(e) => { e.stopPropagation(); handleEditClick(admin)}}
                         className="mx-2 py-2 px-2 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform">
                           {editId === admin.user_id ? ( <MdSaveAs className="text-2xl" /> ) : ( <FaUserEdit className="text-2xl" /> )}
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); handleDeleteAdmin(admin.user_id)}}
-                        className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform">
+                        className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform"
+                        title="Delete store admin">
                           <MdDelete className="text-2xl"/>
                         </button>
                       </td>
@@ -160,7 +194,7 @@ function ManageAdmins() {
                 )}
               </table>
             </div>
-          )}
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange}/>
         </div>
       </div>
     </div>

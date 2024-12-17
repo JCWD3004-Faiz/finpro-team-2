@@ -31,7 +31,7 @@ function SuperDashboard() {
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">
-          People Order Our Patties
+          Super Admin Dashboard
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div onClick={() => handleContainerClick('/admin-super/stores')}

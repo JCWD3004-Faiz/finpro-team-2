@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SuperAdminState, FetchAllStoresParams } from '@/utils/reduxInterface';
-import axios from 'axios';
+import { SuperAdminState, FetchAllParams } from '@/utils/reduxInterface';
+import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 
 const initialState: SuperAdminState = {
@@ -18,16 +18,18 @@ const initialState: SuperAdminState = {
   currentPage: 1,
   totalPages: 1,
   totalItems: 0,
-  searchQuery: '',
-  sortField: "admin"
+  sortField: "admin",
+  sortFieldAdmin: "store"
 };
 
 const access_token = Cookies.get('access_token');
 
-export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins', async (_, { rejectWithValue }) => {
+export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins', 
+  async ({ page = 1, sortFieldAdmin = "store", sortOrder = "asc", search = "" }:FetchAllParams, { rejectWithValue }) => {
   try {
     const response = await axios.get('/api/super-admin/store-admin', {
       headers: { Authorization: `Bearer ${access_token}` },
+      params: { page, sortFieldAdmin, sortOrder, search}
     });
     return response.data.data;
   } catch (error) {
@@ -51,13 +53,13 @@ export const registerStoreAdmin = createAsyncThunk(
 
 export const fetchAllStores = createAsyncThunk(
   'superAdmin/fetchAllStores',
-  async ({ page = 1, sortField = "admin", sortOrder = "asc" }:FetchAllStoresParams, { rejectWithValue }) => {
+  async ({ page = 1, sortField = "admin", sortOrder = "asc", search = "" }:FetchAllParams, { rejectWithValue }) => {
     try {
       const response = await axios.get('/api/super-admin/stores', {
         headers: { Authorization: `Bearer ${access_token}` },
-        params: { page, sortField, sortOrder}
+        params: { page, sortField, sortOrder, search}
       });
-      return response.data; // Assuming the backend returns an object containing the paginated data
+      return response.data.data;
     } catch (error) {
       return rejectWithValue('Error fetching store data.');
     }
@@ -149,15 +151,18 @@ const superAdminSlice = createSlice({
     setStoreSuggestions: (state, action) => { state.storeSuggestions = action.payload },
     setSuggestionsPosition: (state, action) => { state.suggestionsPosition = action.payload; },
     resetEditState: (state) => { state.editId = null; state.locationSuggestions = []; },
-    setSortField(state, action) {
-      state.sortField = action.payload;
-    },
+    setSortField(state, action) { state.sortField = action.payload},
+    setSortFieldAdmin(state, action) { state.sortFieldAdmin = action.payload},
+
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchStoreAdmins.pending, (state) => asyncActionHandler(state, { type: 'fetchStoreAdmins/pending' }))
       .addCase(fetchStoreAdmins.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
-        state.storeAdmins = action.payload;
+        state.loading = false;
+        state.storeAdmins = action.payload.data || [];
+        state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
       }))
       .addCase(fetchStoreAdmins.rejected, (state, action) => asyncActionHandler(state, action))
 
@@ -167,15 +172,10 @@ const superAdminSlice = createSlice({
 
       .addCase(fetchAllStores.pending, (state) => asyncActionHandler(state, { type: 'fetchAllStores/pending' }))
       .addCase(fetchAllStores.fulfilled, (state, action) => {
-        if (Array.isArray(action.payload.data.data)) {
-          state.allStores = action.payload.data.data || [];
-          state.currentPage = action.payload.data.currentPage;
-          state.totalPages = action.payload.data.totalPages || 1;
-          state.totalItems = action.payload.data.totalItems || 0;  
-        } else {
-          state.allStores = [];
-        }
-        state.loading = false;  // Ensure loading is set to false
+        state.loading = false;
+        state.allStores = action.payload.data || [];
+        state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
       })
       .addCase(fetchAllStores.rejected, (state, action) => asyncActionHandler(state, action))
 
@@ -220,5 +220,5 @@ const superAdminSlice = createSlice({
   },
 });
 
-export const { setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
+export const { setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
 export default superAdminSlice.reducer;

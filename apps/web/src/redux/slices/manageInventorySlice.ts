@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import axios from "@/utils/interceptor"
+import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { Inventory, Store } from "@/utils/adminInterface";
 

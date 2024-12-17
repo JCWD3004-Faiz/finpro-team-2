@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import cron from "node-cron";
 import { PrismaClient } from "@prisma/client";
 import { user } from "../models/user.models";
+import { JwtPayload } from "jsonwebtoken";
 import {
   userRegisterSchema,
   authScehma,
@@ -124,6 +125,30 @@ export class UserAuthService {
       throw new Error("Invalid Refersh Token");
     }
   }
+
+  async refreshToken(token: string) {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload
+        const user = await this.prisma.users.findUnique({
+            where: {
+                user_id: decoded.id,
+            }
+        });
+        if (!user) {
+            throw new Error("Invalid refresh token");
+        }
+
+        const accessToken = jwt.sign(
+            { id: user.user_id, role: user.role },
+            JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+        return accessToken;
+
+    } catch (error) {
+      throw new Error("Invalid refresh token");
+  }
+}
   
 }
 initializeCron();

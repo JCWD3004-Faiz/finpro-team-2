@@ -19,14 +19,16 @@ export interface SuperAdminState {
     currentPage: number;
     totalPages: number;
     totalItems: number;
-    searchQuery: string;
     sortField: string;
+    sortFieldAdmin: string; 
 }
 
-export interface FetchAllStoresParams {
+export interface FetchAllParams {
   page: number;
-  sortField: string;
+  sortField?: string;
+  sortFieldAdmin?: string;
   sortOrder: string;
+  search?: string;
 }
 
 export interface StoreAdminState {

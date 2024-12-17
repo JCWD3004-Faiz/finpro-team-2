@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
