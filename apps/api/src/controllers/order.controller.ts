@@ -26,8 +26,8 @@ export class OrderController {
           });
         }
     }
-      
-      async getOrderById(req: Request, res: Response){
+
+    async getOrderById(req: Request, res: Response){
         const order_id = Number(req.params.order_id);
         const order = await this.orderService.getOrderById(order_id);
         if(order){
@@ -43,7 +43,7 @@ export class OrderController {
             details: res.statusMessage,
           });
         }
-      }
+    }
 
     async getUserOrders(req: Request, res: Response): Promise<void> {
         const user_id = parseInt(req.params.user_id);
@@ -106,5 +106,4 @@ export class OrderController {
             });
         }
     }
-    
 }

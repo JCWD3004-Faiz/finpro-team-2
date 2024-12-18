@@ -202,16 +202,16 @@ export enum ShippingMethod {
 }
   
 export interface Payment {
-    payment_id: number;
-    order_id: number;
-    total_price: number;
+    payment_id?: number;
+    order_id?: number;
+    total_price?: number;
     payment_method: PaymentMethod;
-    payment_status: PaymentStatus;
+    payment_status?: PaymentStatus;
     payment_reference?: string;
     pop_image?: string;
     payment_date: Date;
-    created_at: Date;
-    updated_at: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 
 export enum PaymentMethod {

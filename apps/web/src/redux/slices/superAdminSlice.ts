@@ -31,6 +31,7 @@ export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins',
       headers: { Authorization: `Bearer ${access_token}` },
       params: { page, sortFieldAdmin, sortOrder, search}
     });
+    
     return response.data.data;
   } catch (error) {
     return rejectWithValue('Error fetching store admins');
@@ -152,7 +153,7 @@ const superAdminSlice = createSlice({
     setSuggestionsPosition: (state, action) => { state.suggestionsPosition = action.payload; },
     resetEditState: (state) => { state.editId = null; state.locationSuggestions = []; },
     setSortField(state, action) { state.sortField = action.payload},
-    setSortFieldAdmin(state, action) { state.sortFieldAdmin = action.payload},
+    setSortFieldAdmin(state, action) {state.sortFieldAdmin = action.payload},
 
   },
   extraReducers: (builder) => {
@@ -213,8 +214,6 @@ const superAdminSlice = createSlice({
       .addCase(createStore.pending, (state) => asyncActionHandler(state, { type: 'createStore/pending' }))
       .addCase(createStore.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
         state.allStores.push(action.payload);
-        console.log("Updated allStores:", state.allStores);  // Log the updated state
-
       }))
       .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action));
   },

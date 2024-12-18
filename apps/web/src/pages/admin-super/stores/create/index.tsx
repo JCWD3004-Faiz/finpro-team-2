@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import SuperSidebar from '@/components/SuperSidebar';
@@ -7,7 +6,6 @@ import { setLocationSuggestions, setSuggestionsPosition, createStore } from '@/r
 import { fetchCities } from '@/redux/slices/globalSlice';
 
 function CreateStore() {
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { isSidebarOpen } = useSelector((state: RootState) => state.superAdmin);
   const { cities } = useSelector((state: RootState) => state.global);
@@ -25,27 +23,26 @@ function CreateStore() {
   const isValidLocation = (location: string) => {
     return cities.some((city) => city.city_name.toLowerCase() === location.toLowerCase());
   };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isValidLocation(storeLocation)) {
-      alert('Please select a valid location.');
-      return;
-    }
-    const storeData = {
-      store_name: storeName,
-      store_location: storeLocation,
-      city_id: Number(cityId),
-    };
 
-    dispatch(createStore(storeData))
-      .then(() => {
-        alert('Store created successfully!');
-        router.push('/admin-super/stores');
-      })
-      .catch((error) => {
-        alert('Failed to create store: ' + error.message);
-      });
-  };
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      if (!isValidLocation(storeLocation)) {
+        alert('Please select a valid location.');
+        return;
+      }
+      const storeData = {
+        store_name: storeName,
+        store_location: storeLocation,
+        city_id: Number(cityId),
+      };
+      await dispatch(createStore(storeData)).unwrap();
+      alert('Store created successfully!');
+      window.location.href = '/admin-super/stores';
+    } catch (error: any) {
+      alert('Failed to create store');
+    }
+  }
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

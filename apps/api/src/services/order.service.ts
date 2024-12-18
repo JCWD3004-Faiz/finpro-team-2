@@ -62,12 +62,10 @@ export class OrderService {
 
     async changeOrderAddress(order_id: number, address_id: number) {
         try {
-            // Update the address_id for the specified order
             const updatedOrder = await this.prisma.orders.update({
-                where: { order_id },  // Find the order by order_id
-                data: { address_id },  // Update the address_id field
+                where: { order_id },
+                data: { address_id }, 
             });
-
             return { message: "Order address updated successfully.", updatedOrder };
         } catch (error) {
             console.error("Error updating order address:", error);
@@ -77,17 +75,14 @@ export class OrderService {
 
     async changeOrderMethod(order_id: number, shipping_method: ShippingMethod) {
         try {
-            // Update the address_id for the specified order
             const updatedOrder = await this.prisma.orders.update({
-                where: { order_id },  // Find the order by order_id
-                data: { shipping_method: shipping_method },  // Update the address_id field
+                where: { order_id },
+                data: { shipping_method: shipping_method },
             });
-
             return { message: "Order address updated successfully.", updatedOrder };
         } catch (error) {
             console.error("Error updating order address:", error);
             return { error: "Failed to update order address." };
         }
     }
-
 }

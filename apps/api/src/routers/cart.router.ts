@@ -37,9 +37,9 @@ router.delete("/remove/:user_id/:cart_item_id",
 );
 
 router.post("/checkout/:user_id",
-    // authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    // authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
-    // authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
     cartController.checkoutCart.bind(cartController)
 );
 

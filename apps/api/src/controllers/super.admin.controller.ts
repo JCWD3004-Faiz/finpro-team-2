@@ -30,13 +30,13 @@ export class SuperAdminController {
   async getAllStoreAdmins(req: Request, res: Response){
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 10;
-    const sortField = (req.query.sortField as string) || "store";
+    const sortFieldAdmin = (req.query.sortFieldAdmin as string) || "store";
     const sortOrder = (req.query.sortOrder as string) || "asc";
     const search = (req.query.search as string) || "";
     const data = await this.superAdminService.getAllStoreAdmins(
       page,
       pageSize,
-      sortField as "store" | "created_at",
+      sortFieldAdmin as "store" | "created_at",
       sortOrder as "asc" | "desc",
       search,
     );

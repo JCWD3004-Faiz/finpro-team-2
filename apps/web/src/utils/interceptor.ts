@@ -8,7 +8,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add the access token to the headers
 api.interceptors.request.use(
   (config) => {
     const access_token = Cookies.get('access_token');
@@ -36,13 +35,13 @@ api.interceptors.response.use(
         try {
           const { data } = await axios.post('/api/auth/refresh-token', { refreshToken });
           const newAccessToken = data.data.refreshToken;
-          Cookies.set('accessToken', newAccessToken, { expires: 1 }); // Adjust expiration time
+          Cookies.set('access_token', newAccessToken, { expires: 1 }); // Adjust expiration time
 
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
           return api(originalRequest); // Retry the original request
         } catch (refreshError) {
           console.error('Failed to refresh access token', refreshError);
-          Cookies.remove('accessToken');
+          Cookies.remove('access_token');
           Cookies.remove('refreshToken');
           alert('Your session has expired. Please log in again.');
           window.location.href = '/auth/login-page'; // Redirect to login page
