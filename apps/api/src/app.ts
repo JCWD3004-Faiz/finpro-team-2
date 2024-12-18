@@ -11,6 +11,7 @@ import orderRouter from "./routers/order.router";
 import superAdminRouter from "./routers/super.admin.router"
 import storeAdminRouter from "./routers/store.admin.router"
 import inventoryRouter from "./routers/inventory.router"
+import productRouter from "./routers/product.router"
 
 import passport from "passport";
 environment.config();
@@ -37,6 +38,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/super-admin", superAdminRouter);
 app.use("/api/store-admin", storeAdminRouter);
+app.use("/api/products", productRouter);
 
 
 app.listen(PORT, () => {
