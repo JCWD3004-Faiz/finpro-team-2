@@ -106,7 +106,9 @@ model Inventories {
   store_id         Int
   product_id       Int
   stock            Int
+  user_stock       Int?
   discounted_price Decimal? @db.Decimal(10, 2)
+  items_sold       Int?     @default(0)
   updated_at       DateTime @updatedAt
 
   Store        Stores         @relation(fields: [store_id], references: [store_id])
@@ -153,6 +155,7 @@ model Discounts {
   min_purchase    Decimal?     @db.Decimal(10, 2)
   max_discount    Decimal?     @db.Decimal(10, 2)
   bogo_product_id Int?
+  description     String?
   is_active       Boolean      @default(true)
   image           String?
   start_date      DateTime
@@ -175,6 +178,7 @@ model Vouchers {
   discount_amount Decimal          @db.Decimal(10, 2)
   min_purchase    Decimal?         @db.Decimal(10, 2)
   max_discount    Decimal?         @db.Decimal(10, 2)
+  description     String?    
   is_active       Boolean          @default(true)
   expiration_date DateTime
   created_at      DateTime         @default(now())
@@ -271,6 +275,7 @@ model Orders {
 model Payments {
   payment_id        Int           @id @default(autoincrement())
   order_id          Int           @unique
+  transaction_id    String        @unique
   total_price       Decimal       @db.Decimal(10, 2)
   payment_method    PaymentMethod
   payment_status    PaymentStatus @default(PENDING)

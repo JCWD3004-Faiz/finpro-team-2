@@ -24,15 +24,15 @@ export class SuperAdminService {
 
   async getAllStoreAdmins(
     page: number = 1, pageSize: number = 10,
-    sortField: "store" | "created_at" = "store",
+    sortFieldAdmin: "store" | "created_at" = "store",
     sortOrder: "asc" | "desc" = "asc", search:string = "", 
   ) {
     try {
       const whereCondition: any = {username: { contains: search, mode: "insensitive"}}
       const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
-      if (sortField === "created_at") {
+      if (sortFieldAdmin === "created_at") {
         orderBy = { created_at: sortOrder };
-      } else if (sortField === "store") {
+      } else if (sortFieldAdmin === "store") {
         orderBy = { Store: { store_name: sortOrder } };
       }  
       const storeAdmins = await this.prisma.users.findMany({
@@ -180,13 +180,13 @@ export class SuperAdminService {
 
   async createStoreInventories(store_id: number) {
     try {
-      const products = await this.prisma.products.findMany({
-        where: { is_deleted: false },
-      });
+      const products = await this.prisma.products.findMany({where: { is_deleted: false }});
       if (products.length === 0) return { error: "No available products to add to inventory." };  
-      const inventoryEntries = products.map(product => ({
-        store_id, product_id: product.product_id, stock: 0, discounted_price: product.price,
-      }));
+      const inventoryEntries = products.map(product => {
+        const stock = 50; const userStock = stock - 10;
+        return { store_id, product_id: product.product_id,
+          stock: stock, user_stock: userStock, discounted_price: product.price};
+      });
       const createdInventories = await this.prisma.inventories.createMany({data: inventoryEntries});
       return createdInventories;
     } catch (error) {

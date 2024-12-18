@@ -110,21 +110,21 @@ export class UserAuthService {
     return { accessToken, refreshToken, user };
   }
 
-  async refereshToken(token: string) {
-    try {
-      const decoded: any = jwt.verify(token, JWT_SECRET);
-      const user = await this.prisma.users.findUnique({
-        where: { user_id: decoded.id },
-      });
-      if (!user) {
-        throw new Error("Invalid Refersh Token");
-      }
-      const accessToken = generateAccessToken(user);
-      return { accessToken };
-    } catch (error) {
-      throw new Error("Invalid Refersh Token");
-    }
-  }
+  // async refereshToken(token: string) {
+  //   try {
+  //     const decoded: any = jwt.verify(token, JWT_SECRET);
+  //     const user = await this.prisma.users.findUnique({
+  //       where: { user_id: decoded.id },
+  //     });
+  //     if (!user) {
+  //       throw new Error("Invalid Refersh Token");
+  //     }
+  //     const accessToken = generateAccessToken(user);
+  //     return { accessToken };
+  //   } catch (error) {
+  //     throw new Error("Invalid Refersh Token");
+  //   }
+  // }
 
   async refreshToken(token: string) {
     try {
@@ -138,16 +138,16 @@ export class UserAuthService {
             throw new Error("Invalid refresh token");
         }
 
-        const accessToken = jwt.sign(
+        const access_token = jwt.sign(
             { id: user.user_id, role: user.role },
             JWT_SECRET,
             { expiresIn: "1h" }
         );
-        return accessToken;
+        return access_token;
 
     } catch (error) {
-      throw new Error("Invalid refresh token");
-  }
+        throw new Error("Invalid refresh token");
+    }
 }
   
 }

@@ -14,6 +14,11 @@ import SearchField from '@/components/searchField';
 import useDebounce from '@/hooks/useDebounce';
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
+import LoadingVignette from '@/components/LoadingVignette';
+import SuccessModal from '@/components/modal-success';
+import ErrorModal from '@/components/modal-error';
+import { showError, hideError } from "@/redux/slices/errorSlice";
+import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 
 function ManageAdmins() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,10 +32,18 @@ function ManageAdmins() {
     if (tableRef.current) {setIsTableRendered(true)}
   }, []);
 
-  const { sortFieldAdmin, storeAdmins, loading, isSidebarOpen, editId, suggestionsPosition, editAdminData, storeSuggestions, allStores } = useSelector(
+  const { totalPages, sortFieldAdmin, storeAdmins, loading, isSidebarOpen, editId, suggestionsPosition, editAdminData, storeSuggestions, allStores } = useSelector(
     (state: RootState) => state.superAdmin
   )
-  const { sortOrder, currentPage, totalPages } = useSelector((state: RootState) => state.manageInventory);
+  const { sortOrder, currentPage } = useSelector((state: RootState) => state.manageInventory);
+
+  const { isSuccessOpen, successMessage } = useSelector(
+    (state: RootState) => state.success
+  );
+  
+  const { isErrorOpen, errorMessage } = useSelector(
+    (state: RootState) => state.error
+  );
   
 
   useEffect(() => {
@@ -38,19 +51,19 @@ function ManageAdmins() {
     dispatch(fetchAllStores({} as any));
   }, [dispatch, currentPage, sortFieldAdmin, sortOrder, debouncedQuery]);
 
-    const handlePageChange = (page: number) => { if (page > 0 && page <= totalPages) {dispatch(setCurrentPage(page))}};
+  const handlePageChange = (page: number) => { if (page > 0 && page <= totalPages) {dispatch(setCurrentPage(page))}};
   
-    const handleSort = (field: string) => {
-      const updatedSortOrder =
-        sortFieldAdmin === field && sortOrder === "asc" ? "desc" : "asc";
-      if (sortFieldAdmin === field) {
-        dispatch(setSortOrder(updatedSortOrder));
-      } else {
-        dispatch(setSortFieldAdmin(field));
-        dispatch(setSortOrder("asc"));
-      }
-      dispatch(fetchStoreAdmins({ page: 1, sortField: field, sortOrder: updatedSortOrder }));
-    };  
+  const handleSort = (field: string) => {
+    const updatedSortOrder =
+      sortFieldAdmin === field && sortOrder === "asc" ? "desc" : "asc";
+    if (sortFieldAdmin === field) {
+      dispatch(setSortOrder(updatedSortOrder));
+    } else {
+      dispatch(setSortFieldAdmin(field));
+      dispatch(setSortOrder("asc"));
+    }
+    dispatch(fetchStoreAdmins({ page: 1, sortFieldAdmin: field, sortOrder: updatedSortOrder }));
+  };  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -73,8 +86,9 @@ function ManageAdmins() {
         const assignPayload: any = { user_id: admin.user_id, store_id: assignedStoreId};
         dispatch(assignStoreAdmin(assignPayload));
         dispatch(resetEditState());
+        dispatch(showSuccess("Store admin successfully assigned"));
       } else {
-        alert('Please select a valid store.');
+        dispatch(showError('Please select a valid store.'));        
       }
     } else {
       dispatch(setEditId(admin.user_id));
@@ -113,6 +127,17 @@ function ManageAdmins() {
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      {loading && <LoadingVignette />}
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => dispatch(hideError())}
+        errorMessage={errorMessage}
+      />
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {dispatch(hideSuccess()); window.location.reload()}}        
+        successMessage={successMessage}
+      />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
           Manage Store Admins

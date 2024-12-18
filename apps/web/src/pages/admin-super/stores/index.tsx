@@ -26,8 +26,8 @@ function ManageStores() {
   const tableRef = useRef<HTMLTableElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
-  const { sortField, isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
-  const { sortOrder, currentPage, totalPages } = useSelector((state: RootState) => state.manageInventory);
+  const { totalPages, sortField, isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
+  const { sortOrder, currentPage } = useSelector((state: RootState) => state.manageInventory);
   const { cities } = useSelector((state: RootState) => state.global);
 
   const { isSuccessOpen, successMessage } = useSelector(
