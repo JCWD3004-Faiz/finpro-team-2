@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
                         <input
                             type="text"
                             placeholder="Search bar of frugality..."
-                            className="w-full md:w-[35vw] p-2 rounded bg-black border-b border-white text-white pl-10"
+                            className="w-full md:w-[35vw] p-2 bg-black border-b border-white text-white pl-10"
                         />
                         <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white text-xl cursor-pointer hover:text-gray-400" />
                     </div>
