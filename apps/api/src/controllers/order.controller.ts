@@ -28,8 +28,9 @@ export class OrderController {
     }
 
     async getOrderById(req: Request, res: Response){
-        const order_id = Number(req.params.order_id);
-        const order = await this.orderService.getOrderById(order_id);
+        const user_id = parseInt(req.params.user_id);
+        const order_id = parseInt(req.params.order_id);
+        const order = await this.orderService.getOrderById(user_id,order_id);
         if(order){
           res.status(201).send({
             message: `Order ${order_id} was successfully retrieved`,
@@ -76,8 +77,8 @@ export class OrderController {
     }
 
     async changeOrderAddress(req: Request, res: Response): Promise<void> {
-        const { order_id, address_id } = req.body;
-        const data = await this.orderService.changeOrderAddress(order_id, address_id);
+        const { user_id, order_id, address_id } = req.body;
+        const data = await this.orderService.changeOrderAddress(user_id, order_id, address_id);
         const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
         if (data && !data.error && shippingPrice) {
             res.status(200).send({
@@ -92,8 +93,8 @@ export class OrderController {
     }
 
     async changeOrderMethod(req: Request, res: Response): Promise<void> {
-        const { order_id, shipping_method } = req.body;
-        const data = await this.orderService.changeOrderMethod(order_id, shipping_method);
+        const { user_id, order_id, shipping_method } = req.body;
+        const data = await this.orderService.changeOrderMethod(user_id, order_id, shipping_method);
         const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
         if (data && !data.error && shippingPrice) {
             res.status(200).send({
@@ -104,6 +105,69 @@ export class OrderController {
             res.status(400).send({
                 message: "Failed to update destination address", status: res.statusCode,
             });
+        }
+    }
+
+    async processOrder(req: Request, res: Response) {
+        const store_id = parseInt(req.params.store_id);
+        const order_id = parseInt(req.params.order_id);
+        const data = await this.orderService.processOrder(store_id, order_id);
+        if (data && !data.error) {
+            const sentData = await this.orderService.sentOrder(order_id);
+            if (sentData && !sentData.error) {
+                res.status(201).send({
+                    message: `Order ${order_id} was successfully processed and sent.`,
+                    data: data, status: res.statusCode,
+                });
+            } else {
+                res.status(400).send({
+                    message: `Order ${order_id} was processed, but failed to update to SENT.`,
+                    status: res.statusCode, details: sentData,
+                });
+            }
+        } else {
+            res.status(404).send({
+                message: `Order ${order_id} cannot be processed`,
+                status: res.statusCode, details: data,
+            });
+        }
+    }
+
+    async confirmUserOrder(req: Request, res: Response){
+        const user_id = parseInt(req.params.user_id);
+        const order_id = parseInt(req.params.order_id);
+        const data = await this.orderService.confirmUserOrder(user_id, order_id);
+        if(data &&!data.error){
+          res.status(201).send({
+            message: `Order ${order_id} was successfully confirmed`,
+            data: data,
+            status: res.statusCode,
+          });
+        } else {
+          res.status(404).send({
+            message: `Order ${order_id} cannot be confirmed`,
+            status: res.statusCode,
+            details: data,
+          });
+        }
+    }
+
+    async cancelUserOrder(req: Request, res: Response){
+        const user_id = parseInt(req.params.user_id);
+        const order_id = parseInt(req.params.order_id);
+        const data = await this.orderService.cancelUserOrder(user_id, order_id);
+        if(data &&!data.error){
+          res.status(201).send({
+            message: `Order ${order_id} was successfully cancelled`,
+            data: data,
+            status: res.statusCode,
+          });
+        } else {
+          res.status(404).send({
+            message: `Order ${order_id} cannot be cancelled`,
+            status: res.statusCode,
+            details: data,
+          });
         }
     }
 }

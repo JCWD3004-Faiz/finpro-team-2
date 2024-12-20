@@ -16,9 +16,10 @@ router.get("/all",
     orderController.getAllOrders.bind(orderController)
 );
 
-router.get("/:order_id",
+router.get("/details/:user_id/:order_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt), 
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
     orderController.getOrderById.bind(orderController)
 );
 
@@ -50,11 +51,74 @@ router.post("/method",
     orderController.changeOrderMethod.bind(orderController)
 );
 
-router.post("/create-payment/:user_id/:order_id",
+router.post("/payment/:user_id/:order_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     upload.single("pop_image"),
     paymentController.createPayment.bind(paymentController)
 );
+
+router.get("/payment/:store_id/:payment_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+    authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
+    paymentController.getPaymentById.bind(paymentController)
+)
+
+router.put("/payment/:store_id/:payment_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+    authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
+    paymentController.changePaymentStatus.bind(paymentController)
+)
+
+router.get("/payment-history/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    paymentController.getUserPaymentHistory.bind(paymentController)
+)
+
+router.get("/payment-details/:user_id/:payment_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    paymentController.getUserPaymentDetails.bind(paymentController)
+)
+
+router.put("/process/:store_id/:order_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+    authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
+    orderController.processOrder.bind(orderController)
+)
+
+router.put("/confirm/:user_id/:order_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    orderController.confirmUserOrder.bind(orderController)
+)
+
+router.put("/cancel/:user_id/:order_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    orderController.cancelUserOrder.bind(orderController)
+)
+
+router.get("/user-items/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    paymentController.getUserItemDetails.bind(paymentController)
+)
+
+router.get("/store-items/:store_id/:order_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+    authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
+    paymentController.getStoreItemDetails.bind(paymentController)
+)
 
 export default router;

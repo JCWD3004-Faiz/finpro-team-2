@@ -35,14 +35,14 @@ router.get(
 );
 
 router.delete(
-  "/delete-admin/:user_id",
+  "/admin/:user_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.deleteStoreAdmin.bind(superAdminController)
 );
 
 router.post(
-  "/create-store",
+  "/store",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.createStore.bind(superAdminController)
@@ -56,14 +56,14 @@ router.get(
 );
 
 router.patch(
-  "/update-store/:store_id",
+  "/store/:store_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.updateStore.bind(superAdminController)
 );
 
 router.put(
-  "/delete-store/:store_id",
+  "/store/:store_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.deleteStore.bind(superAdminController)

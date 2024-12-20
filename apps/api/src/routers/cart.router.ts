@@ -22,14 +22,14 @@ router.post("/quantity",
     cartController.changeItemQuantity.bind(cartController)
 );
 
-router.get("/cart-items/:user_id",
+router.get("/items/:user_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
     cartController.getCartItems.bind(cartController)
 )
 
-router.delete("/remove/:user_id/:cart_item_id",
+router.delete("/:user_id/:cart_item_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
