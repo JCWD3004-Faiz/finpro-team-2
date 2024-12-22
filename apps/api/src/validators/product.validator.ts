@@ -28,3 +28,5 @@ export const productSchema = validate.object({
       message: "Image URLs must be valid and non-empty strings",
     }),
 });
+
+export const updateProductSchema = productSchema.partial();

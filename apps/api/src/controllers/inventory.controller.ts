@@ -69,7 +69,8 @@ export class InventoryController {
         data: inventories
       });
     } catch (error) {
-      sendErrorResponse(res, 400, `Failed to get Inventories for the store ID`);
+      const err = error as Error;
+      sendErrorResponse(res, 400, `Failed to get Inventories for the store ID`, err.message);
     }
   }
 }

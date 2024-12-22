@@ -51,7 +51,8 @@ export class CategoryController {
             status: res.statusCode,
         });
     } catch (error) {
-        sendErrorResponse(res, 400, `Failed to update the category`);
+      const err = error as Error;
+        sendErrorResponse(res, 400, `Failed to update the category`, err.message);
     }
   }
 
@@ -64,7 +65,8 @@ export class CategoryController {
             status: res.statusCode,
         });
     } catch (error) {
-        sendErrorResponse(res, 400, `Failed to delete the category`);
+      const err = error as Error;
+        sendErrorResponse(res, 400, `Failed to delete the category`, err.message);
     }
   }
 }
