@@ -125,14 +125,14 @@ export interface Voucher {
 }
 
 export enum VoucherType {
-    PERCENTAGE = 'PERCENTAGE',
-    NOMINAL = 'NOMINAL',
-}
-
-export enum DiscountTypeEnum {
     SHIPPING_DISCOUNT = 'SHIPPING_DISCOUNT',
     PRODUCT_DISCOUNT = 'PRODUCT_DISCOUNT',
     CART_DISCOUNT = 'CART_DISCOUNT',
+}
+
+export enum DiscountTypeEnum {
+    PERCENTAGE = 'PERCENTAGE',
+    NOMINAL = 'NOMINAL',
 }
   
 export interface UserVoucher {

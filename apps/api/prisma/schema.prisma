@@ -171,18 +171,17 @@ model Discounts {
 }
 
 model Vouchers {
-  voucher_id      Int              @id @default(autoincrement())
-  code            String           @unique
-  type            VoucherType
-  discount_type   DiscountTypeEnum
-  discount_amount Decimal          @db.Decimal(10, 2)
-  min_purchase    Decimal?         @db.Decimal(10, 2)
-  max_discount    Decimal?         @db.Decimal(10, 2)
-  description     String?    
-  is_active       Boolean          @default(true)
-  expiration_date DateTime
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
+  voucher_id        Int              @id @default(autoincrement())
+  discount_type     DiscountTypeEnum
+  voucher_type      VoucherType
+  discount_amount   Decimal          @db.Decimal(10, 2)
+  min_purchase      Decimal?         @db.Decimal(10, 2)
+  max_discount      Decimal?         @db.Decimal(10, 2)
+  description       String?
+  expire_period     Int    
+  is_deleted        Boolean          @default(false)
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
 
   UserVouchers UserVouchers[]
 
@@ -190,11 +189,13 @@ model Vouchers {
 }
 
 model UserVouchers {
-  user_voucher_id Int       @id @default(autoincrement())
+  user_voucher_id Int           @id @default(autoincrement())
   user_id         Int
   voucher_id      Int
-  is_used         Boolean   @default(false)
+  redeem_code    String         @unique
+  voucher_status  VoucherStatus @default(ACTIVE)
   used_at         DateTime?
+  expiration_date DateTime
 
   User    Users    @relation(fields: [user_id], references: [user_id])
   Voucher Vouchers @relation(fields: [voucher_id], references: [voucher_id])
@@ -388,16 +389,24 @@ enum DiscountType {
 }
 
 enum VoucherType {
+  SHIPPING_DISCOUNT
+  PRODUCT_DISCOUNT
+  CART_DISCOUNT
+
+  @@schema("finpro")
+}
+
+enum DiscountTypeEnum {
   PERCENTAGE
   NOMINAL
 
   @@schema("finpro")
 }
 
-enum DiscountTypeEnum {
-  SHIPPING_DISCOUNT
-  PRODUCT_DISCOUNT
-  CART_DISCOUNT
+enum VoucherStatus {
+  ACTIVE
+  EXPIRED
+  USED
 
   @@schema("finpro")
 }

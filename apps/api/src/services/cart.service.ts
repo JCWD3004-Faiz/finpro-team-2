@@ -1,11 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import { VoucherService } from "./voucher.service";
 import axios from "axios";
 
 export class CartService {
     private prisma: PrismaClient;
+    private voucherService: VoucherService; 
+
 
     constructor() {
         this.prisma = new PrismaClient();
+        this.voucherService = new VoucherService();
     }
 
     async addToCart(user_id: number, inventory_id: number) {
@@ -110,7 +114,8 @@ export class CartService {
                 cart_price: cart.cart_price, shipping_method: "jne", shipping_price: 0} });
             const shipping_price = await this.calculateShippingPrice(cartOrder.order_id);
             await this.prisma.carts.update({ where: { cart_id: cart.cart_id }, data: { is_active: false } });
-            return { message: "Cart checked out successfully", order: { ...cartOrder, shipping_price } };
+            const voucherResponse = await this.voucherService.sendCartVoucher(user_id, Number(cart.cart_price));
+            return { message: "Cart checked out successfully", order: { ...cartOrder, shipping_price }, voucher: voucherResponse || null };
         } catch (error) {
             console.error("Error during checkout:", error);
             return { error: "Failed to checkout cart" };

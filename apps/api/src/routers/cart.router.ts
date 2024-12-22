@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { CartController } from "../controllers/cart.controller";
+import { VoucherController } from "../controllers/voucher.controller";
+
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 
 const router = Router();
 const cartController = new CartController();
+const voucherController = new VoucherController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 
@@ -41,6 +44,20 @@ router.post("/checkout/:user_id",
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
     cartController.checkoutCart.bind(cartController)
+);
+
+router.post("/voucher/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.selectVoucher.bind(voucherController)
+);
+
+router.post("/redeem-product/",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.redeemProductVoucher.bind(voucherController)
 );
 
 export default router;

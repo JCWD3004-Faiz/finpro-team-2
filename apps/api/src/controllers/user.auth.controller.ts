@@ -72,7 +72,7 @@ export class UserAuthController {
       const { password_hash, register_code } = req.body;
       await this.userAuthService.userRegister({username, email, password_hash, register_code});
       res.status(201).send({
-        message: "Successfully register",
+        message: "Successfully registered",
         status: res.statusCode,
       });
     } catch (error) {
