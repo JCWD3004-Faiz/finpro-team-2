@@ -32,13 +32,21 @@ export class CartService {
 
     async updateCartPrice(user_id: number) {
         try {
-            const cart = await this.prisma.carts.findFirst({ where: { user_id, is_active: true } });
+            const cart = await this.prisma.carts.findFirst({ where: { user_id, is_active: true }});    
             const { _sum: { product_price } } = await this.prisma.cartItems.aggregate({
-                where: { cart_id: cart?.cart_id }, _sum: { product_price: true }
-            });
-            await this.prisma.carts.update({
-                where: { cart_id: cart?.cart_id }, data: { cart_price: product_price || 0 }
-            });
+                where: { cart_id: cart?.cart_id },  _sum: { product_price: true }
+            });    
+            let newCartPrice = Number(product_price || 0);
+            const discountAmount = Number(cart?.discount_amount)
+            if (cart?.discount_type && cart?.discount_amount != null) {
+                if (cart.discount_type === "NOMINAL") {
+                    newCartPrice = Math.max(newCartPrice - discountAmount, 0);
+                } else if (cart.discount_type === "PERCENTAGE") {
+                    const discount = (newCartPrice * discountAmount) / 100;
+                    newCartPrice = Math.max(newCartPrice - discount, 0);
+                }
+            }    
+            await this.prisma.carts.update({ where: { cart_id: cart?.cart_id }, data: { cart_price: newCartPrice }});
             return { message: "Cart price updated successfully" };
         } catch (error) {
             console.error("Error updating cart price:", error);
@@ -51,15 +59,23 @@ export class CartService {
             if (quantity <= 0) return { error: "Quantity must be greater than zero" };
             const cart = await this.prisma.carts.findFirst({ where: { user_id, is_active: true } });
             if (!cart) return { error: "Cart not found" };
-            const cartItem = await this.prisma.cartItems.findUnique({
-                where: { cart_item_id }, include: { Inventory: true }});
+            const cartItem = await this.prisma.cartItems.findUnique({where: { cart_item_id }, include: { Inventory: true }});
             if (!cartItem) return { error: "Cart item not found" };
-            const inventoryPrice = Number(cartItem.Inventory.discounted_price);
-            const updatedPrice = inventoryPrice * quantity;
+            const discountAmount = Number(cartItem.discount_amount)
+            const inventoryPrice = Number(cartItem.Inventory.discounted_price);    
+            let updatedPrice = inventoryPrice * quantity;    
+            if (cartItem.discount_type === "NOMINAL") {
+                updatedPrice = Math.max(updatedPrice - discountAmount, 0);
+            } else if (cartItem.discount_type === "PERCENTAGE") {
+                const discount = (updatedPrice * discountAmount) / 100;
+                updatedPrice = Math.max(updatedPrice - discount, 0);
+            }
             const updatedCartItem = await this.prisma.cartItems.update({
-                where: { cart_item_id }, data: { quantity, product_price: updatedPrice }});
+                where: { cart_item_id }, data: { quantity, product_price: updatedPrice },
+            });    
             return { message: "Item quantity and price updated successfully", cart_item: updatedCartItem };
         } catch (error) {
+            console.error("Error updating item quantity:", error);
             return { error: "Failed to update item quantity" };
         }
     }
@@ -134,7 +150,16 @@ export class CartService {
             const payload = { origin: store.city_id, destination: order.Address.city_id, weight: totalWeight * 1000, courier: order.shipping_method };
             const response = await axios.post('https://api.rajaongkir.com/starter/cost', 
                 payload, { headers: { key: process.env.RAJAONGKIR_API_KEY } });
-            const newPrice = response.data.rajaongkir.results[0].costs[0].cost[0].value
+            let newPrice = response.data.rajaongkir.results[0].costs[0].cost[0].value
+            const discountAmount = Number(order.discount_amount)
+            if (order.discount_type && order.discount_amount != null) {
+                if (order.discount_type === "NOMINAL") {
+                    newPrice = Math.max(newPrice - discountAmount, 0);
+                } else if (order.discount_type === "PERCENTAGE") {
+                    const discount = (newPrice * discountAmount) / 100;
+                    newPrice = Math.max(newPrice - discount, 0);
+                }
+            }    
             await this.prisma.orders.update({ where: { order_id: order_id }, data: { shipping_price: newPrice } });
             return { message: "Shipping price calculated successfully" };
         } catch (error) {

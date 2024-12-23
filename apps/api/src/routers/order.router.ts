@@ -2,6 +2,7 @@ import { Router } from "express";
 import { OrderController } from "../controllers/order.controller";
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 import { PaymentController } from "../controllers/payment.controller";
+import { VoucherController } from "../controllers/voucher.controller";
 import upload from "../middlewares/upload.middleware";
 
 
@@ -9,6 +10,8 @@ const router = Router();
 const orderController = new OrderController();
 const authenticateJwt = new AuthJwtMiddleware();
 const paymentController = new PaymentController();
+const voucherController = new VoucherController();
+
 
 router.get("/all",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
@@ -120,5 +123,12 @@ router.get("/store-items/:store_id/:order_id",
     authenticateJwt.authorizeStoreAdmin().bind(authenticateJwt),
     paymentController.getStoreItemDetails.bind(paymentController)
 )
+
+router.post("/redeem-shipping/",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.redeemShippingVoucher.bind(voucherController)
+);
 
 export default router;

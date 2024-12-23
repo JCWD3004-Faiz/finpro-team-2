@@ -60,4 +60,11 @@ router.post("/redeem-product/",
     voucherController.redeemProductVoucher.bind(voucherController)
 );
 
+router.post("/redeem-cart/",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.redeemCartVoucher.bind(voucherController)
+);
+
 export default router;

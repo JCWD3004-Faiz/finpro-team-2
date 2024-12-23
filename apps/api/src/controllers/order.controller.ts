@@ -98,12 +98,12 @@ export class OrderController {
         const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
         if (data && !data.error && shippingPrice) {
             res.status(200).send({
-                message: "Successfully updated destination address",
+                message: "Successfully updated shipping method",
                 status: res.statusCode,
             });
         } else {
             res.status(400).send({
-                message: "Failed to update destination address", status: res.statusCode,
+                message: "Failed to update shipping method", status: res.statusCode,
             });
         }
     }

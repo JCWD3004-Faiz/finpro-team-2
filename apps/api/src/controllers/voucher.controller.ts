@@ -116,4 +116,30 @@ export class VoucherController {
             });
         }
     }
+
+    async redeemCartVoucher(req: Request, res: Response){
+        try {
+            const { user_id, user_voucher_id, cart_item_id } = req.body;
+            const data = await this.voucherService.redeemCartVoucher(user_id, user_voucher_id, cart_item_id);
+            res.status(200).send({
+                message: "Successfully applied cart voucher discount",
+                status: res.statusCode, data: data
+            });
+        } catch (error) {
+            sendErrorResponse(res, 400, `Failed to apply cart voucher discount`);
+        }
+    }
+
+    async redeemShippingVoucher(req: Request, res: Response){
+        try {
+            const { user_id, order_id, redeem_code } = req.body;
+            const data = await this.voucherService.redeemShippingVoucher(user_id, order_id, redeem_code);
+            res.status(200).send({
+                message: "Successfully applied shipping voucher discount",
+                status: res.statusCode, data: data
+            });
+        } catch (error) {
+            sendErrorResponse(res, 400, `Failed to apply shipping voucher discount`);
+        }
+    }
 }

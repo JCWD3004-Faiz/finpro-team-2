@@ -225,6 +225,8 @@ model Carts {
   cart_id    Int      @id @default(autoincrement())
   user_id    Int
   cart_price Decimal  @db.Decimal(10, 2)
+  discount_type     DiscountTypeEnum?
+  discount_amount   Decimal?          @db.Decimal(10, 2)
   is_active  Boolean  @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -242,6 +244,8 @@ model CartItems {
   inventory_id  Int
   quantity      Int
   product_price Decimal  @db.Decimal(10, 2)
+  discount_type     DiscountTypeEnum?
+  discount_amount   Decimal?          @db.Decimal(10, 2)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
@@ -261,6 +265,8 @@ model Orders {
   order_status    OrderStatus     @default(PENDING_PAYMENT)
   shipping_method ShippingMethod  @default(jne)
   shipping_price  Decimal         @db.Decimal(10, 2)
+  discount_type     DiscountTypeEnum?
+  discount_amount   Decimal?          @db.Decimal(10, 2)
   created_at      DateTime        @default(now())
   updated_at      DateTime        @updatedAt
 

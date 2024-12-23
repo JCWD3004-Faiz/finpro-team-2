@@ -3,7 +3,6 @@ import { DiscountTypeEnum, VoucherType } from "../models/all.models";
 import { voucherSchema } from "../validators/voucher.validator";
 import { addMonths } from "date-fns";
 
-
 export class VoucherService {
     private prisma: PrismaClient;
 
@@ -22,85 +21,63 @@ export class VoucherService {
             }
             const existingCode = await this.prisma.userVouchers.findUnique({ where: { redeem_code: redeemCode }});
             if (!existingCode) {isUnique = true}
-        }
-        return redeemCode;
+        } return redeemCode;
     }
 
     async calculateExpirationDate(voucher_id: number) {
-        const voucher = await this.prisma.vouchers.findUnique({
-            where: { voucher_id: voucher_id },
-        });
+        const voucher = await this.prisma.vouchers.findUnique({ where: { voucher_id: voucher_id }});
         if (!voucher) { throw new Error("Voucher not found")}
-        const expirationDate = addMonths(new Date(), voucher.expire_period);
-        return expirationDate;
+        const expirationDate = addMonths(new Date(), voucher.expire_period); return expirationDate;
     }
 
     async createVoucher(
-        discount_type: DiscountTypeEnum,
-        voucher_type: VoucherType, 
-        discount_amount: number,
-        expire_period: number,
-        min_purchase?: number, //Only for cart vouchers. Send the voucher if the total price exceeds this
-        max_discount?: number, //Can only be redeemed if the discounted price is less than this
-        description?: string
+        discount_type: DiscountTypeEnum, voucher_type: VoucherType, discount_amount: number,
+        expire_period: number, min_purchase?: number, max_discount?: number, description?: string
     ) {
-        const dataToValidate = { discount_amount, expire_period };
-        const validatedVoucher = voucherSchema.parse(dataToValidate);
+        const dataToValidate = { discount_amount, expire_period }; const validatedVoucher = voucherSchema.parse(dataToValidate);
         const newVoucher = await this.prisma.vouchers.create({
             data: {
                 voucher_type, discount_type, discount_amount: validatedVoucher.discount_amount, 
                 expire_period: validatedVoucher.expire_period, min_purchase, max_discount, description,
             },
-        });
-        return newVoucher;
+        }); return newVoucher;
     }
     
     async getAllVouchers(){
-        return await this.prisma.vouchers.findMany({
-            where: { is_deleted: false }
-        });
+        return await this.prisma.vouchers.findMany({ where: { is_deleted: false }});
     }
 
     async editVoucher(
         voucher_id:number, voucher_type: VoucherType, discount_type: DiscountTypeEnum, discount_amount: number,
         expire_period: number, min_purchase?: number, max_discount?: number, description?: string
     ){
-        const dataToValidate = { discount_amount, expire_period };
-        const validatedVoucher = voucherSchema.parse(dataToValidate);
+        const dataToValidate = { discount_amount, expire_period }; const validatedVoucher = voucherSchema.parse(dataToValidate);
         const updatedVoucher = await this.prisma.vouchers.update({
             where: { voucher_id: voucher_id },
             data: {
                 voucher_type, discount_type, discount_amount: validatedVoucher.discount_amount, 
                 expire_period: validatedVoucher.expire_period, min_purchase, max_discount, description,
             },
-        });
-        return updatedVoucher;
+        }); return updatedVoucher;
     }
 
     async deleteVoucher(voucher_id:number){
         const deletedVoucher = await this.prisma.vouchers.update({
           where: { voucher_id }, data: { is_deleted: true },
-        });
-        return deletedVoucher;
+        }); return deletedVoucher;
     }
 
     async giftVoucher(voucher_id: number, user_id: number) {
-        const voucher = await this.prisma.vouchers.findUnique({
-            where: { voucher_id: voucher_id, is_deleted: false },
-        });
+        const voucher = await this.prisma.vouchers.findUnique({where: { voucher_id: voucher_id, is_deleted: false }});
         if (!voucher) { throw new Error("Voucher not found or is deleted")}
-        const redeemCode = await this.generateRedeemCode();   
-        const expiration_date = await this.calculateExpirationDate(voucher_id);    
+        const redeemCode = await this.generateRedeemCode(); const expiration_date = await this.calculateExpirationDate(voucher_id);    
         const userVoucher = await this.prisma.userVouchers.create({
             data: {user_id: user_id, voucher_id: voucher_id, redeem_code: redeemCode, expiration_date: expiration_date},
-        });
-        return userVoucher;
+        }); return userVoucher;
     }
 
     async sendReferralVoucher(user_id: number) {
-        const referralVoucher = await this.prisma.vouchers.findUnique({
-            where: { voucher_id: 5, is_deleted: false },
-        });
+        const referralVoucher = await this.prisma.vouchers.findUnique({where: { voucher_id: 9, is_deleted: false }});
         if (!referralVoucher) { throw new Error("Referral voucher not found or is deleted")}
         const redeemCode = await this.generateRedeemCode();   
         const expiration_date = await this.calculateExpirationDate(referralVoucher.voucher_id);    
@@ -112,12 +89,10 @@ export class VoucherService {
     async sendCartVoucher(user_id: number, cart_price: number) {
         try {
             const vouchers = await this.prisma.vouchers.findMany({
-                where: { min_purchase: { lte: cart_price }, is_deleted: false},
-                orderBy: { min_purchase: 'desc'}
+                where: { min_purchase: { lte: cart_price }, is_deleted: false}, orderBy: { min_purchase: 'desc'}
             });
             if (vouchers.length === 0) { return { error: "No valid voucher found for this cart" }}
-            const closestVoucher = vouchers[0];
-            const redeemCode = await this.generateRedeemCode();   
+            const closestVoucher = vouchers[0]; const redeemCode = await this.generateRedeemCode();   
             const expiration_date = await this.calculateExpirationDate(closestVoucher.voucher_id);
             const userVoucher = await this.prisma.userVouchers.create({
                 data: { user_id, voucher_id: closestVoucher.voucher_id,redeem_code:redeemCode, expiration_date: expiration_date},
@@ -131,15 +106,9 @@ export class VoucherService {
 
     async sendShippingVoucher(user_id: number) {
         try {
-            const confirmedOrders = await this.prisma.orders.count({
-                where: { user_id, order_status: "AWAITING_CONFIRMATION"},
-            });
-            if (confirmedOrders % 3 !== 0) {
-                return { error: "User is not eligible for a shipping voucher yet. Only after every 3 confirmed orders." }
-            }
-            const shippingVoucher = await this.prisma.vouchers.findFirst({
-                where: { voucher_type: "SHIPPING_DISCOUNT", is_deleted: false},
-            });
+            const confirmedOrders = await this.prisma.orders.count({ where: { user_id, order_status: "AWAITING_CONFIRMATION"}});
+            if (confirmedOrders % 3 !== 0) { return { error: "User is not eligible for a shipping voucher yet." }}
+            const shippingVoucher = await this.prisma.vouchers.findFirst({ where: { voucher_type: "SHIPPING_DISCOUNT", is_deleted: false}});
             if (!shippingVoucher) { return { error: "No valid shipping voucher found." }} 
             const redeemCode = await this.generateRedeemCode();   
             const expiration_date = await this.calculateExpirationDate(shippingVoucher.voucher_id);    
@@ -156,73 +125,107 @@ export class VoucherService {
     async selectVoucher(user_id: number, redeem_code: string) {
         try {
           const userVoucher = await this.prisma.userVouchers.findFirst({
-            where: { user_id: user_id, redeem_code: redeem_code, voucher_status: "ACTIVE" },
-            include: { Voucher: true },
-          });
+            where: { user_id: user_id, redeem_code: redeem_code, voucher_status: "ACTIVE" }, include: { Voucher: true },
+        });
           if (!userVoucher) { return { error: "Voucher not found, expired, or already used." }}      
-          if (userVoucher.Voucher.voucher_type === "SHIPPING_DISCOUNT") {
-            return { error: "This voucher is not valid for redemption." };
-          }      
-          return {
-            user_voucher_id: userVoucher.user_voucher_id,
-            voucher_id: userVoucher.Voucher.voucher_id,
-            discount_type: userVoucher.Voucher.discount_type };
+          if (userVoucher.Voucher.voucher_type === "SHIPPING_DISCOUNT") { return { error: "This voucher is not valid for redemption." }}      
+          return { user_voucher_id: userVoucher.user_voucher_id, discount_type: userVoucher.Voucher.discount_type };
         } catch (error) {
           console.error(error);
           return { error: "An error occurred while selecting the voucher." };
         }
     }
 
-    // Redeem voucher functions. Make the full endpoint and attach them to the frontend
     async redeemProductVoucher(user_id: number, user_voucher_id: number, cart_item_id: number) {
         try {
-        const userVoucher = await this.prisma.userVouchers.findUnique({
-            where: { user_voucher_id: user_voucher_id, user_id: user_id},
-            include: { Voucher: true},
-        });
-        if (!userVoucher) { throw new Error('Voucher not found')}
-        if (userVoucher.voucher_status !== "ACTIVE") { throw new Error('Voucher is not active')}    
-        const cartItem = await this.prisma.cartItems.findUnique({where: {cart_item_id: cart_item_id}});
-        if (!cartItem) { throw new Error('Cart item not found')}    
-        const discountAmount = Number(userVoucher.Voucher.discount_amount);    
-        if (cartItem.product_price < ( userVoucher.Voucher.min_purchase || 0)) {
-            throw new Error('Product does not meet the minimum purchase requirement');
-        }
-        let newPrice = Number(cartItem.product_price);
-        if (userVoucher.Voucher.discount_type === "NOMINAL") {
-            newPrice = Math.max(newPrice - discountAmount, 0);
-        } else if (userVoucher.Voucher.discount_type === "PERCENTAGE") {
-            const discount = (newPrice * discountAmount) / 100;
-            newPrice = Math.max(newPrice - discount, 0);
-        }    
-        // Apply the max discount cap if it exists
-        if (userVoucher.Voucher.max_discount && newPrice > Number(userVoucher.Voucher.max_discount)) {
-            newPrice = Number(userVoucher.Voucher.max_discount);
-        }
-        await this.prisma.cartItems.update({
-            where: { cart_item_id: cart_item_id},
-            data: { product_price: newPrice},
-        });
-        await this.prisma.userVouchers.update({
-            where: { user_voucher_id: userVoucher.user_voucher_id},
-            data: { voucher_status: "USED", used_at: new Date()},
-        });
-        return { success: true, message: 'Voucher applied successfully', newPrice: newPrice};
+            const userVoucher = await this.prisma.userVouchers.findUnique({
+                where: { user_voucher_id: user_voucher_id, user_id: user_id, voucher_status: "ACTIVE" }, include: { Voucher: true },
+            });
+            if (!userVoucher) { throw new Error('Voucher not found') }
+            const cartItem = await this.prisma.cartItems.findUnique({ where: { cart_item_id: cart_item_id } });
+            if (!cartItem) { throw new Error('Cart item not found') }
+            const discountAmount = Number(userVoucher.Voucher.discount_amount);
+            const minPurchase = userVoucher.Voucher.min_purchase || 0;
+            const maxDiscount = Number(userVoucher.Voucher.max_discount || 0);    
+            if (cartItem.product_price < minPurchase) { throw new Error('Product does not meet the minimum purchase requirement')}
+            let newPrice = Number(cartItem.product_price);
+            let calculatedDiscount = (newPrice * discountAmount) / 100;            
+            if (maxDiscount > 0 && calculatedDiscount > maxDiscount) { throw new Error(`Discount exceeds the maximum allowed discount of ${maxDiscount}`)}
+            newPrice = Math.max(newPrice - calculatedDiscount, 0);
+            await this.prisma.cartItems.update({
+                where: { cart_item_id: cart_item_id },
+                data: { product_price: newPrice, discount_type: userVoucher.Voucher.discount_type, discount_amount: discountAmount },
+            });
+            await this.prisma.userVouchers.update({
+                where: { user_voucher_id: userVoucher.user_voucher_id }, data: { voucher_status: "USED", used_at: new Date() },
+            });
+            return { success: true, message: 'Voucher applied successfully', newPrice: newPrice };
         } catch (error) {
             return { error: "Failed to apply product voucher discount" };
         }
     }
 
-    async redeemCartVoucher(user_id: number, cart_id:number){
-
+    async redeemCartVoucher(user_id: number, user_voucher_id: number, cart_id: number) {
+        try {
+            const userVoucher = await this.prisma.userVouchers.findUnique({
+                where: { user_voucher_id: user_voucher_id, user_id: user_id, voucher_status: "ACTIVE" }, include: { Voucher: true },
+            });
+            if (!userVoucher) { throw new Error('Voucher not found') }
+            const cart = await this.prisma.carts.findUnique({ where: { cart_id: cart_id, user_id: user_id, is_active: true }});
+            if (!cart) { throw new Error('Cart not found') }
+            const discountAmount = Number(userVoucher.Voucher.discount_amount);
+            const minPurchase = userVoucher.Voucher.min_purchase || 0;
+            const maxDiscount = Number(userVoucher.Voucher.max_discount || 0);    
+            if (cart.cart_price < minPurchase) { throw new Error('Cart does not meet the minimum purchase requirement')}
+            let newCartPrice = Number(cart.cart_price);
+            let calculatedDiscount = (newCartPrice * discountAmount) / 100;    
+            if (maxDiscount > 0 && calculatedDiscount > maxDiscount) {
+                throw new Error(`Discount exceeds the maximum allowed discount of ${maxDiscount}`);
+            }
+            newCartPrice = Math.max(newCartPrice - calculatedDiscount, 0);
+            await this.prisma.carts.update({
+                where: { cart_id: cart.cart_id },
+                data: { cart_price: newCartPrice, discount_type: userVoucher.Voucher.discount_type, discount_amount: discountAmount },
+            });
+            await this.prisma.userVouchers.update({
+                where: { user_voucher_id: userVoucher.user_voucher_id }, data: { voucher_status: "USED", used_at: new Date() },
+            });
+            return { success: true, message: 'Voucher applied successfully', newCartPrice: newCartPrice };
+        } catch (error) {
+            console.error("Error redeeming cart voucher:", error);
+            return { error: "Failed to apply cart voucher discount" };
+        }
     }
 
-    async redeemShippingVoucher(user_id: number, order_id:number, redeem_code:string){
-
-    }
-
-    // Expire voucher. Use cron job
-    async expireVoucher(){
-
+    async redeemShippingVoucher(user_id: number, order_id: number, redeem_code: string) {
+        try {
+            const userVoucher = await this.prisma.userVouchers.findUnique({
+                where: { user_id: user_id, redeem_code: redeem_code, voucher_status: "ACTIVE" }, include: { Voucher: true },
+            });
+            if (!userVoucher) { throw new Error('Voucher not found') }
+            const order = await this.prisma.orders.findUnique({
+                where: { order_id: order_id, user_id: user_id, order_status: "PENDING_PAYMENT" },
+            });
+            if (!order) { throw new Error('Order not found') }
+            const discountAmount = Number(userVoucher.Voucher.discount_amount);
+            const minPurchase = userVoucher.Voucher.min_purchase || 0;
+            const maxDiscount = Number(userVoucher.Voucher.max_discount || 0);
+            if (order.shipping_price < minPurchase) { throw new Error('Shipping does not meet the minimum price requirement')}
+            let newShippingPrice = Number(order.shipping_price);
+            let calculatedDiscount = (newShippingPrice * discountAmount) / 100;    
+            if (maxDiscount > 0 && calculatedDiscount > maxDiscount) { throw new Error(`Discount exceeds the maximum allowed discount of ${maxDiscount}`)}
+            newShippingPrice = Math.max(newShippingPrice - calculatedDiscount, 0);
+            await this.prisma.orders.update({
+                where: { order_id: order_id },
+                data: { shipping_price: newShippingPrice, discount_type: userVoucher.Voucher.discount_type, discount_amount: discountAmount },
+            });
+            await this.prisma.userVouchers.update({
+                where: { user_voucher_id: userVoucher.user_voucher_id }, data: { voucher_status: "USED", used_at: new Date() },
+            });
+            return { success: true, message: 'Voucher applied successfully', newShippingPrice: newShippingPrice };
+        } catch (error) {
+            console.error("Error redeeming shipping voucher:", error);
+            return { error: "Failed to apply shipping voucher discount" };
+        }
     }
 }
