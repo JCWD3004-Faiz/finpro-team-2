@@ -1,9 +1,17 @@
 import { PrismaClient } from "@prisma/client";
+import { VoucherService } from "./voucher.service";
 import { Payment, PaymentStatus } from "../models/all.models";
 import cloudinary from "../config/cloudinary";
 
 export class PaymentService {
     private prisma: PrismaClient = new PrismaClient();
+    private voucherService: VoucherService;
+
+    constructor() {
+        this.prisma = new PrismaClient();
+        this.voucherService = new VoucherService();
+    }
+
     
     private async generateTransactionId(): Promise<string> {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -47,7 +55,8 @@ export class PaymentService {
                 }
             });
             await this.prisma.orders.update({ where: { order_id: order_id }, data: { order_status: "AWAITING_CONFIRMATION" }});
-            return { message: "Payment created successfully.", payment };
+            const shippingVoucherResponse = await this.voucherService.sendShippingVoucher(user_id);
+            return { message: "Payment created successfully.", payment, voucher: shippingVoucherResponse || null };
         } catch (error) {
             console.error("Error creating payment:", error);
             return { error: "Failed to create payment." };
