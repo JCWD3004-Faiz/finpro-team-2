@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { SuperAdminController } from "../controllers/super.admin.controller";
+import { ProductController } from "../controllers/product.controller";
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 const superAdminController = new SuperAdminController();
+const productController = new ProductController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 router.post(
@@ -68,5 +70,19 @@ router.put(
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.deleteStore.bind(superAdminController)
 );
+
+router.get(
+  "/products",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.getProductsForSuperAdmin.bind(productController)
+)
+
+router.get(
+  "/products/details/:product_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.getProductDetailforSuperAdmin.bind(productController)
+)
 
 export default router;

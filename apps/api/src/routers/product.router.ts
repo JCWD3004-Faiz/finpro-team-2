@@ -40,11 +40,40 @@ router.patch(
 
 //product router
 router.post(
-  "/create",
+  "/",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   upload.array("images"),
   productController.createProduct.bind(productController)
+);
+
+router.patch(
+  "/name/:product_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.updateProduct.bind(productController)
+)
+
+router.patch(
+  "/description/:product_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.updateProduct.bind(productController)
+)
+
+router.patch(
+  "/price/:product_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.updateProduct.bind(productController)
+)
+
+router.patch(
+    "/images/:image_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    upload.single("image"),
+    productController.updateProductImage.bind(productController)
 );
 
 export default router;
