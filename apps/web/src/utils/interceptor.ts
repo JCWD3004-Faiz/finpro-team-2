@@ -1,60 +1,52 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-// Create a new axios instance
-const api = axios.create({
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:8000/",
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const access_token = Cookies.get('access_token');
-    if (access_token) {
-      config.headers['Authorization'] = `Bearer ${access_token}`;
-    }
-    return config;
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor to handle expired access tokens and refresh them
-api.interceptors.response.use(
-  (response) => response, // Return the response if no errors
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // Prevent infinite loop
-
-      const refreshToken = Cookies.get('refreshToken');
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = Cookies.get("refreshToken");
       if (refreshToken) {
         try {
-          const { data } = await axios.post('/api/auth/refresh-token', { refreshToken });
-          const newAccessToken = data.data.refreshToken;
-          Cookies.set('access_token', newAccessToken, { expires: 1 }); // Adjust expiration time
-
-          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-          return api(originalRequest); // Retry the original request
+          const refreshResponse = await axiosInstance.post("/api/auth/refresh-token", {
+            refreshToken: refreshToken,
+          });
+          const { accessToken } = refreshResponse.data.data.refreshToken;
+          if (!accessToken) {
+            throw new Error("No access token returned from refresh endpoint");
+          }
+          Cookies.set("access_token", accessToken, { expires: 1 });
+          originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+          return axiosInstance(originalRequest); 
         } catch (refreshError) {
-          console.error('Failed to refresh access token', refreshError);
-          Cookies.remove('access_token');
-          Cookies.remove('refreshToken');
-          alert('Your session has expired. Please log in again.');
-          window.location.href = '/auth/login-page'; // Redirect to login page
+          console.error("Token refresh failed:", refreshError);
+          alert("Session expired. Please log in again.");
+          Cookies.remove("access_token");
+          Cookies.remove("refreshToken");
+          window.location.href = "/auth/login-page";
+          return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token, show alert and redirect to login
-        alert('Your session has expired. Please log in again.');
-        window.location.href = '/auth/login-page'; // Redirect to login page
+        console.error("No refresh token available");
+        alert("No session found. Please log in again.");
+        Cookies.remove("access_token");
+        Cookies.remove("refreshToken");
+        window.location.href = "/auth/login-page";
+        return Promise.reject(error);
       }
     }
-
+    console.error("Response error:", error);
     return Promise.reject(error);
   }
 );
 
-export default api;
+export default axiosInstance;

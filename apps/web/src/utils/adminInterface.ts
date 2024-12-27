@@ -145,6 +145,9 @@ export enum DiscountType {
 }
   
 export interface Order {
+    username: string;
+    address: string;
+    city_name: string;
     order_id: number;
     cart_id: number;
     store_id: number;

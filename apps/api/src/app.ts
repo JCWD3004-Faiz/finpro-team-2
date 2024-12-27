@@ -12,6 +12,7 @@ import superAdminRouter from "./routers/super.admin.router"
 import storeAdminRouter from "./routers/store.admin.router"
 import inventoryRouter from "./routers/inventory.router"
 import productRouter from "./routers/product.router"
+import midtransRouter from "./routers/midtrans.router"
 
 import passport from "passport";
 environment.config();
@@ -40,6 +41,7 @@ app.use("/api/super-admin", superAdminRouter);
 app.use("/api/store-admin", storeAdminRouter);
 app.use("/api/products", productRouter);
 
+app.use("/api/midtrans", midtransRouter);
 
 app.listen(PORT, () => {
   console.log(`Listening on port : ${PORT}`);

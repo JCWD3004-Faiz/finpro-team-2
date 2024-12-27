@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 import { StoreAdminState } from '@/utils/reduxInterface';
+import { OrderStatus } from '@/utils/adminInterface';
 
 const initialState: StoreAdminState = {
   storeName: '',
@@ -10,6 +11,12 @@ const initialState: StoreAdminState = {
   loading: true,
   error: null, 
   isSidebarOpen: false,
+  storeOrders: [],
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
+  sortField: "created_at",
+  orderStatus: "",
 };
 
 const access_token = Cookies.get('access_token');
@@ -64,6 +71,36 @@ export const fetchAdminById = createAsyncThunk(
   }
 );
 
+export const fetchStoreOrders = createAsyncThunk('storeAdmin/fetchStoreOrders',
+  async ({
+    storeId,
+    page = 1,
+    sortField = "created_at",
+    sortOrder = "asc",
+    search = "",
+    orderStatus
+  }: {
+    storeId: number;
+    page?: number;
+    sortField?: string;
+    sortOrder?: string;
+    search?: string;
+    orderStatus: string;
+  }, { rejectWithValue }) => {
+    if (typeof window === "undefined") {
+      return rejectWithValue("Cannot fetch data during SSR")}
+    try {
+      const response = await axios.get(`/api/order/store/${storeId}`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: { page, sortField, sortOrder, search, orderStatus },
+      });
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue('Error fetching store orders.');
+    }
+  }
+)
+
 const handleAsyncState = (state: StoreAdminState, action: any) => {
   state.loading = false;
   if (action.error) {
@@ -94,6 +131,9 @@ const storeAdminSlice = createSlice({
     toggleSidebar: (state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
     },
+    setSortField(state, action) { state.sortField = action.payload},
+    setCurrentPage(state, action) {state.currentPage = action.payload;},
+    setOrderStatus(state, action) { state.orderStatus = action.payload;}
   },
   extraReducers: (builder) => {
     builder
@@ -105,9 +145,22 @@ const storeAdminSlice = createSlice({
       .addCase(fetchStoreByStoreId.rejected, (state, action) => handleAsyncState(state, action))
       .addCase(fetchAdminById.pending, (state) => {state.loading = true})
       .addCase(fetchAdminById.fulfilled, (state, action) => handleAsyncState(state, action))
-      .addCase(fetchAdminById.rejected, (state, action) => handleAsyncState(state, action));
+      .addCase(fetchAdminById.rejected, (state, action) => handleAsyncState(state, action))
+      .addCase(fetchStoreOrders.pending, (state) => {state.loading = true})
+      .addCase(fetchStoreOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        const { orders, currentPage, totalPages, totalItems } = action.payload.order_data;
+        state.storeOrders = orders;
+        state.totalPages = totalPages;
+        state.totalItems = totalItems;
+        state.currentPage = currentPage;
+      })
+      .addCase(fetchStoreOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { resetState, toggleSidebar } = storeAdminSlice.actions;
+export const { resetState, toggleSidebar, setCurrentPage, setSortField, setOrderStatus } = storeAdminSlice.actions;
 export default storeAdminSlice.reducer;

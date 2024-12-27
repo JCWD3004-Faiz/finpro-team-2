@@ -16,8 +16,6 @@ import useDebounce from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import LoadingVignette from '@/components/LoadingVignette';
 import SuccessModal from '@/components/modal-success';
-import ErrorModal from '@/components/modal-error';
-import { showError, hideError } from "@/redux/slices/errorSlice";
 import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 
 function ManageStores() {
@@ -26,17 +24,11 @@ function ManageStores() {
   const tableRef = useRef<HTMLTableElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
-  const { totalPages, sortField, isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
-  const { sortOrder, currentPage } = useSelector((state: RootState) => state.manageInventory);
+  const { currentPage, totalPages, sortField, isSidebarOpen, loading, allStores, editId, editStoreData, locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
+  const { sortOrder } = useSelector((state: RootState) => state.manageInventory);
   const { cities } = useSelector((state: RootState) => state.global);
 
-  const { isSuccessOpen, successMessage } = useSelector(
-    (state: RootState) => state.success
-  );
-
-  const { isErrorOpen, errorMessage } = useSelector(
-    (state: RootState) => state.error
-  );
+  const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success);
 
   useEffect(() => {
     dispatch(fetchAllStores({ page: currentPage, sortField, sortOrder, search: debouncedQuery }));
@@ -80,7 +72,7 @@ function ManageStores() {
         dispatch(resetEditState());
         dispatch(showSuccess("Store successfully edited"));
       } else {
-        dispatch(showError('Please select a valid location.'));        
+        alert('Please select a valid location.');
       }
     } else {
       dispatch(setEditId(store.store_id));
@@ -120,11 +112,6 @@ function ManageStores() {
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       {loading && <LoadingVignette />}
-      <ErrorModal
-        isOpen={isErrorOpen}
-        onClose={() => dispatch(hideError())}
-        errorMessage={errorMessage}
-      />
       <SuccessModal
         isOpen={isSuccessOpen}
         onClose={() => {dispatch(hideSuccess()); window.location.reload()}}        
@@ -141,7 +128,7 @@ function ManageStores() {
           </Button>
         </div>
         <div className="my-5">
-            <SearchField searchTerm={searchQuery} onSearchChange={setSearchQuery} />
+            <SearchField searchTerm={searchQuery} onSearchChange={setSearchQuery} className='' placeholder="Search stores..."/>
         </div>
         <div>
             <div className="overflow-x-auto">

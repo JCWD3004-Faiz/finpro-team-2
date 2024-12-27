@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { OrderService } from "../services/order.service";
 import { CartService } from "../services/cart.service";
+import { OrderStatus } from "../models/admin.models";
 
 export class OrderController {
     private orderService: OrderService;
@@ -63,7 +64,20 @@ export class OrderController {
 
     async getStoreOrders(req: Request, res: Response): Promise<void> {
         const store_id = parseInt(req.params.store_id);
-        const data = await this.orderService.getStoreOrders(store_id);
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const sortFieldAdmin = (req.query.sortFieldAdmin as string) || "created_at";
+        const sortOrder = (req.query.sortOrder as string) || "asc";
+        const search = (req.query.search as string) || "";
+        let orderStatus: OrderStatus[] = [];
+        if (req.query.orderStatus) { orderStatus = Array.isArray(req.query.orderStatus)
+            ? (req.query.orderStatus as string[]).map(status => status as OrderStatus)
+            : [req.query.orderStatus as string].map(status => status as OrderStatus);
+        }
+        const data = await this.orderService.getStoreOrders(
+            store_id, page, pageSize, sortFieldAdmin as "created_at",
+            sortOrder as "asc" | "desc", search, orderStatus
+        );
         if (data &&!data.error) {
             res.status(200).send({
                 message: "Orders retrieved successfully",

@@ -5,8 +5,8 @@ import { FaChartLine, FaBoxOpen, FaClipboardList } from 'react-icons/fa';
 import { BiSolidDiscount } from 'react-icons/bi';
 import { CgSpinner } from 'react-icons/cg';
 import StoreSidebar from "@/components/StoreSidebar";
-import { AppDispatch, RootState } from "@/redux/store"; // Import RootState to use selector types
-import { fetchStoreByStoreId, resetState } from "@/redux/slices/storeAdminSlice";
+import { AppDispatch, RootState } from "@/redux/store"; 
+import { fetchStoreByStoreId } from "@/redux/slices/storeAdminSlice";
 import Cookies from 'js-cookie';
 
 function StoreDashboard() {
@@ -14,24 +14,16 @@ function StoreDashboard() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-  // Use Redux to select the state
-  const { storeName, storeLocation, loading, error, isSidebarOpen } = useSelector(
-    (state: RootState) => state.storeAdmin
-  );
+  const { storeName, storeLocation, loading, error, isSidebarOpen } = useSelector((state: RootState) => state.storeAdmin);
 
-  // Fetch the store data when the component mounts
   useEffect(() => {
     if (storeId) {
       dispatch(fetchStoreByStoreId(parseInt(storeId)));
     }
-    return () => {
-      // Reset state when component unmounts (optional)
-      dispatch(resetState());
-    };
   }, [dispatch, storeId]);
 
   const toggleSidebar = () => {
-    dispatch({ type: 'storeAdmin/toggleSidebar' }); // Assuming you have a toggle action
+    dispatch({ type: 'storeAdmin/toggleSidebar' });
   };
 
   const handleContainerClick = (url: string) => {
@@ -44,7 +36,7 @@ function StoreDashboard() {
   };
 
   return (
-    <div className="bg-slate-100 w-screen h-full text-gray-800">
+    <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <StoreSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6 relative`}>
         {loading ? (

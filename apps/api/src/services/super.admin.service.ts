@@ -45,7 +45,8 @@ export class SuperAdminService {
         store_name: admin.Store ? admin.Store.store_name : "-", created_at: admin.created_at,
       }));
       const totalItems = await this.prisma.users.count({ where: { role: "STORE_ADMIN" }});
-      return { data: allAdmins, currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};    } catch (error) {
+      return { data: allAdmins, currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};    
+    } catch (error) {
       console.error("Error fetching store admins: ", error);
       throw new Error("Unable to fetch store admins.");
     }

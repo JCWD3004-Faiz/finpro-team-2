@@ -25,7 +25,6 @@ export class PaymentController {
             pop_image: String(pop_image),
           };      
           const response = await this.paymentService.createPayment(user_id, order_id, payment);
-          console.log("response", response);
           if (response && !response.error) {
             res.status(201).send({
               message: "Payment created successfully",

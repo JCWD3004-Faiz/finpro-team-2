@@ -86,9 +86,8 @@ export class UserAuthService {
       },
     });
 
-    // Send referral voucher after successful registration
     if (data.register_code) {
-      await this.voucherService.sendReferralVoucher(newUser.user_id);  // Pass new user_id to voucher service
+      await this.voucherService.sendReferralVoucher(newUser.user_id);
     }
     
     return this.updatePendingRegistrationStatus(validatedData.email);

@@ -4,12 +4,21 @@ import { AppDispatch, RootState } from '@/redux/store';
 import SuperSidebar from '@/components/SuperSidebar';
 import { setLocationSuggestions, setSuggestionsPosition, createStore } from '@/redux/slices/superAdminSlice';
 import { fetchCities } from '@/redux/slices/globalSlice';
+import LoadingVignette from '@/components/LoadingVignette';
+import SuccessModal from '@/components/modal-success';
+import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
+import ErrorModal from '@/components/modal-error';
+import { showError, hideError } from "@/redux/slices/errorSlice";
+
 
 function CreateStore() {
   const dispatch = useDispatch<AppDispatch>();
-  const { isSidebarOpen } = useSelector((state: RootState) => state.superAdmin);
+  const { isSidebarOpen, loading } = useSelector((state: RootState) => state.superAdmin);
   const { cities } = useSelector((state: RootState) => state.global);
   const { locationSuggestions, suggestionsPosition } = useSelector((state: RootState) => state.superAdmin);
+  const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success);
+  const { isErrorOpen, errorMessage } = useSelector((state: RootState) => state.error);
+  
 
   const [storeName, setStoreName] = useState('');
   const [storeLocation, setStoreLocation] = useState('');
@@ -37,10 +46,9 @@ function CreateStore() {
         city_id: Number(cityId),
       };
       await dispatch(createStore(storeData)).unwrap();
-      alert('Store created successfully!');
-      window.location.href = '/admin-super/stores';
+      dispatch(showSuccess("Store successfully created"));
     } catch (error: any) {
-      alert('Failed to create store');
+      dispatch(showError("Failed to create store"));
     }
   }
 
@@ -72,6 +80,18 @@ function CreateStore() {
   return (
     <div className="bg-slate-100 w-screen h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={() => dispatch({ type: 'superAdmin/toggleSidebar' })} />
+      {loading && <LoadingVignette />}
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => dispatch(hideError())}
+        errorMessage={errorMessage}
+      />
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {dispatch(hideSuccess());
+        window.location.href = '/admin-super/stores'}}
+        successMessage={successMessage}
+      />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">Create Store</h1>
         <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-md shadow-xl">

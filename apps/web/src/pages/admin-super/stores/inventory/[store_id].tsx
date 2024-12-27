@@ -199,7 +199,9 @@ function ManageInventory() {
           </div>
 
           <div className="my-5">
-            <SearchField
+            <SearchField 
+              className=""
+              placeholder="Search products..."
               searchTerm={searchQuery}
               onSearchChange={setSearchQuery}
             />

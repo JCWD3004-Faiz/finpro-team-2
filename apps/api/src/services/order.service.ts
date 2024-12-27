@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ShippingMethod } from "../models/all.models";
+import { OrderStatus } from "../models/admin.models";
 
 export class OrderService {
     private prisma: PrismaClient = new PrismaClient();
@@ -57,23 +58,34 @@ export class OrderService {
         }
     }
 
-    async getStoreOrders(store_id: number) {
+    async getStoreOrders(
+        store_id: number, page: number = 1, pageSize: number = 10,
+        sortFieldAdmin: "created_at" = "created_at", sortOrder: "asc" | "desc" = "asc", 
+        search:string = "", orderStatus: OrderStatus[] = []
+    ) {
         try {
+            const whereCondition: any = { store_id };
+            if (search) {whereCondition.User = { username: { contains: search, mode: "insensitive" }}}            
+            if (orderStatus.length > 0) {whereCondition.order_status = { in: orderStatus }}       
+            const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
+            if (sortFieldAdmin === "created_at") { orderBy = { created_at: sortOrder };
+            } else if (sortFieldAdmin === "store") { orderBy = { Store: { store_name: sortOrder } }}
             const orders = await this.prisma.orders.findMany({
-                where: { store_id },
-                include: {
+                where: whereCondition, skip, take, orderBy: orderBy, include: {
                     Cart: { select: { cart_price: true } },
                     Address: { select: { address: true, city_name: true } },
                     User: { select: { username: true } },
                 },
             });
             if (orders.length === 0) return { message: "No orders found for this store." };
-            return { orders: orders.map(order => ({
+            const mappedOrders = orders.map(order => ({ order_id: order.order_id,
                 username: order.User.username, address: order.Address.address,
                 city_name: order.Address.city_name, order_status: order.order_status,
                 cart_price: order.Cart.cart_price, shipping_method: order.shipping_method,
                 shipping_price: order.shipping_price, created_at: order.created_at
-            }))};
+            }))
+            const totalItems = await this.prisma.orders.count();
+            return { orders: mappedOrders , currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};
         } catch (error) {
             console.error("Error fetching orders by store ID:", error);
             return { error: "Failed to fetch orders" };

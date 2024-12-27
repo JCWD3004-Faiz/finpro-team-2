@@ -5,13 +5,11 @@ import { PaymentController } from "../controllers/payment.controller";
 import { VoucherController } from "../controllers/voucher.controller";
 import upload from "../middlewares/upload.middleware";
 
-
 const router = Router();
 const orderController = new OrderController();
 const authenticateJwt = new AuthJwtMiddleware();
 const paymentController = new PaymentController();
 const voucherController = new VoucherController();
-
 
 router.get("/all",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),

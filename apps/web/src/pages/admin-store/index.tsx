@@ -13,7 +13,6 @@ function StoreDashboardGate() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-
   const { storeName, adminName, loading, error } = useSelector((state: RootState) => state.storeAdmin);
 
   useEffect(() => {
