@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { DiscountService } from "../services/discount.service";
-import { CreateDiscount } from "../models/discount.models";
+import { CreateDiscount, UpdateDiscount } from "../models/discount.models";
 import {
   sendErrorResponse,
   sendZodErrorResponse,
@@ -61,6 +61,64 @@ export class DiscountController {
       } else {
         sendErrorResponse(res, 400, "Failed to create discount", err.message);
       }
+    }
+  }
+
+  async updateDiscount(req: Request, res: Response){
+    try {
+      const discount_id = parseInt(req.params.discount_id);
+      if (isNaN(discount_id)) {
+        throw new Error("Invalid discount_id provided.");
+      }
+      const data: UpdateDiscount = req.body
+      const updatedDiscount = await this.discountService.updateDiscount(discount_id, data);
+      res.status(201).send({
+        message: "Discount updated successfully",
+        status: res.statusCode,
+        data: updatedDiscount,
+      });
+    } catch (error) {
+      const err = error as Error;
+      if (error instanceof ZodError) {
+        sendZodErrorResponse(res, error);
+      } else {
+        sendErrorResponse(res, 400, "Failed to update discount", err.message);
+      }
+    }
+  }
+
+  async deleteDiscount(req: Request, res: Response){
+    try {
+      const discount_id = parseInt(req.params.discount_id);
+      if (isNaN(discount_id)) {
+        throw new Error("Invalid discount_id provided.");
+      }
+      const deleteDiscount = await this.discountService.deleteDiscount(discount_id);
+      res.status(201).send({
+        message: "Discount deleted successfully",
+        status: res.statusCode,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to delete discount", err.message);
+    }
+  }
+
+  async updateDiscountImage(req: Request, res: Response){
+    try {
+      if (!req.file) {
+        throw new Error("no file uploaded");
+      }
+      const discount_id = parseInt(req.params.discount_id);
+      const image: string = (req as any).file?.path || "";
+      await this.discountService.updateDiscountImage(discount_id, image);
+      res.status(201).send({
+        message: "image updated successfully",
+        status: res.statusCode,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to update discount image", err.message);
     }
   }
 }

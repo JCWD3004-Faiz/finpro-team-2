@@ -1,6 +1,10 @@
 import { PrismaClient, Discounts } from "@prisma/client";
-import { CreateDiscount } from "../models/discount.models";
-import { discountSchema } from "../validators/discount.validator";
+import { CreateDiscount, UpdateDiscount } from "../models/discount.models";
+import {
+  discountSchema,
+  updateDiscountSchema,
+} from "../validators/discount.validator";
+import { updateInventoriesDiscountedPrice } from "../utils/discount.utils";
 import cloudinary from "../config/cloudinary";
 import config from "../config/config";
 
@@ -12,107 +16,28 @@ export class DiscountService {
     this.prisma = new PrismaClient();
   }
 
-  async updateInventoriesDiscountedPrice(
-    store_id: number,
-    inventory_id?: number | null
-  ) {
-    console.log("store_id: ", store_id);
-    console.log("inventory_id: ", inventory_id);
-
-    // Fetch inventories
-    const inventories = await this.prisma.inventories.findMany({
-      where: {
-        store_id,
-        ...(inventory_id !== null &&
-          inventory_id !== undefined && {
-            inventory_id,
-          }),
-      },
-      include: {
-        Product: {
-          select: { price: true },
-        },
-      },
+  private async checkDiscountId(discount_id: number) {
+    const discountData = await this.prisma.discounts.findUnique({
+      where: { discount_id },
     });
-
-    for (const inventory of inventories) {
-      const { Product } = inventory;
-      let discountedPrice = Product.price.toNumber();
-      let discounts: Discounts[] = [];
-
-      // Fetch discounts for the specific inventory_id
-      const inventorySpecificDiscounts = await this.prisma.discounts.findMany({
-        where: {
-          store_id,
-          inventory_id: inventory.inventory_id, // Match specific inventory
-          is_active: true,
-          start_date: { lte: new Date() },
-          end_date: { gte: new Date() },
-        },
-        orderBy: { value: "desc" }, // Prioritize higher-value discounts
-      });
-
-      // Fetch store-wide discounts
-      const storeWideDiscounts = await this.prisma.discounts.findMany({
-        where: {
-          store_id,
-          inventory_id: null, // Match store-wide discounts
-          is_active: true,
-          start_date: { lte: new Date() },
-          end_date: { gte: new Date() },
-        },
-        orderBy: { value: "desc" }, // Prioritize higher-value discounts
-      });
-
-      // Combine both inventory-specific and store-wide discounts
-      discounts = [...inventorySpecificDiscounts, ...storeWideDiscounts];
-
-      // Apply discounts
-      if (discounts.length > 0) {
-        for (const discount of discounts) {
-          if (discount.type === "PERCENTAGE") {
-            console.log("Applying percentage discount: ", discount.value, "%");
-            if (!discount.value) {
-              throw new Error("Percentage discount must have a value.");
-            }
-            const percentage = discount.value.toNumber() / 100;
-            discountedPrice *= 1 - percentage; // Apply percentage discount
-          } else if (discount.type === "NOMINAL") {
-            console.log("Applying nominal discount: ", discount.value);
-            if (!discount.value) {
-              throw new Error("Nominal discount must have a value.");
-            }
-            discountedPrice = Math.max(
-              discountedPrice - discount.value.toNumber(),
-              0 // Ensure the price doesn't go below 0
-            );
-          }
-          // Add BOGO logic if needed
-        }
-      }
-
-      // Round to 2 decimal places
-      discountedPrice = parseFloat(discountedPrice.toFixed(2));
-      console.log(
-        `Inventory ID: ${inventory.inventory_id}, Product ID: ${inventory.product_id}, updated discounted price: ${discountedPrice}`
-      );
-
-      // Update the inventory with the new discounted price
-      // await this.prisma.inventories.update({
-      //   where: { inventory_id: inventory.inventory_id },
-      //   data: { discounted_price: discountedPrice },
-      // });
+    if (!discountData) {
+      throw new Error("Discount not found.");
     }
+    return discountData;
   }
 
-  async createDiscount(discount: CreateDiscount) {
-    const validatedData = discountSchema.parse(discount);
-    const placeholderImage = `https://res.cloudinary.com/${CLOUDINARY_NAME}/image/upload/v1734509885/placeholderpic_eh2ow7.png`;
-    const startDate = new Date(validatedData.start_date);
-    const endDate = new Date(validatedData.end_date);
-    if (startDate >= endDate) {
-      throw new Error("Start date must be earlier than end date");
+  private checkDiscountType(
+    validatedData: Partial<CreateDiscount | UpdateDiscount>
+  ) {
+    if (validatedData.start_date && validatedData.end_date) {
+      const startDate = new Date(validatedData.start_date as string);
+      const endDate = new Date(validatedData.end_date as string);
+
+      if (startDate >= endDate) {
+        throw new Error("Start date must be earlier than end date");
+      }
     }
+
     if (validatedData.type === "BOGO" && !validatedData.bogo_product_id) {
       throw new Error("BOGO discounts require a bogo_product_id.");
     }
@@ -129,6 +54,26 @@ export class DiscountService {
     if (validatedData.type === "NOMINAL" && validatedData.value === undefined) {
       throw new Error("Nominal discounts require a valid value.");
     }
+  }
+
+  async createDiscount(discount: CreateDiscount) {
+    const validatedData = discountSchema.parse(discount);
+    this.checkDiscountType(validatedData);
+
+    if (validatedData.inventory_id) {
+      const inventory = await this.prisma.inventories.findFirst({
+        where: {
+          inventory_id: validatedData.inventory_id,
+          store_id: validatedData.store_id,
+        },
+      });
+
+      if (!inventory) {
+        throw new Error(
+          `Inventory ID ${validatedData.inventory_id} does not exist or does not belong to Store ID ${validatedData.store_id}.`
+        );
+      }
+    }
 
     let uploadedImageUrl: string | null = null;
 
@@ -144,10 +89,100 @@ export class DiscountService {
         image: uploadedImageUrl,
       },
     });
-    await this.updateInventoriesDiscountedPrice(
+    await updateInventoriesDiscountedPrice(
       newDiscount.store_id,
       newDiscount.inventory_id
     );
     return newDiscount;
+  }
+
+  async updateDiscount(discount_id: number, discount: UpdateDiscount) {
+    if ("type" in discount) {
+      throw new Error("The discount type cannot be updated.");
+    }
+    const validatedData = updateDiscountSchema.parse(discount);
+    const discountData = await this.checkDiscountId(discount_id);
+
+    if ("bogo_product_id" in discount) {
+      if (discountData.type === "PERCENTAGE") {
+        throw new Error(
+          "Cannot update bogo_product_id for a PERCENTAGE type discount."
+        );
+      }
+      if (discountData.type === "NOMINAL") {
+        throw new Error(
+          "Cannot update bogo_product_id for a NOMINAL type discount."
+        );
+      }
+    }
+
+    if ("value" in discount) {
+      if (
+        discountData.type === "PERCENTAGE" &&
+        (validatedData.value === undefined || validatedData.value > 100)
+      ) {
+        throw new Error(
+          "Percentage discounts require a valid value between 0 and 100."
+        );
+      }
+      if (
+        discountData.type === "NOMINAL" &&
+        validatedData.value === undefined
+      ) {
+        throw new Error("Nominal discounts require a valid value.");
+      }
+      if (discountData.type === "BOGO") {
+        throw new Error("Can't change value if discount type is BOGO");
+      }
+    }
+
+    if (validatedData.start_date || validatedData.end_date) {
+      const startDate = new Date(validatedData.start_date as string);
+      const endDate = new Date(validatedData.end_date as string);
+      if (
+        startDate >= discountData.end_date ||
+        discountData.start_date >= endDate
+      ) {
+        throw new Error("Start date must be earlier than end date");
+      }
+    }
+
+    const updatedDiscount = await this.prisma.discounts.update({
+      where: { discount_id },
+      data: validatedData,
+    });
+    await updateInventoriesDiscountedPrice(
+      updatedDiscount.store_id,
+      updatedDiscount.inventory_id
+    );
+    return updatedDiscount;
+  }
+
+  async deleteDiscount(discount_id: number) {
+    await this.checkDiscountId(discount_id);
+    const deleteDiscount = await this.prisma.discounts.update({
+      where: { discount_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+    await updateInventoriesDiscountedPrice(
+      deleteDiscount.store_id,
+      deleteDiscount.inventory_id
+    );
+    return deleteDiscount;
+  }
+
+  async updateDiscountImage( discount_id: number, image: string ) {
+    await this.checkDiscountId(discount_id);
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      folder: "discounts",
+    });
+    return this.prisma.discounts.update({
+      where: { discount_id: discount_id },
+      data: {
+        image: uploadResponse.secure_url,
+      },
+    });
   }
 }

@@ -93,5 +93,25 @@ export class AuthJwtMiddleware {
             next();
         }
     }
+
+    authorizeStoreAdminByDiscount(): (req: Request, res: Response, next: NextFunction) => void {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> =>{
+            const discount_id = parseInt(req.params.discount_id, 10);
+            const userId = (req as any).user.id;
+            const discount = await this.prisma.discounts.findUnique({
+                where: { discount_id: discount_id },
+                include: {Store: true}
+            });
+            if (!discount || discount.Store.user_id !== userId) {
+                res.status(403).send({
+                  message: "Forbidden: You can only access discounts associated with your account",
+                  status: res.statusCode,
+                });
+                return;
+            }
+        
+            next();
+        }
+    }
     
 }

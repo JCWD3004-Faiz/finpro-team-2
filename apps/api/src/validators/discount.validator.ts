@@ -38,3 +38,5 @@ export const discountSchema = validate.object({
     message: "Invalid end date format",
   }),
 });
+
+export const updateDiscountSchema = discountSchema.partial();

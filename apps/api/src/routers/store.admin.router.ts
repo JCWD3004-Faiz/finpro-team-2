@@ -41,4 +41,29 @@ router.post(
   discountController.createDiscount.bind(discountController)
 );
 
+router.patch(
+  "/discounts/:discount_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeStoreAdminByDiscount().bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  discountController.updateDiscount.bind(discountController)
+);
+
+router.patch(
+  "/discounts/remove/:discount_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeStoreAdminByDiscount().bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  discountController.deleteDiscount.bind(discountController)
+);
+
+router.patch(
+  "/discounts/image/:discount_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeStoreAdminByDiscount().bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  upload.single("image"),
+  discountController.updateDiscountImage.bind(discountController)
+)
+
 export default router;
