@@ -25,9 +25,20 @@ export interface Discount {
   description: string | null;
   is_active: boolean;
   image: string | null;
-  start_date: string; // ISO 8601 format for date
-  end_date: string; // ISO 8601 format for date
+  start_date: string; 
+  end_date: string; 
   is_deleted: boolean;
-  created_at: string; // ISO 8601 format for date
-  updated_at: string; // ISO 8601 format for date
+  created_at: string; 
+  updated_at: string; 
+}
+
+export interface UpdateDiscount{
+  type?: "PERCENTAGE" | "NOMINAL" | "BOGO";
+  value?: number;
+  min_purchase?: number;
+  max_discount?: number;
+  bogo_product_id?: number;
+  description?: string;
+  start_date?: string; 
+  end_date?: string; 
 }

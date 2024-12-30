@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { DiscountService } from "./discount.service";
+//import { DiscountService } from "./discount.service";
 import {
   CreateProduct,
   GetProductInventoryUser,
   UpdateProduct,
 } from "../models/product.models";
+import { updateInventoriesDiscountedPrice } from "../utils/discount.utils";
 import {
   productSchema,
   updateProductSchema,
@@ -16,7 +17,7 @@ const CLOUDINARY_NAME = config.CLOUDINARY_NAME as string;
 
 export class ProductService {
   private prisma: PrismaClient;
-  private readonly discountService = new DiscountService();
+  //private readonly discountService = new DiscountService();
   constructor() {
     this.prisma = new PrismaClient();
   }
@@ -97,7 +98,7 @@ export class ProductService {
 
     await Promise.all(
       stores.map((store) =>
-        this.discountService.updateInventoriesDiscountedPrice(store.store_id)
+        updateInventoriesDiscountedPrice(store.store_id)
       )
     );
 
@@ -129,7 +130,7 @@ export class ProductService {
       });
 
       for (const inventory of inventories) {
-        await this.discountService.updateInventoriesDiscountedPrice(
+        await updateInventoriesDiscountedPrice(
           inventory.store_id, // Pass the store_id
           inventory.inventory_id // Pass the specific inventory_id
         );
