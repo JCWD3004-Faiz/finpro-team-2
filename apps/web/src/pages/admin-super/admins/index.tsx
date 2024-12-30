@@ -149,7 +149,7 @@ function ManageAdmins() {
           </Button>
         </div>
         <div className="my-5">
-            <SearchField searchTerm={searchQuery} onSearchChange={setSearchQuery} />
+            <SearchField searchTerm={searchQuery} onSearchChange={setSearchQuery} className='' placeholder="Search admins..."/>
         </div>
         <div>
             <div className="overflow-x-auto">

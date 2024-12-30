@@ -34,11 +34,8 @@ export class SuperAdminController {
     const sortOrder = (req.query.sortOrder as string) || "asc";
     const search = (req.query.search as string) || "";
     const data = await this.superAdminService.getAllStoreAdmins(
-      page,
-      pageSize,
-      sortFieldAdmin as "store" | "created_at",
-      sortOrder as "asc" | "desc",
-      search,
+      page, pageSize, sortFieldAdmin as "store" | "created_at",
+      sortOrder as "asc" | "desc", search,
     );
     if (data) {
       res.status(200).send ({
@@ -125,11 +122,8 @@ export class SuperAdminController {
     const sortOrder = (req.query.sortOrder as string) || "asc";
     const search = (req.query.search as string) || "";
     const data = await this.superAdminService.getAllStores(
-      page,
-      pageSize,
-      sortField as "admin" | "created_at",
-      sortOrder as "asc" | "desc",
-      search
+      page, pageSize, sortField as "admin" | "created_at",
+      sortOrder as "asc" | "desc", search
     );
     if (data) {
       res.status(200).send ({

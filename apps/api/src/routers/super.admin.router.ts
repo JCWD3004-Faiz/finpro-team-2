@@ -1,11 +1,19 @@
 import { Router } from "express";
 import { SuperAdminController } from "../controllers/super.admin.controller";
+
+import { VoucherController } from "../controllers/voucher.controller";
+
 import { ProductController } from "../controllers/product.controller";
+
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 const superAdminController = new SuperAdminController();
+
+const voucherController = new VoucherController();
+
 const productController = new ProductController();
+
 const authenticateJwt = new AuthJwtMiddleware();
 
 router.post(
@@ -37,14 +45,14 @@ router.get(
 );
 
 router.delete(
-  "/delete-admin/:user_id",
+  "/admin/:user_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.deleteStoreAdmin.bind(superAdminController)
 );
 
 router.post(
-  "/create-store",
+  "/store",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.createStore.bind(superAdminController)
@@ -58,18 +66,54 @@ router.get(
 );
 
 router.patch(
-  "/update-store/:store_id",
+  "/store/:store_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.updateStore.bind(superAdminController)
 );
 
 router.put(
-  "/delete-store/:store_id",
+  "/store/:store_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.deleteStore.bind(superAdminController)
 );
+
+
+router.post(
+  "/voucher",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  voucherController.createVoucher.bind(voucherController)
+);
+
+router.get(
+  "/vouchers",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  voucherController.getAllVouchers.bind(voucherController)
+)
+
+router.patch(
+  "/voucher/:voucher_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  voucherController.editVoucher.bind(voucherController)
+);
+
+router.put(
+  "/voucher/:voucher_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  voucherController.deleteVoucher.bind(voucherController)
+)
+
+router.post(
+  "/gift-voucher/:voucher_id/:user_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  voucherController.giftVoucher.bind(voucherController)
+)
 
 router.get(
   "/products",

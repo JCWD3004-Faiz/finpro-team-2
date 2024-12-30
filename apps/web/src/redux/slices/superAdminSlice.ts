@@ -31,7 +31,6 @@ export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins',
       headers: { Authorization: `Bearer ${access_token}` },
       params: { page, sortFieldAdmin, sortOrder, search}
     });
-    
     return response.data.data;
   } catch (error) {
     return rejectWithValue('Error fetching store admins');
@@ -69,7 +68,7 @@ export const fetchAllStores = createAsyncThunk(
 
 export const deleteStore = createAsyncThunk('superAdmin/deleteStore', async (store_id: number, { rejectWithValue }) => {
   try {
-    await axios.put(`/api/super-admin/delete-store/${store_id}`, {}, { headers: { Authorization: `Bearer ${access_token}` } });
+    await axios.put(`/api/super-admin/store/${store_id}`, {}, { headers: { Authorization: `Bearer ${access_token}` } });
     return store_id;
   } catch (error) {
     return rejectWithValue('Error deleting store');
@@ -80,7 +79,7 @@ export const updateStore = createAsyncThunk(
   'superAdmin/updateStore',
   async ({ store_id, store_name, store_location, city_id }: { store_id: number; store_name: string; store_location: string; city_id: number }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`/api/super-admin/update-store/${store_id}`, { store_name, store_location, city_id }, {
+      const response = await axios.patch(`/api/super-admin/store/${store_id}`, { store_name, store_location, city_id }, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
       return response.data;
@@ -105,7 +104,7 @@ export const assignStoreAdmin = createAsyncThunk(
 
 export const deleteStoreAdmin = createAsyncThunk('superAdmin/deleteStoreAdmin', async (user_id:number, { rejectWithValue }) => {
     try {
-      await axios.delete(`/api/super-admin/delete-admin/${user_id}`, { headers: { Authorization: `Bearer ${access_token}` } });
+      await axios.delete(`/api/super-admin/admin/${user_id}`, { headers: { Authorization: `Bearer ${access_token}` } });
       return user_id;
     } catch (error) {
       return rejectWithValue('Error deleting admin');
@@ -117,7 +116,7 @@ export const createStore = createAsyncThunk(
   'superAdmin/createStore',
   async (credentials: { store_name: string; store_location: string; city_id: number }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/super-admin/create-store', {...credentials }, {
+      const response = await axios.post('/api/super-admin/store', {...credentials }, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
       return response.data.data;
@@ -154,7 +153,7 @@ const superAdminSlice = createSlice({
     resetEditState: (state) => { state.editId = null; state.locationSuggestions = []; },
     setSortField(state, action) { state.sortField = action.payload},
     setSortFieldAdmin(state, action) {state.sortFieldAdmin = action.payload},
-
+    setCurrentPage(state, action) {state.currentPage = action.payload;},
   },
   extraReducers: (builder) => {
     builder
@@ -219,5 +218,5 @@ const superAdminSlice = createSlice({
   },
 });
 
-export const { setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
+export const { setCurrentPage, setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
 export default superAdminSlice.reducer;

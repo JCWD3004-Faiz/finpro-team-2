@@ -1,4 +1,4 @@
-import { StoreAdmin, Store } from '@/utils/adminInterface';
+import { StoreAdmin, Store, Order } from '@/utils/adminInterface';
 
 export interface SuperAdminState {
     storeAdmins: StoreAdmin[];
@@ -32,10 +32,16 @@ export interface FetchAllParams {
 }
 
 export interface StoreAdminState {
-    storeName: string;
-    storeLocation: string;
-    adminName: string;
-    loading: boolean;
-    error: string | null;
-    isSidebarOpen: boolean;
-  }
+  storeName: string;
+  storeLocation: string;
+  adminName: string;
+  loading: boolean;
+  error: string | null;
+  isSidebarOpen: boolean;
+  storeOrders: Order[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  sortField: string;
+  orderStatus: string;
+}
