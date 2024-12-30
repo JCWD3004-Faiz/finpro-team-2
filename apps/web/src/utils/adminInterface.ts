@@ -158,6 +158,7 @@ export interface Order {
     shipping_price: number;
     created_at: Date;
     updated_at: Date;
+    payment_id: number
 }
 
 export enum OrderStatus {

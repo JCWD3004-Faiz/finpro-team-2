@@ -91,7 +91,13 @@ export class PaymentService {
             const updatedPayment = await this.prisma.payments.update({
                 where: { payment_id: payment_id },
                 data: { payment_status: payment_status },
-            });    
+            });
+            if (payment_status === "PENDING") {
+                await this.prisma.orders.update({
+                    where: { order_id: payment.Order.order_id },
+                    data: { order_status: "AWAITING_CONFIRMATION" },
+                });
+            }
             if (payment_status === "COMPLETED") {
                 await this.prisma.orders.update({
                     where: { order_id: payment.Order.order_id },
@@ -154,13 +160,13 @@ export class PaymentService {
         }
     }
 
-    async getUserItemDetails(userId: number, transaction_id: string) {
+    async getUserItemDetails(user_id: number, transaction_id: string) {
         try {
             const payment = await this.prisma.payments.findUnique({
                 where: { transaction_id: transaction_id },
                 include: {Order: {include: {Cart: {include: {CartItems: {include: {Inventory: {include: {Product: true}}}}}}}}}
             });    
-            if (!payment || payment.Order?.user_id !== userId) {
+            if (!payment || payment.Order?.user_id !== user_id) {
                 return { error: "Payment not found or does not belong to this user." };
             }
             const cartItemsWithProductDetails = payment.Order.Cart.CartItems.map(item => ({

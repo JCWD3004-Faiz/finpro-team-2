@@ -14,7 +14,6 @@ import LoadingVignette from '@/components/LoadingVignette';
 import Pagination from '@/components/pagination';
 import SelectFilter from '@/components/selectFilter';
 
-
 function StoreOrders() {
   const router = useRouter();
   const store_id = Cookies.get("storeId");
@@ -137,7 +136,7 @@ function StoreOrders() {
               <tbody>
                 {(storeOrders && Array.isArray(storeOrders) && storeOrders.length > 0) ? (
                   storeOrders.map((order: Order, index) => (
-                  <tr key={order.order_id} onClick={() => handleRowClick(`/admin-store/orders/details/${order.order_id}`)}
+                  <tr key={order.order_id} onClick={() => handleRowClick(`/admin-store/orders/payment/${order.payment_id}`)}
                   className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} border-b hover:bg-gray-200 hover:cursor-pointer transition-colors`}
                   title="Click to view payment details">
                     <td className="p-4">{order.username}</td>

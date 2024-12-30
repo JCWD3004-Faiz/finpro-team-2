@@ -75,6 +75,7 @@ export class OrderService {
                     Cart: { select: { cart_price: true } },
                     Address: { select: { address: true, city_name: true } },
                     User: { select: { username: true } },
+                    Payments: { select: { payment_id: true } },
                 },
             });
             if (orders.length === 0) return { message: "No orders found for this store." };
@@ -82,7 +83,8 @@ export class OrderService {
                 username: order.User.username, address: order.Address.address,
                 city_name: order.Address.city_name, order_status: order.order_status,
                 cart_price: order.Cart.cart_price, shipping_method: order.shipping_method,
-                shipping_price: order.shipping_price, created_at: order.created_at
+                shipping_price: order.shipping_price, created_at: order.created_at,
+                payment_id: order.Payments ? order.Payments.payment_id : null
             }))
             const totalItems = await this.prisma.orders.count();
             return { orders: mappedOrders , currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};

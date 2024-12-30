@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 import { StoreAdminState } from '@/utils/reduxInterface';
-import { OrderStatus } from '@/utils/adminInterface';
 
 const initialState: StoreAdminState = {
   storeName: '',
@@ -73,19 +72,8 @@ export const fetchAdminById = createAsyncThunk(
 
 export const fetchStoreOrders = createAsyncThunk('storeAdmin/fetchStoreOrders',
   async ({
-    storeId,
-    page = 1,
-    sortField = "created_at",
-    sortOrder = "asc",
-    search = "",
-    orderStatus
-  }: {
-    storeId: number;
-    page?: number;
-    sortField?: string;
-    sortOrder?: string;
-    search?: string;
-    orderStatus: string;
+    storeId, page = 1, sortField = "created_at", sortOrder = "asc", search = "", orderStatus} : {
+    storeId: number; page?: number; sortField?: string; sortOrder?: string; search?: string; orderStatus: string;
   }, { rejectWithValue }) => {
     if (typeof window === "undefined") {
       return rejectWithValue("Cannot fetch data during SSR")}
@@ -148,16 +136,11 @@ const storeAdminSlice = createSlice({
       .addCase(fetchAdminById.rejected, (state, action) => handleAsyncState(state, action))
       .addCase(fetchStoreOrders.pending, (state) => {state.loading = true})
       .addCase(fetchStoreOrders.fulfilled, (state, action) => {
-        state.loading = false;
-        const { orders, currentPage, totalPages, totalItems } = action.payload.order_data;
-        state.storeOrders = orders;
-        state.totalPages = totalPages;
-        state.totalItems = totalItems;
-        state.currentPage = currentPage;
+        state.loading = false; const { orders, currentPage, totalPages, totalItems } = action.payload.order_data;
+        state.storeOrders = orders; state.totalPages = totalPages; state.totalItems = totalItems; state.currentPage = currentPage;
       })
       .addCase(fetchStoreOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+        state.loading = false; state.error = action.payload as string;
       });
   },
 });

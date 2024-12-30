@@ -9,23 +9,24 @@ export default class MidtransController {
     }
 
     public async createVABankTransfer(req: Request, res:Response): Promise<any> {
-        const { transaction_details, customer_details, credit_card, shipping_details } = req.body;
-
-        if(!transaction_details || !credit_card || !customer_details) {
-            return res.status(400).json({ message: 'Missing required fields' });
-        }
-
+        const { user_id, transaction_id } = req.body;
         try {
-            const response = await this.midtransService.createVABankTransfer({
-                transaction_details,
-                customer_details,
-                credit_card,
-                shipping_details
-            })
+            const response = await this.midtransService.createVABankTransfer(user_id, transaction_id)
             return res.status(200).json(response);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Internal Server Error' });            
+        }
+    }
+
+    public async updateMidtransPaymentStatus(req: Request, res: Response) {
+        const { user_id, transaction_id } = req.body;
+        try {
+            const response = await this.midtransService.updateMidtransPaymentStatus(user_id, transaction_id)
+            res.status(200).json(response);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });            
         }
     }
 
