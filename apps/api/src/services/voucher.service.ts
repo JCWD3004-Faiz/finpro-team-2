@@ -91,13 +91,17 @@ export class VoucherService {
         }); return deletedVoucher;
     }
 
-    async giftVoucher(voucher_id: number, user_id: number) {
-        const voucher = await this.prisma.vouchers.findUnique({where: { voucher_id: voucher_id, is_deleted: false }});
-        if (!voucher) { throw new Error("Voucher not found or is deleted")}
-        const redeemCode = await this.generateRedeemCode(); const expiration_date = await this.calculateExpirationDate(voucher_id);    
+    async giftVoucher(voucher_id: number, email: string) {
+        const voucher = await this.prisma.vouchers.findUnique({ where: { voucher_id: voucher_id, is_deleted: false }});
+        if (!voucher) { throw new Error("Voucher not found or is deleted")}    
+        const user = await this.prisma.users.findUnique({ where: { email: email }});
+        if (!user) { throw new Error("User not found")}    
+        const redeemCode = await this.generateRedeemCode();
+        const expiration_date = await this.calculateExpirationDate(voucher_id);    
         const userVoucher = await this.prisma.userVouchers.create({
-            data: {user_id: user_id, voucher_id: voucher_id, redeem_code: redeemCode, expiration_date: expiration_date},
-        }); return userVoucher;
+            data: { user_id: user.user_id, voucher_id: voucher_id, redeem_code: redeemCode, expiration_date: expiration_date}
+        });
+        return userVoucher;
     }
 
     async sendReferralVoucher(user_id: number) {

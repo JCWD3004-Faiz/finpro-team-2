@@ -85,8 +85,8 @@ export class VoucherController {
     async giftVoucher(req: Request, res: Response){
         try {
             const voucher_id = parseInt(req.params.voucher_id)
-            const user_id = parseInt(req.params.user_id)
-            await this.voucherService.giftVoucher(voucher_id, user_id);
+            const email = req.body.email
+            await this.voucherService.giftVoucher(voucher_id, email);
             res.status(200).send({
                 message: "Voucher successfully gifted",
                 status: res.statusCode,

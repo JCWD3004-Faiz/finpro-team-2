@@ -109,7 +109,7 @@ router.put(
 )
 
 router.post(
-  "/gift-voucher/:voucher_id/:user_id",
+  "/gift-voucher/:voucher_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   voucherController.giftVoucher.bind(voucherController)
