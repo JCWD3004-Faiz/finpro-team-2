@@ -2,7 +2,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cron from "node-cron";
 import { PrismaClient } from "@prisma/client";
+import { VoucherService } from "./voucher.service";
 import { user } from "../models/user.models";
+import { JwtPayload } from "jsonwebtoken";
 import {
   userRegisterSchema,
   authScehma,
@@ -19,8 +21,12 @@ import { initializeCron } from "./cron.service";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 export class UserAuthService {
   private prisma: PrismaClient;
+  private voucherService: VoucherService; 
+
   constructor() {
     this.prisma = new PrismaClient();
+    this.voucherService = new VoucherService();
+
   }
 
   private async validateRegisterCode(
@@ -66,7 +72,8 @@ export class UserAuthService {
     const hashedPassword = await bcrypt.hash(data.password_hash, 10);
     const referral_code = generateReferralCode();
     await this.validateRegisterCode(data.register_code);
-    await this.prisma.users.create({
+    
+    const newUser = await this.prisma.users.create({
       data: {
         username: validatedData.username,
         email: validatedData.email,
@@ -79,8 +86,12 @@ export class UserAuthService {
       },
     });
 
+    if (data.register_code) {
+      await this.voucherService.sendReferralVoucher(newUser.user_id);
+    }
+    
     return this.updatePendingRegistrationStatus(validatedData.email);
-  }
+}
 
   async verifyEmail(data: { username: string; email: string }) {
     const validatedData = userPendingSchema.parse(data);
@@ -109,19 +120,19 @@ export class UserAuthService {
     return { accessToken, refreshToken, user };
   }
 
-  async refereshToken(token: string) {
+  async refreshToken(token: string) {
     try {
       const decoded: any = jwt.verify(token, JWT_SECRET);
       const user = await this.prisma.users.findUnique({
         where: { user_id: decoded.id },
       });
       if (!user) {
-        throw new Error("Invalid Refersh Token");
+        throw new Error("Invalid Refresh Token");
       }
       const accessToken = generateAccessToken(user);
       return { accessToken };
     } catch (error) {
-      throw new Error("Invalid Refersh Token");
+      throw new Error("Invalid Refresh Token");
     }
   }
   

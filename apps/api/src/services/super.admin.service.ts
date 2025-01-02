@@ -4,8 +4,6 @@ import { User } from "../models/admin.models";
 import { adminRegisterSchema } from "../validators/admin.register.validator";
 import axios from "axios";
 
-
-
 export class SuperAdminService {
   private prisma: PrismaClient;
 
@@ -18,25 +16,36 @@ export class SuperAdminService {
     const hashedPassword = await bcrypt.hash(validatedData.password_hash, 10);
     return this.prisma.users.create({
       data: {
-        username: data.username,
-        email: validatedData.email,
-        password_hash: hashedPassword,
-        role: data.role,
+        username: data.username, email: validatedData.email,
+        password_hash: hashedPassword, role: data.role,
       },
     });
   }
 
-  async getAllStoreAdmins() {
+  async getAllStoreAdmins(
+    page: number = 1, pageSize: number = 10,
+    sortFieldAdmin: "store" | "created_at" = "store",
+    sortOrder: "asc" | "desc" = "asc", search:string = "", 
+  ) {
     try {
+      const whereCondition: any = {username: { contains: search, mode: "insensitive"}}
+      const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
+      if (sortFieldAdmin === "created_at") {
+        orderBy = { created_at: sortOrder };
+      } else if (sortFieldAdmin === "store") {
+        orderBy = { Store: { store_name: sortOrder } };
+      }  
       const storeAdmins = await this.prisma.users.findMany({
-        where: { role: 'STORE_ADMIN' },
-        include: { Store: { select: { store_id:true, store_name: true } } },
+        where: search ? whereCondition : { role: 'STORE_ADMIN' },
+        skip, take, orderBy: orderBy, include: { Store: { select: { store_id:true, store_name: true } } },
       });
-      return storeAdmins.map(admin => ({
+      const allAdmins = storeAdmins.map(admin => ({
         user_id: admin.user_id, username: admin.username, email: admin.email,
         store_id: admin.Store ? admin.Store.store_id : null,
-        store_name: admin.Store ? admin.Store.store_name : "Unassigned", created_at: admin.created_at,
+        store_name: admin.Store ? admin.Store.store_name : "-", created_at: admin.created_at,
       }));
+      const totalItems = await this.prisma.users.count({ where: { role: "STORE_ADMIN" }});
+      return { data: allAdmins, currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};    
     } catch (error) {
       console.error("Error fetching store admins: ", error);
       throw new Error("Unable to fetch store admins.");
@@ -45,14 +54,7 @@ export class SuperAdminService {
 
   async getStoreByStoreId(store_id: number){
     return await this.prisma.stores.findUnique({
-      where: {store_id},
-      include: {
-        User: {
-          select: {
-            username: true
-          }
-        }
-      }
+      where: {store_id}, include: { User: { select: { username: true } } }
     })
   }
 
@@ -61,8 +63,7 @@ export class SuperAdminService {
       const user = await this.prisma.users.findUnique({ where: { user_id } });
       if (!user || user.role !== 'STORE_ADMIN') throw new Error("Only users with the 'STORE_ADMIN' role can be assigned to a store.");
       const [currentStore, existingAdminStore] = await Promise.all([
-        this.prisma.stores.findUnique({ where: { store_id } }),
-        this.prisma.stores.findUnique({ where: { user_id } }),
+        this.prisma.stores.findUnique({ where: { store_id } }), this.prisma.stores.findUnique({ where: { user_id } }),
       ]);
       if (existingAdminStore && existingAdminStore.store_id !== store_id) {
         await this.prisma.stores.update({ where: { store_id: existingAdminStore.store_id }, data: { user_id: null } });
@@ -112,16 +113,29 @@ export class SuperAdminService {
     }
   }
 
-  async getAllStores() {
+  async getAllStores(
+    page: number = 1, pageSize: number = 10,
+    sortField: "admin" | "created_at" = "admin",
+    sortOrder: "asc" | "desc" = "asc", search:string = "", 
+  ) {
     try {
+      const whereCondition: any = {store_name: { contains: search, mode: "insensitive"}}
+      const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
+      if (sortField === "created_at") {
+        orderBy = { created_at: sortOrder };
+      } else if (sortField === "admin") {
+        orderBy = { User: { username: sortOrder } };
+      }  
       const allStores = await this.prisma.stores.findMany({
-        where: { is_deleted: false },
-        include: { User: { select: { username: true } } },
+        where: search ? whereCondition : { is_deleted: false },
+        skip, take, orderBy: orderBy, include: { User: { select: { username: true } } },
       });
-      return allStores.map(store => ({
+      const mappedStores = allStores.map(store => ({
         store_id: store.store_id, store_name: store.store_name, store_location: store.store_location,
-        store_admin: store.User ? store.User.username : "Unassigned", created_at: store.created_at
+        store_admin: store.User ? store.User.username : "-", created_at: store.created_at,
       }));
+      const totalItems = await this.prisma.stores.count({ where: { is_deleted: false }});
+      return { data: mappedStores, currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};
     } catch (error) {
       console.error("Error fetching stores: ", error);
       throw new Error("Unable to fetch stores.");
@@ -136,13 +150,11 @@ export class SuperAdminService {
           `https://api.opencagedata.com/geocode/v1/json?q=${store_location}&key=${process.env.OPENCAGE_API_KEY}`
         );
         const geoData = data.results[0]?.geometry;
-        latitude = geoData?.lat;
-        longitude = geoData?.lng;
+        latitude = geoData?.lat; longitude = geoData?.lng;
         if (!latitude || !longitude) return { error: "No geocoding results found." };
       }
       return await this.prisma.stores.update({
-        where: { store_id },
-        data: { store_name, store_location, city_id, latitude, longitude },
+        where: { store_id }, data: { store_name, store_location, city_id, latitude, longitude },
       });
     } catch (error) {
       console.error("Error updating store:", error);
@@ -155,9 +167,7 @@ export class SuperAdminService {
       const store = await this.prisma.stores.findUnique({ where: { store_id } });
       if (!store) return { error: "Store not found." };
       if (store.user_id) {
-        await this.prisma.users.update({
-          where: { user_id: store.user_id }, data: { is_verified: false },
-        });
+        await this.prisma.users.update({where: { user_id: store.user_id }, data: { is_verified: false }});
       }
       const updatedStore = await this.prisma.stores.update({
         where: { store_id }, data: { is_deleted: true, user_id: null },
@@ -171,14 +181,13 @@ export class SuperAdminService {
 
   async createStoreInventories(store_id: number) {
     try {
-      const products = await this.prisma.products.findMany({
-        where: { is_deleted: false },
-      });
+      const products = await this.prisma.products.findMany({where: { is_deleted: false }});
       if (products.length === 0) return { error: "No available products to add to inventory." };  
-      const inventoryEntries = products.map(product => ({
-        store_id, product_id: product.product_id,
-        stock: 0, discounted_price: product.price,
-      }));
+      const inventoryEntries = products.map(product => {
+        const stock = 50; const userStock = stock - 10;
+        return { store_id, product_id: product.product_id,
+          stock: stock, user_stock: userStock, discounted_price: product.price};
+      });
       const createdInventories = await this.prisma.inventories.createMany({data: inventoryEntries});
       return createdInventories;
     } catch (error) {
@@ -186,5 +195,16 @@ export class SuperAdminService {
       throw new Error("Unable to create store inventories.");
     }
   }
-  
+
+  async getStoreNames() {
+    try {
+      const stores = await this.prisma.stores.findMany({
+        where: { is_deleted: false }, select: { store_name: true },
+      });
+      return stores.map(store => store.store_name);
+    } catch (error) {
+      console.error("Error fetching store names:", error);
+      throw new Error("Unable to fetch store names.");
+    }
+  }
 }

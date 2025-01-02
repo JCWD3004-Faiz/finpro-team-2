@@ -72,7 +72,7 @@ export class UserAuthController {
       const { password_hash, register_code } = req.body;
       await this.userAuthService.userRegister({username, email, password_hash, register_code});
       res.status(201).send({
-        message: "Successfully register",
+        message: "Successfully registered",
         status: res.statusCode,
       });
     } catch (error) {
@@ -131,4 +131,23 @@ export class UserAuthController {
       sendErrorResponse(res, 400, `Failed to login user`, err.message);
     }
   }
+
+  async refreshToken(req: Request, res: Response){
+    const {refreshToken} = req.body
+    const data = await this.userAuthService.refreshToken(refreshToken)
+    if(data){
+        res.status(200).send({
+            data: {
+                refreshToken: data
+            },
+            message: "Token updated",
+            status: res.statusCode,
+        });
+    } else {
+        res.status(400).send({
+            message: "Failed to retrieve refresh token. Please try again later.",
+            status: res.statusCode,
+        });
+    }
+}
 }

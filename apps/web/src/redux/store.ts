@@ -5,7 +5,14 @@ import superAdminReducer from './slices/superAdminSlice';
 import manageInventoryReducer from "./slices/manageInventorySlice";
 import errorReducer from "./slices/errorSlice";
 import successReducer from "./slices/successSlice";
+import manageProductReducer from "./slices/manageProductSlice";
+import manageCategoryReducer from "./slices/manageCategorySlice";
+import errorReducer from "./slices/errorSlice"
+import successReducer from "./slices/successSlice"
+import confirmReducer from "./slices/confirmSlice"
 import globalReducer from './slices/globalSlice';
+import managePaymentReducer from "./slices/managePaymentSlice";
+import manageVoucherReducer from "./slices/manageVoucherSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,8 +20,13 @@ const store = configureStore({
     superAdmin: superAdminReducer,
     storeAdmin: storeAdminReducer,
     manageInventory: manageInventoryReducer,
+    manageProduct: manageProductReducer,
+    manageCategory: manageCategoryReducer,
+    managePayment: managePaymentReducer,
+    manageVoucher: manageVoucherReducer,
     error: errorReducer,
     success: successReducer,
+    confirm: confirmReducer,
     global: globalReducer,
   },
 });

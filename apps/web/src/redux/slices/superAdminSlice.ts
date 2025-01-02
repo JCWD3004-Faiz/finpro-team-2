@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SuperAdminState } from '@/utils/reduxInterface';
-import axios from 'axios';
+import { SuperAdminState, FetchAllParams } from '@/utils/reduxInterface';
+import axios from "@/utils/interceptor"
 import Cookies from 'js-cookie';
 
 const initialState: SuperAdminState = {
@@ -8,21 +8,33 @@ const initialState: SuperAdminState = {
   loading: false,
   error: null,
   isSidebarOpen: false,
-  allStores: [],
   editId: null,
   editStoreData: { storeName: '', locationName: '', cityId: 0 },
   editAdminData: {storeName: '', storeId: 0},
   locationSuggestions: [],
   storeSuggestions: [],
   suggestionsPosition: { top: 0, left: 0, width: 0},
+  allStores: [],
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
+  sortField: "admin",
+  sortFieldAdmin: "store",
+  sortFieldOrder: "created_at",
+  orderStatus: "",
+  allOrders: [],
+  storeName:"",
+  storeNames: []
 };
 
 const access_token = Cookies.get('access_token');
 
-export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins', async (_, { rejectWithValue }) => {
+export const fetchStoreAdmins = createAsyncThunk('superAdmin/fetchStoreAdmins', 
+  async ({ page = 1, sortFieldAdmin = "store", sortOrder = "asc", search = "" }:FetchAllParams, { rejectWithValue }) => {
   try {
     const response = await axios.get('/api/super-admin/store-admin', {
       headers: { Authorization: `Bearer ${access_token}` },
+      params: { page, sortFieldAdmin, sortOrder, search}
     });
     return response.data.data;
   } catch (error) {
@@ -44,20 +56,24 @@ export const registerStoreAdmin = createAsyncThunk(
   }
 );
 
-export const fetchAllStores = createAsyncThunk('superAdmin/fetchAllStores', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios.get('/api/super-admin/stores', {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
-    return response.data.data;
-  } catch (error) {
-    return rejectWithValue('Error fetching store data.');
+export const fetchAllStores = createAsyncThunk(
+  'superAdmin/fetchAllStores',
+  async ({ page = 1, sortField = "admin", sortOrder = "asc", search = "" }:FetchAllParams, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/super-admin/stores', {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: { page, sortField, sortOrder, search}
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue('Error fetching store data.');
+    }
   }
-});
+);
 
 export const deleteStore = createAsyncThunk('superAdmin/deleteStore', async (store_id: number, { rejectWithValue }) => {
   try {
-    await axios.put(`/api/super-admin/delete-store/${store_id}`, {}, { headers: { Authorization: `Bearer ${access_token}` } });
+    await axios.put(`/api/super-admin/store/${store_id}`, {}, { headers: { Authorization: `Bearer ${access_token}` } });
     return store_id;
   } catch (error) {
     return rejectWithValue('Error deleting store');
@@ -68,7 +84,7 @@ export const updateStore = createAsyncThunk(
   'superAdmin/updateStore',
   async ({ store_id, store_name, store_location, city_id }: { store_id: number; store_name: string; store_location: string; city_id: number }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`/api/super-admin/update-store/${store_id}`, { store_name, store_location, city_id }, {
+      const response = await axios.patch(`/api/super-admin/store/${store_id}`, { store_name, store_location, city_id }, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
       return response.data;
@@ -93,7 +109,7 @@ export const assignStoreAdmin = createAsyncThunk(
 
 export const deleteStoreAdmin = createAsyncThunk('superAdmin/deleteStoreAdmin', async (user_id:number, { rejectWithValue }) => {
     try {
-      await axios.delete(`/api/super-admin/delete-admin/${user_id}`, { headers: { Authorization: `Bearer ${access_token}` } });
+      await axios.delete(`/api/super-admin/admin/${user_id}`, { headers: { Authorization: `Bearer ${access_token}` } });
       return user_id;
     } catch (error) {
       return rejectWithValue('Error deleting admin');
@@ -105,23 +121,56 @@ export const createStore = createAsyncThunk(
   'superAdmin/createStore',
   async (credentials: { store_name: string; store_location: string; city_id: number }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/super-admin/create-store', {...credentials }, {
+      const response = await axios.post('/api/super-admin/store', {...credentials }, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
-      console.log("API response data:", response.data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue('Error creating store');
     }
   }
 )
 
+export const fetchAllOrders = createAsyncThunk('storeAdmin/fetchAllOrders',
+  async ({
+    page = 1, sortFieldOrder = "created_at", sortOrder = "asc", search = "", orderStatus, storeName} : {
+    page?: number; sortFieldOrder?: string; sortOrder?: string; search?: string; orderStatus: string; storeName:string
+  }, { rejectWithValue }) => {
+    if (typeof window === "undefined") {
+      return rejectWithValue("Cannot fetch data during SSR")}
+    try {
+      const response = await axios.get(`/api/order/all`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: { page, sortFieldOrder, sortOrder, search, orderStatus, storeName },
+      });
+      return response.data.data; 
+    } catch (error) {
+      return rejectWithValue('Error fetching store orders.');
+    }
+  }
+)
+
+export const fetchStoreNames = createAsyncThunk('superAdmin/fetchStoreNames', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get('/api/super-admin/store-names', {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue('Error fetching store names');
+  }
+});
+
 const asyncActionHandler = (state: SuperAdminState, action: any, successCallback?: (state: SuperAdminState, action: any) => void) => {
-  state.loading = action.type.endsWith('pending');
+  state.loading = action.type.endsWith('pending'); // Set loading to true if pending
   if (action.type.endsWith('rejected')) {
     state.error = action.payload as string;
-  } else if (action.type.endsWith('fulfilled') && successCallback) {
-    successCallback(state, action);
+    state.loading = false; // Set loading to false if failed
+  } else if (action.type.endsWith('fulfilled')) {
+    state.loading = false; // Set loading to false if successful
+    if (successCallback) {
+      successCallback(state, action);
+    }
   }
 };
 
@@ -137,12 +186,21 @@ const superAdminSlice = createSlice({
     setStoreSuggestions: (state, action) => { state.storeSuggestions = action.payload },
     setSuggestionsPosition: (state, action) => { state.suggestionsPosition = action.payload; },
     resetEditState: (state) => { state.editId = null; state.locationSuggestions = []; },
+    setSortField(state, action) { state.sortField = action.payload},
+    setSortFieldAdmin(state, action) {state.sortFieldAdmin = action.payload},
+    setCurrentPage(state, action) {state.currentPage = action.payload;},
+    setSortFieldOrder(state, action) {state.sortFieldOrder = action.payload},
+    setOrderStatus(state, action) { state.orderStatus = action.payload;},
+    setStoreName(state, action) { state.storeName = action.payload;},
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchStoreAdmins.pending, (state) => asyncActionHandler(state, { type: 'fetchStoreAdmins/pending' }))
       .addCase(fetchStoreAdmins.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
-        state.storeAdmins = action.payload;
+        state.loading = false;
+        state.storeAdmins = action.payload.data || [];
+        state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
       }))
       .addCase(fetchStoreAdmins.rejected, (state, action) => asyncActionHandler(state, action))
 
@@ -151,9 +209,12 @@ const superAdminSlice = createSlice({
       .addCase(registerStoreAdmin.rejected, (state, action) => asyncActionHandler(state, action))
 
       .addCase(fetchAllStores.pending, (state) => asyncActionHandler(state, { type: 'fetchAllStores/pending' }))
-      .addCase(fetchAllStores.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
-        state.allStores = action.payload;
-      }))
+      .addCase(fetchAllStores.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allStores = action.payload.data || [];
+        state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
+      })
       .addCase(fetchAllStores.rejected, (state, action) => asyncActionHandler(state, action))
 
       .addCase(deleteStore.pending, (state) => asyncActionHandler(state, { type: 'deleteStore/pending' }))
@@ -190,12 +251,19 @@ const superAdminSlice = createSlice({
       .addCase(createStore.pending, (state) => asyncActionHandler(state, { type: 'createStore/pending' }))
       .addCase(createStore.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
         state.allStores.push(action.payload);
-        console.log("Updated allStores:", state.allStores);  // Log the updated state
-
       }))
-      .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action));
+      .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action))
+      .addCase(fetchAllOrders.pending, (state) => {state.loading = true})
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
+        state.loading = false; const { orders, currentPage, totalPages, totalItems } = action.payload;
+        state.allOrders = orders; state.totalPages = totalPages; state.totalItems = totalItems; state.currentPage = currentPage;
+      })
+      .addCase(fetchAllOrders.rejected, (state, action) => { state.loading = false; state.error = action.payload as string})
+      .addCase(fetchStoreNames.pending, (state) => {state.loading = true; state.error = null})
+      .addCase(fetchStoreNames.fulfilled, (state, action) => {state.loading = false; state.storeNames = action.payload})
+      .addCase(fetchStoreNames.rejected, (state, action) => {state.loading = false; state.error = action.payload as string;});
   },
 });
 
-export const { toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
+export const { setStoreName, setOrderStatus, setCurrentPage, setSortFieldOrder, setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
 export default superAdminSlice.reducer;

@@ -31,7 +31,7 @@ function SuperDashboard() {
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">
-          People Order Our Patties
+          Super Admin Dashboard
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div onClick={() => handleContainerClick('/admin-super/stores')}
@@ -84,7 +84,7 @@ function SuperDashboard() {
               <h2 className="text-2xl font-semibold text-indigo-600">Vouchers</h2>
             </div>
             <p className="text-gray-700 my-3 text-center">Manage your vouchers here.</p>
-            <button onClick={(e) => handleButtonClick('/admin-super/admins/register', e)}
+            <button onClick={(e) => handleButtonClick('/admin-super/vouchers/create', e)}
               className="mt-3 bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform"
             >
               Create Voucher

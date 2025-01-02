@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import axios from "@/utils/interceptor"
+import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { Inventory, Store } from "@/utils/adminInterface";
 
@@ -11,6 +12,7 @@ interface ManageInventoryState {
   sortOrder: string;
   currentPage: number;
   totalPages: number;
+  totalItems: number;
   loading: boolean;
   error: string | null;
 }
@@ -23,6 +25,7 @@ const initialState: ManageInventoryState = {
   sortOrder: "asc",
   currentPage: 1,
   totalPages: 1,
+  totalItems: 0,
   loading: false,
   error: null,
 };
@@ -57,17 +60,19 @@ export const fetchInventoriesByStoreId = createAsyncThunk(
       page = 1,
       sortField = "stock",
       sortOrder = "asc",
+      search = ""
     }: {
       storeId: number;
       page?: number;
       sortField?: string;
       sortOrder?: string;
+      search?: string
     },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.get(
-        `/api/inventory/${storeId}?page=${page}&pageSize=10&sortField=${sortField}&sortOrder=${sortOrder}`,
+        `/api/inventory/${storeId}?page=${page}&pageSize=10&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
         {
           headers: { Authorization: `Bearer ${access_token}` },
         }
@@ -89,7 +94,7 @@ export const fetchInventoriesByStoreId = createAsyncThunk(
 export const createStockJournal = createAsyncThunk(
     "manageInventory/createStockJournal",
     async (
-      { storeId, inventoryIds, stockChange }: { storeId: number; inventoryIds: number[]; stockChange: number },
+      { storeId, inventoryIds, stockChange, changeCategory }: { storeId: number; inventoryIds: number[]; stockChange: number; changeCategory: string },
       { rejectWithValue }
     ) => {
       const access_token = Cookies.get("access_token");
@@ -98,6 +103,7 @@ export const createStockJournal = createAsyncThunk(
           inventories: inventoryIds.map((id) => ({
             inventoryId: id,
             stockChange,
+            changeCategory,
           })),
         };
         const response = await axios.post(
@@ -181,6 +187,7 @@ const manageInventorySlice = createSlice({
         state.loading = false;
         state.inventories = action.payload.data || [];
         state.totalPages = action.payload.totalPages || 1;
+        state.totalItems = action.payload.totalItems || 0;
       })
       .addCase(fetchInventoriesByStoreId.rejected, (state, action) => {
         state.loading = false;

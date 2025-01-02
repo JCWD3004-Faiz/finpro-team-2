@@ -6,10 +6,19 @@ import { registerAdminSchema } from '@/utils/registerAdminSchema';
 import SuperSidebar from '@/components/SuperSidebar';
 import { AppDispatch, RootState } from '@/redux/store';
 import { Register } from '@/utils/adminInterface';
+import LoadingVignette from '@/components/LoadingVignette';
+import SuccessModal from '@/components/modal-success';
+import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
+import ErrorModal from '@/components/modal-error';
+import { showError, hideError } from "@/redux/slices/errorSlice";
 
 function RegisterAdmin() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { isSidebarOpen,  loading } = useSelector((state: RootState) => state.superAdmin);
+  const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success);
+  const { isErrorOpen, errorMessage } = useSelector((state: RootState) => state.error);
+
 
   const [errors, setErrors] = useState<{ 
     username?: string; 
@@ -23,10 +32,6 @@ function RegisterAdmin() {
     password_hash: '',
   });
 
-  const { isSidebarOpen } = useSelector(
-    (state: RootState) => state.superAdmin
-  );
-
   const toggleSidebar = () => {
     dispatch({ type: 'superAdmin/toggleSidebar' });
   };
@@ -36,23 +41,36 @@ function RegisterAdmin() {
     try {
       registerAdminSchema.parse(credentials);
       await dispatch(registerStoreAdmin(credentials)).unwrap();
-      alert('Register success');
+      dispatch(showSuccess('Register success'));
       router.push('/admin-super/admins');
     } catch (error: any) {
       const newErrors = error.errors?.reduce((acc: any, err: any) => {
         acc[err.path[0]] = err.message; return acc;
       }, {}) || {};
       setErrors(newErrors);
-      if (!Object.keys(newErrors).length) alert('Failed to register');
+      if (!Object.keys(newErrors).length) 
+      dispatch(showError('Failed to register'));
     }
   }
 
   return (
-    <div className="bg-slate-100 w-screen h-screen text-gray-800">
+    <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64`}>
+      {loading && <LoadingVignette />}
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => dispatch(hideError())}
+        errorMessage={errorMessage}
+      />
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {dispatch(hideSuccess());
+        window.location.href = '/admin-super/admins'}}
+        successMessage={successMessage}
+      />
+      <div className={`ml-0 ${isSidebarOpen ? 'md:ml-64' : ''} md:ml-64 p-6`}>
       <h1 className="text-4xl font-semibold text-center text-gray-900 mb-10 tracking-wide">
-        Help Wanted
+        Register Store Admin
       </h1>
         <div className="flex flex-col justify-center items-center md:px-0 px-4">
           <form

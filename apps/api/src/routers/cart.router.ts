@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { CartController } from "../controllers/cart.controller";
+import { VoucherController } from "../controllers/voucher.controller";
+
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 
 const router = Router();
 const cartController = new CartController();
+const voucherController = new VoucherController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 
@@ -22,14 +25,14 @@ router.post("/quantity",
     cartController.changeItemQuantity.bind(cartController)
 );
 
-router.get("/cart-items/:user_id",
+router.get("/items/:user_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
     cartController.getCartItems.bind(cartController)
 )
 
-router.delete("/remove/:user_id/:cart_item_id",
+router.delete("/:user_id/:cart_item_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
@@ -37,10 +40,31 @@ router.delete("/remove/:user_id/:cart_item_id",
 );
 
 router.post("/checkout/:user_id",
-    // authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    // authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
-    // authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
     cartController.checkoutCart.bind(cartController)
+);
+
+router.post("/voucher/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.selectVoucher.bind(voucherController)
+);
+
+router.post("/redeem-product/",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.redeemProductVoucher.bind(voucherController)
+);
+
+router.post("/redeem-cart/",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.redeemCartVoucher.bind(voucherController)
 );
 
 export default router;

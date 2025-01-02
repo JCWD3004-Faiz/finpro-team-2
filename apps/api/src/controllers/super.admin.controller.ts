@@ -28,7 +28,15 @@ export class SuperAdminController {
   }
 
   async getAllStoreAdmins(req: Request, res: Response){
-    const data = await this.superAdminService.getAllStoreAdmins();
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const sortFieldAdmin = (req.query.sortFieldAdmin as string) || "store";
+    const sortOrder = (req.query.sortOrder as string) || "asc";
+    const search = (req.query.search as string) || "";
+    const data = await this.superAdminService.getAllStoreAdmins(
+      page, pageSize, sortFieldAdmin as "store" | "created_at",
+      sortOrder as "asc" | "desc", search,
+    );
     if (data) {
       res.status(200).send ({
         data: data,
@@ -108,10 +116,18 @@ export class SuperAdminController {
   }
 
   async getAllStores(req: Request, res: Response){
-    const order = await this.superAdminService.getAllStores();
-    if (order) {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const sortField = (req.query.sortField as string) || "admin";
+    const sortOrder = (req.query.sortOrder as string) || "asc";
+    const search = (req.query.search as string) || "";
+    const data = await this.superAdminService.getAllStores(
+      page, pageSize, sortField as "admin" | "created_at",
+      sortOrder as "asc" | "desc", search
+    );
+    if (data) {
       res.status(200).send ({
-        data: order,
+        data: data,
         status: res.statusCode,
       });
     } else {
@@ -154,6 +170,22 @@ export class SuperAdminController {
         status: res.statusCode,
       });
 
+    }
+  }
+
+  async getStoreNames(req: Request, res: Response) {
+    const data = await this.superAdminService.getStoreNames();
+    if (data) {
+      res.status(200).send({
+        message: "Store names successfully fetched.",
+        status: res.statusCode,
+        data: data,
+      });
+    } else {
+      res.status(404).send({
+        message: "Store names not found",
+        status: res.statusCode,
+      });
     }
   }
 

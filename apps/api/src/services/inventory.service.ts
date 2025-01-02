@@ -3,7 +3,7 @@ import {
   inventorySchema,
   stockSchema,
 } from "../validators/inventory.validator";
-import { ChangeType } from "../models/inventory.models";
+import { ChangeCategory, ChangeType } from "../models/inventory.models";
 
 export class InventoryService {
   private prisma: PrismaClient;
@@ -40,7 +40,11 @@ export class InventoryService {
 
   async superAdminCreateStockJournal(
     store_id: number,
-    inventories: { inventoryId: number; stockChange: number }[]
+    inventories: {
+      inventoryId: number;
+      stockChange: number;
+      changeCategory: string;
+    }[]
   ) {
     try {
       const store = await this.prisma.stores.findUnique({
@@ -52,7 +56,7 @@ export class InventoryService {
       }
 
       const stockJournalPromises = inventories.map(async (inventory) => {
-        const { inventoryId, stockChange } = inventory;
+        const { inventoryId, stockChange, changeCategory } = inventory;
 
         const inventoryRecord = await this.prisma.inventories.findUnique({
           where: { inventory_id: inventoryId },
@@ -81,6 +85,12 @@ export class InventoryService {
           );
         }
 
+        const categoryEnum =
+          ChangeCategory[changeCategory as keyof typeof ChangeCategory];
+        if (!categoryEnum) {
+          throw new Error(`Invalid change category: ${changeCategory}`);
+        }
+
         return this.prisma.stockJournal.create({
           data: {
             inventory_id: inventoryId,
@@ -88,7 +98,7 @@ export class InventoryService {
             change_quantity: stockChange,
             prev_stock: inventoryRecord.stock,
             new_stock: newStock,
-            change_category: "STOCK_CHANGE",
+            change_category: categoryEnum,
           },
         });
       });
@@ -155,13 +165,24 @@ export class InventoryService {
     store_id: number,
     page: number = 1,
     pageSize: number = 10,
-    sortField: "stock" | "product_name" = "stock",
-    sortOrder: "asc" | "desc" = "asc"
+    sortField: "stock" | "product_name" | "items_sold" = "stock",
+    sortOrder: "asc" | "desc" = "asc",
+    search: string = ""
   ) {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
+
+    const whereCondition: any = {
+      store_id,
+      Product: {
+        product_name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    };
     const inventories = await this.prisma.inventories.findMany({
-      where: { store_id },
+      where: search ? whereCondition : { store_id },
       skip,
       take,
       orderBy:
@@ -178,6 +199,11 @@ export class InventoryService {
         Product: {
           select: {
             product_name: true,
+            Category: {
+              select: {
+                category_name: true,
+              },
+            },
           },
         },
       },

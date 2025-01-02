@@ -10,7 +10,7 @@ export const userRegisterSchema = validate.object({
 });
 
 export const userPendingSchema = validate.object({
-  username: validate.string().min(1, "Username is required").max(30, "Maximum is 50 characters"),
+  username: validate.string().min(1, "Username is required").max(50, "Maximum is 50 characters"),
   email: validate.string().email("invalid email address"),
 })
 

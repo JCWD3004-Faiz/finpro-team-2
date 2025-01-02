@@ -11,14 +11,20 @@ export class CartController {
     async addToCart(req: Request, res: Response): Promise<void> {
         const { user_id, inventory_id } = req.body;
         const data = await this.cartService.addToCart(user_id, inventory_id);
-        const cartPrice = await this.cartService.updateCartPrice(user_id);
-        if (data && !data.error && cartPrice && !cartPrice.error) {
-            res.status(200).send({
+        if (data && !data.error) {
+            const cartPrice = await this.cartService.updateCartPrice(user_id);
+            if (cartPrice && !cartPrice.error) {
+                res.status(200).send({
                 message: "Successfully added to cart", status: res.statusCode,
             });
+            } else {
+                res.status(400).send({
+                    message: "Failed to update cart price", status: res.statusCode,
+                });
+            }
         } else {
             res.status(400).send({
-                message: data?.error || cartPrice?.error || "Failed to add item to cart",
+                message: data?.error || "Failed to add item to cart",
                 status: res.statusCode,
             });
         }
@@ -27,12 +33,18 @@ export class CartController {
     async changeItemQuantity(req: Request, res: Response): Promise<void> {
         const { user_id, cart_item_id, quantity } = req.body;
         const data = await this.cartService.changeItemQuantity(user_id, cart_item_id, quantity);
-        const cartPrice = await this.cartService.updateCartPrice(user_id);
-        if (data && !data.error && cartPrice && !cartPrice.error) {
-            res.status(200).send({
+        if (data && !data.error) {
+            const cartPrice = await this.cartService.updateCartPrice(user_id);
+            if (cartPrice && !cartPrice.error) {
+                res.status(200).send({
                 message: "Successfully updated item quantity",
                 status: res.statusCode, cart_item: data.cart_item,
             });
+            } else {
+                res.status(400).send({
+                    message: "Failed to update cart price", status: res.statusCode,
+                });
+            }
         } else {
             res.status(400).send({
                 message: "Failed to update item quantity", status: res.statusCode,
@@ -59,12 +71,18 @@ export class CartController {
         const user_id = parseInt(req.params.user_id);
         const cart_item_id = parseInt(req.params.cart_item_id);
         const data = await this.cartService.removeCartItem(user_id, cart_item_id);
-        const cartPrice = await this.cartService.updateCartPrice(user_id);
-        if (data && !data.error && cartPrice && !cartPrice.error) {
-            res.status(200).send({
+        if (data && !data.error) {
+            const cartPrice = await this.cartService.updateCartPrice(user_id);
+            if (cartPrice && !cartPrice.error){
+                res.status(200).send({
                 message: "Successfully removed item from cart",
                 status: res.statusCode,
             });
+            } else {
+                res.status(400).send({
+                    message: "Failed to update cart price", status: res.statusCode,
+                });
+            }
         } else {
             res.status(400).send({
                 message: "Failed to remove item from cart", status: res.statusCode,
@@ -78,7 +96,7 @@ export class CartController {
         if (data &&!data.error) {
             res.status(200).send({
                 message: "Successfully checked out cart",
-                status: res.statusCode, cartOrder: data
+                status: res.statusCode, data: data
             });
         } else {
             res.status(400).send({

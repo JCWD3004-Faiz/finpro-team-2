@@ -77,10 +77,14 @@ export interface Inventory {
     store_id: number;
     product_id: number;
     stock: number;
+    items_sold?: number;
     discounted_price?: number;
     updated_at: Date;
     Product?: {
         product_name?: string
+        Category?: {
+            category_name?: string
+        }
     }
 }
 
@@ -140,8 +144,36 @@ export enum DiscountType {
     NOMINAL = 'NOMINAL',
     BOGO = 'BOGO',
 }
+
+export interface Voucher {
+    voucher_id: number;
+    voucher_type: VoucherType;
+    discount_type: DiscountTypeEnum;
+    discount_amount: number;
+    min_purchase?: number;
+    max_discount?: number;
+    description:string
+    is_deleted: boolean;
+    expire_period: number
+    created_at: Date;
+    updated_at: Date;
+}
+
+export enum VoucherType {
+    SHIPPING_DISCOUNT = 'SHIPPING_DISCOUNT',
+    PRODUCT_DISCOUNT = 'PRODUCT_DISCOUNT',
+    CART_DISCOUNT = 'CART_DISCOUNT',
+}
+
+export enum DiscountTypeEnum {
+    PERCENTAGE = 'PERCENTAGE',
+    NOMINAL = 'NOMINAL',
+}
   
 export interface Order {
+    username: string;
+    address: string;
+    city_name: string;
     order_id: number;
     cart_id: number;
     store_id: number;
@@ -152,6 +184,8 @@ export interface Order {
     shipping_price: number;
     created_at: Date;
     updated_at: Date;
+    payment_id: number
+    store_name?: string;
 }
 
 export enum OrderStatus {
