@@ -1,15 +1,21 @@
-import React from 'react';
+import React from "react";
 import { FaCartArrowDown } from "react-icons/fa6";
 
 interface ProductCardProps {
-  productName: string; // Name of the product
-  productDescription: string; // Description of the product
-  productImage: string; // Image URL for the product
-  productPrice: number; // Price of the product in IDR
-  onAddToCart: () => void; // Function to handle adding to cart
+  productName: string;
+  productDescription: string;
+  productImage: string;
+  productPrice: number;
+  onAddToCart: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ productName, productDescription, productImage, productPrice, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  productName,
+  productDescription,
+  productImage,
+  productPrice,
+  onAddToCart,
+}) => {
   return (
     <div className="product-card w-[20vw] h-[60vh] bg-white shadow-lg overflow-hidden relative">
       <img 

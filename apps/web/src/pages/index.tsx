@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "../redux/slices/cartSlice";
 import dynamic from "next/dynamic";
-import CategoryContainer from "../components/category-container";
-import ShoppingCart from "../components/shopping-cart";
+import { RootState } from "../redux/store";
+import { FaCartArrowDown } from "react-icons/fa6";
+import ShoppingCart from "../components/shopping-cart"
 
-// Dynamically load Swiper
 const HeroBanner = dynamic(() => import('../components/hero-banner'), { ssr: false });
-
 const Home: React.FC = () => {
-  const [cartItems, setCartItems] = useState<
-    { productId: string; productName: string; productPrice: number }[]
-  >([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const [isCartOpen, setIsCartOpen] = React.useState(false);
 
   const vegetablesAndFruits = [
     {
@@ -74,41 +74,136 @@ const Home: React.FC = () => {
     },
   ];
 
-  const addToCart = (product: {
+  const dairy = [
+    {
+      productId: 'd1',
+      productName: 'Cottage Cheese',
+      productDescription: 'Fresh, delicate Cottage Cheese',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 60000,
+    },
+    {
+      productId: 'd2',
+      productName: 'Hazelnut Milk',
+      productDescription: 'Freshly squeezed from our natural grown hazelnuts.',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 15000,
+    },
+    {
+      productId: 'd3',
+      productName: 'Whole Milk',
+      productDescription: 'For your baking needs.',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 10000,
+    },
+    {
+      productId: 'd4',
+      productName: 'Yoghurt',
+      productDescription: 'Freshly made daily.',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 8000,
+    },
+  ];
+
+
+  const handleAddToCart = (product: {
     productId: string;
     productName: string;
     productPrice: number;
   }) => {
-    console.log("Products:", product);
-    setCartItems((prev) => [...prev, product]);
+    dispatch(addItem(product));
   };
-
-   console.log("Cart:", cartItems);
 
   return (
     <div className="flex flex-col mt-[11vh]">
-      {/* Hero Banner Section */}
       <div className="w-full">
         <HeroBanner />
       </div>
 
-      {/* Category Sections */}
-      <div className="flex flex-col">
-        <CategoryContainer
-          categoryName="Vegetables & Fruits"
-          products={vegetablesAndFruits.map((product) => ({
-            ...product,
-            addToCart,
-          }))}
-        />
-        <CategoryContainer
-          categoryName="Poultry"
-          products={poultry.map((product) => ({
-            ...product,
-            addToCart,
-          }))}
-        />
+      {/* Vegetables & Fruits Section */}
+      <div className="mx-8 my-8">
+        <h2 className="text-2xl font-semibold mb-4">Vegetables & Fruits</h2>
+        <div className="flex gap-6 overflow-x-auto">
+          {vegetablesAndFruits.map((product) => (
+            <div
+              key={product.productId}
+              className="product-card w-[20vw] h-[60vh] bg-white shadow-lg overflow-hidden relative"
+            >
+              <img 
+                src={product.productImage} 
+                alt={product.productName} 
+                className="w-full h-2/3 object-cover" 
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-bold">{product.productName}</h3>
+                <p className="text-sm text-gray-600">{product.productDescription}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+              </div>
+              <FaCartArrowDown
+                className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"
+                onClick={() => handleAddToCart(product)}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Poultry Section */}
+      <div className="mx-8 my-8">
+        <h2 className="text-2xl font-semibold mb-4">Poultry</h2>
+        <div className="flex gap-6 overflow-x-auto">
+          {poultry.map((product) => (
+            <div
+              key={product.productId}
+              className="product-card w-[20vw] h-[60vh] bg-white shadow-lg overflow-hidden relative"
+            >
+              <img 
+                src={product.productImage} 
+                alt={product.productName} 
+                className="w-full h-2/3 object-cover" 
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-bold">{product.productName}</h3>
+                <p className="text-sm text-gray-600">{product.productDescription}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+              </div>
+              <FaCartArrowDown
+                className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"
+                onClick={() => handleAddToCart(product)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+        {/* Poultry Section */}
+        <div className="mx-8 my-8">
+        <h2 className="text-2xl font-semibold mb-4">Dairy</h2>
+        <div className="flex gap-6 overflow-x-auto">
+          {poultry.map((product) => (
+            <div
+              key={product.productId}
+              className="product-card w-[20vw] h-[60vh] bg-white shadow-lg overflow-hidden relative"
+            >
+              <img 
+                src={product.productImage} 
+                alt={product.productName} 
+                className="w-full h-2/3 object-cover" 
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-bold">{product.productName}</h3>
+                <p className="text-sm text-gray-600">{product.productDescription}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+              </div>
+              <FaCartArrowDown
+                className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"
+                onClick={() => handleAddToCart(product)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
 
       {/* Shopping Cart */}
       <ShoppingCart
@@ -121,5 +216,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
 
