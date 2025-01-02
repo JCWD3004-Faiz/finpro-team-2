@@ -195,4 +195,16 @@ export class SuperAdminService {
       throw new Error("Unable to create store inventories.");
     }
   }
+
+  async getStoreNames() {
+    try {
+      const stores = await this.prisma.stores.findMany({
+        where: { is_deleted: false }, select: { store_name: true },
+      });
+      return stores.map(store => store.store_name);
+    } catch (error) {
+      console.error("Error fetching store names:", error);
+      throw new Error("Unable to fetch store names.");
+    }
+  }
 }

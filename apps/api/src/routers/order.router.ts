@@ -129,4 +129,16 @@ router.post("/redeem-shipping/",
     voucherController.redeemShippingVoucher.bind(voucherController)
 );
 
+router.get("/super/:payment_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    paymentController.getPaymentByIdSuper.bind(paymentController)
+)
+
+router.get("/super-items/:order_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+    paymentController.getSuperItemDetails.bind(paymentController)
+)
+
 export default router;

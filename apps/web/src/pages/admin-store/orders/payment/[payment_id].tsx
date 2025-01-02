@@ -144,6 +144,12 @@ function PaymentManagement() {
                       </div>
                     )}
                   </div>
+                  {payment?.payment_reference && (
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Payment Reference</p>
+                      <p className="font-medium">{payment?.payment_reference}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <h4 className="font-medium">Proof of Payment</h4>

@@ -23,8 +23,6 @@ const initialState: ManagePaymentState = {
 };
 
 const access_token = Cookies.get("access_token");
-const storeId = Cookies.get("storeId");
-const store_id = Number(storeId);
 
 export const fetchPayment = createAsyncThunk(
   'managePayment/fetchPayment',
@@ -64,6 +62,26 @@ export const processOrder = createAsyncThunk(
       headers: { Authorization: `Bearer ${access_token}` },
     });
     return response.status;
+  }
+);
+
+export const fetchSuperPayment = createAsyncThunk(
+  'managePayment/fetchSuperPayment',
+  async ({ payment_id }: { payment_id: number }) => {
+    const response = await axios.get(`/api/order/super/${payment_id}`, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    return response.data.data.payment;
+  }
+);
+
+export const fetchSuperCartItems = createAsyncThunk(
+  'managePayment/fetchSuperCartItems',
+  async ({ order_id }: { order_id: number }) => {
+    const response = await axios.get(`/api/order/super-items/${order_id}`, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    return response.data.data.cartItems;
   }
 );
 
@@ -110,6 +128,24 @@ const managePaymentSlice = createSlice({
       .addCase(processOrder.rejected, (state) => {
         state.processing = false;
         state.error = 'Failed to process the order';
+      })
+      .addCase(fetchSuperPayment.pending, (state) => {state.loading = true})
+      .addCase(fetchSuperPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.payment = action.payload;
+      })
+      .addCase(fetchSuperPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch super payment details';
+      })
+      .addCase(fetchSuperCartItems.pending, (state) => {state.loading = true})
+      .addCase(fetchSuperCartItems.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cartItems = action.payload;
+      })
+      .addCase(fetchSuperCartItems.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch super cart items';
       });
   },
 });

@@ -186,10 +186,40 @@ export class PaymentController {
             });
         } catch (error) {
             console.error("Error fetching store item details:", error);
-                res.status(500).send({
+                res.status(400).send({
                 message: "Failed to fetch store item details.",
                 detail: (error as Error).message, status: res.statusCode,
             });
         }
+    }
+
+    async getPaymentByIdSuper(req: Request, res: Response) {
+        const payment_id = parseInt(req.params.payment_id);
+        const data = await this.paymentService.getPaymentByIdSuper(payment_id);
+        if (data.error) {
+            res.status(404).send({
+            message: "Payment not found.",
+            status: res.statusCode, error: data.error,
+            });
+        }
+            res.status(200).send({
+            message: "Payment found",
+            status: res.statusCode, data: data,
+        });
+    }
+
+    async getSuperItemDetails(req: Request, res: Response) {
+        const order_id = parseInt(req.params.order_id);
+        const data = await this.paymentService.getSuperItemDetails(order_id);
+        if (data.error) {
+            res.status(404).send({
+            message: "Order not found.",
+            status: res.statusCode, error: data.error,
+            });
+        }
+            res.status(200).send({
+            message: "Item details found",
+            status: res.statusCode, data: data,
+        });
     }
 }

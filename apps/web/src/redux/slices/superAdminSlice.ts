@@ -19,7 +19,12 @@ const initialState: SuperAdminState = {
   totalPages: 1,
   totalItems: 0,
   sortField: "admin",
-  sortFieldAdmin: "store"
+  sortFieldAdmin: "store",
+  sortFieldOrder: "created_at",
+  orderStatus: "",
+  allOrders: [],
+  storeName:"",
+  storeNames: []
 };
 
 const access_token = Cookies.get('access_token');
@@ -126,6 +131,36 @@ export const createStore = createAsyncThunk(
   }
 )
 
+export const fetchAllOrders = createAsyncThunk('storeAdmin/fetchAllOrders',
+  async ({
+    page = 1, sortFieldOrder = "created_at", sortOrder = "asc", search = "", orderStatus, storeName} : {
+    page?: number; sortFieldOrder?: string; sortOrder?: string; search?: string; orderStatus: string; storeName:string
+  }, { rejectWithValue }) => {
+    if (typeof window === "undefined") {
+      return rejectWithValue("Cannot fetch data during SSR")}
+    try {
+      const response = await axios.get(`/api/order/all`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: { page, sortFieldOrder, sortOrder, search, orderStatus, storeName },
+      });
+      return response.data.data; 
+    } catch (error) {
+      return rejectWithValue('Error fetching store orders.');
+    }
+  }
+)
+
+export const fetchStoreNames = createAsyncThunk('superAdmin/fetchStoreNames', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get('/api/super-admin/store-names', {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue('Error fetching store names');
+  }
+});
+
 const asyncActionHandler = (state: SuperAdminState, action: any, successCallback?: (state: SuperAdminState, action: any) => void) => {
   state.loading = action.type.endsWith('pending'); // Set loading to true if pending
   if (action.type.endsWith('rejected')) {
@@ -154,6 +189,9 @@ const superAdminSlice = createSlice({
     setSortField(state, action) { state.sortField = action.payload},
     setSortFieldAdmin(state, action) {state.sortFieldAdmin = action.payload},
     setCurrentPage(state, action) {state.currentPage = action.payload;},
+    setSortFieldOrder(state, action) {state.sortFieldOrder = action.payload},
+    setOrderStatus(state, action) { state.orderStatus = action.payload;},
+    setStoreName(state, action) { state.storeName = action.payload;},
   },
   extraReducers: (builder) => {
     builder
@@ -214,9 +252,18 @@ const superAdminSlice = createSlice({
       .addCase(createStore.fulfilled, (state, action) => asyncActionHandler(state, action, (state, action) => {
         state.allStores.push(action.payload);
       }))
-      .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action));
+      .addCase(createStore.rejected, (state, action) => asyncActionHandler(state, action))
+      .addCase(fetchAllOrders.pending, (state) => {state.loading = true})
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
+        state.loading = false; const { orders, currentPage, totalPages, totalItems } = action.payload;
+        state.allOrders = orders; state.totalPages = totalPages; state.totalItems = totalItems; state.currentPage = currentPage;
+      })
+      .addCase(fetchAllOrders.rejected, (state, action) => { state.loading = false; state.error = action.payload as string})
+      .addCase(fetchStoreNames.pending, (state) => {state.loading = true; state.error = null})
+      .addCase(fetchStoreNames.fulfilled, (state, action) => {state.loading = false; state.storeNames = action.payload})
+      .addCase(fetchStoreNames.rejected, (state, action) => {state.loading = false; state.error = action.payload as string;});
   },
 });
 
-export const { setCurrentPage, setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
+export const { setStoreName, setOrderStatus, setCurrentPage, setSortFieldOrder, setSortFieldAdmin, setSortField, toggleSidebar, setEditId, setEditStoreData, setEditAdminData, setLocationSuggestions, setStoreSuggestions, setSuggestionsPosition, resetEditState } = superAdminSlice.actions;
 export default superAdminSlice.reducer;

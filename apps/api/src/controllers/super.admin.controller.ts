@@ -173,4 +173,20 @@ export class SuperAdminController {
     }
   }
 
+  async getStoreNames(req: Request, res: Response) {
+    const data = await this.superAdminService.getStoreNames();
+    if (data) {
+      res.status(200).send({
+        message: "Store names successfully fetched.",
+        status: res.statusCode,
+        data: data,
+      });
+    } else {
+      res.status(404).send({
+        message: "Store names not found",
+        status: res.statusCode,
+      });
+    }
+  }
+
 }

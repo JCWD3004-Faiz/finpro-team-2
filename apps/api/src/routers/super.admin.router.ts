@@ -113,7 +113,7 @@ router.put(
 )
 
 router.post(
-  "/gift-voucher/:voucher_id/:user_id",
+  "/gift-voucher/:voucher_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   voucherController.giftVoucher.bind(voucherController)
@@ -134,17 +134,26 @@ router.get(
 )
 
 router.get(
+  "/store-names",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  superAdminController.getStoreNames.bind(superAdminController)
+)
+
+router.get(
   "/sales",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   salesController.getMonthlySalesReport.bind(salesController)
 )
+
 router.get(
   "/sales/categories",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   salesController.getMonthlySalesByCategory.bind(salesController)
 )
+
 router.get(
   "/sales/Products",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),

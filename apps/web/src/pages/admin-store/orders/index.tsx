@@ -119,43 +119,44 @@ function StoreOrders() {
                   <th className="p-4 text-left">Destination Address</th>
                   <th className="p-4 text-left">Cart Price</th>
                   <th className="p-4 text-left">Shipping Price</th>
-                  <th 
-                    onClick={() => handleSort("created_at")} 
-                    className="p-4 cursor-pointer">
+                  <th  onClick={() => handleSort("created_at")} className="p-4 cursor-pointer">
                     <div className='flex items-center'>
                       Order Date
                       <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
                       {sortField === "created_at"}
                     </div>
                   </th>
-                  <th className="py-4 px-6 text-center">
-                    Status
-                  </th>
+                  <th className="py-4 px-6 text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {(storeOrders && Array.isArray(storeOrders) && storeOrders.length > 0) ? (
-                  storeOrders.map((order: Order, index) => (
-                  <tr key={order.order_id} onClick={() => handleRowClick(`/admin-store/orders/payment/${order.payment_id}`)}
-                  className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} border-b hover:bg-gray-200 hover:cursor-pointer transition-colors`}
-                  title="Click to view payment details">
+                {(storeOrders && Array.isArray(storeOrders) && storeOrders.length > 0) ? 
+                (storeOrders.map((order: Order, index) => { const isPendingPayment = order.order_status === "PENDING_PAYMENT";
+                  return (
+                  <tr key={order.order_id} onClick={(e) => { if (isPendingPayment) {e.preventDefault() 
+                  } else { handleRowClick(`/admin-store/orders/payment/${order.payment_id}`)}}}
+                  className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} 
+                  ${isPendingPayment ? "hover:bg-gray-100 cursor-default" : "hover:bg-gray-200 hover:cursor-pointer"} 
+                  border-b transition-colors`} title={isPendingPayment ? "Order is pending payment" : "Click to view payment details"}
+                  >
                     <td className="p-4">{order.username}</td>
                     <td className="p-4">{order.address}, {order.city_name}</td>
                     <td className="p-4">Rp. {order.cart_price}</td>
                     <td className="p-4">Rp. {order.shipping_price}</td>
                     <td className="p-4">{new Date(order.created_at).toLocaleDateString()}</td>
                     <td className="py-3 px-2 text-center whitespace-nowrap">
-                      <div className={`${getStatusColor(order.order_status)} font-bold py-2 rounded-full text-white`}>
-                        {formatStatus(order.order_status)}
-                      </div>
+                    <div className={`${getStatusColor(order.order_status)} font-bold py-2 rounded-full text-white`}>
+                      {formatStatus(order.order_status)}
+                    </div>
                     </td>
                   </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4">No orders found</td>
-                  </tr>
-                )}
+                  );
+                })
+              ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-4">No orders found</td>
+              </tr>
+            )}
             </tbody>
             </table>
           </div>

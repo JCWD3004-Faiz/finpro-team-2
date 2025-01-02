@@ -84,7 +84,7 @@ function SuperDashboard() {
               <h2 className="text-2xl font-semibold text-indigo-600">Vouchers</h2>
             </div>
             <p className="text-gray-700 my-3 text-center">Manage your vouchers here.</p>
-            <button onClick={(e) => handleButtonClick('/admin-super/admins/register', e)}
+            <button onClick={(e) => handleButtonClick('/admin-super/vouchers/create', e)}
               className="mt-3 bg-white text-indigo-600 font-semibold border-2 border-indigo-600 py-3 px-8 rounded-full hover:bg-indigo-600 hover:text-white transition-colors transform"
             >
               Create Voucher

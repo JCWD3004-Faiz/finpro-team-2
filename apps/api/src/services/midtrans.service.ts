@@ -77,27 +77,33 @@ export default class MidtransService {
         }
     }
 
-    public async updateMidtransPaymentStatus(user_id: number, transaction_id:string){
-        const payment = await this.prisma.payments.findUnique({
-            where: { transaction_id: transaction_id },
-            include: { Order: { include: { User: true } } }
-        });
-        if (!payment || payment.Order?.user_id !== user_id || payment.payment_method !== "MIDTRANS") {
-            return { error: "Payment not found or does not belong to this user." };
+    public async updateMidtransPaymentStatus(user_id: number, transaction_id: string) {
+        try {
+            const payment = await this.prisma.payments.findUnique({
+                where: { transaction_id: transaction_id }, include: { Order: { include: { User: true }}}
+            });    
+            if (!payment || payment.Order?.user_id !== user_id || payment.payment_method !== "MIDTRANS") {
+                return { error: "Payment not found or does not belong to this user." };
+            }
+            const transactionStatus = await this.getTransactionStatus(transaction_id);    
+            const updatedStatus = await this.prisma.payments.update({
+                where: { transaction_id: transaction_id },
+                data: { payment_status: "COMPLETED", payment_reference: transactionStatus.transaction_id},
+            });    
+            return updatedStatus;
+        } catch (error) {
+            console.error("Error updating payment status: ", error);
+            throw error;
         }
-        return await this.prisma.payments.update({ 
-            where: { transaction_id: transaction_id }, data: { payment_status: "COMPLETED" }
-        });
     }
 
-    public async getTransactionStatus(orderId: string) {
+    public async getTransactionStatus(transaction_id: string) {
         const headers = {
             "Content-Type": "application/json",
             Authorization: `Basic ${Buffer.from(this.serverKey + ':').toString('base64')}`,
         };
-
         try {
-            const response = await axios.get(`https://api.sandbox.midtrans.com/v2/${orderId}/status`, { headers });
+            const response = await axios.get(`https://api.sandbox.midtrans.com/v2/${transaction_id}/status`, { headers });
             return response.data;
         } catch (error) {
             console.error("Error getting transaction status: ", error);

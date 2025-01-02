@@ -144,6 +144,31 @@ export enum DiscountType {
     NOMINAL = 'NOMINAL',
     BOGO = 'BOGO',
 }
+
+export interface Voucher {
+    voucher_id: number;
+    voucher_type: VoucherType;
+    discount_type: DiscountTypeEnum;
+    discount_amount: number;
+    min_purchase?: number;
+    max_discount?: number;
+    description:string
+    is_deleted: boolean;
+    expire_period: number
+    created_at: Date;
+    updated_at: Date;
+}
+
+export enum VoucherType {
+    SHIPPING_DISCOUNT = 'SHIPPING_DISCOUNT',
+    PRODUCT_DISCOUNT = 'PRODUCT_DISCOUNT',
+    CART_DISCOUNT = 'CART_DISCOUNT',
+}
+
+export enum DiscountTypeEnum {
+    PERCENTAGE = 'PERCENTAGE',
+    NOMINAL = 'NOMINAL',
+}
   
 export interface Order {
     username: string;
@@ -160,6 +185,7 @@ export interface Order {
     created_at: Date;
     updated_at: Date;
     payment_id: number
+    store_name?: string;
 }
 
 export enum OrderStatus {
