@@ -81,7 +81,7 @@ export class GetProductService {
     page: number = 1,
     pageSize: number = 10,
     search: string = "",
-    category: string | null = null,
+    category: string | "",
     sortField: "price" | "product_name" = "product_name",
     sortOrder: "asc" | "desc" = "asc"
   ) {
@@ -95,7 +95,7 @@ export class GetProductService {
       ...(category && {
         Category: {
           category_name: {
-            equals: category,
+            contains: category,
             mode: "insensitive",
           },
         },
@@ -179,6 +179,7 @@ export class GetProductService {
       include: {
         ProductImages: {
           select: {
+            image_id: true,
             product_image: true,
             is_primary: true,
           },
@@ -192,6 +193,7 @@ export class GetProductService {
     return {
       product_id: product.product_id,
       product_name: product.product_name,
+      description: product.description,
       category_name: product.Category.category_name,
       price: product.price,
       availability: product.availability,
@@ -199,6 +201,7 @@ export class GetProductService {
       created_at: product.created_at,
       updated_at: product.updated_at,
       product_images: product.ProductImages.map((image) => ({
+        image_id: image.image_id,
         product_image: image.product_image,
         is_primary: image.is_primary,
       })),

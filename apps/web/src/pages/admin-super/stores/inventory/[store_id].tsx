@@ -79,12 +79,18 @@ function ManageInventory() {
   const handleConfirm = (inventories: {
     inventoryIds: number[];
     stockChange: number;
+    changeCategory: string;
   }) => {
+    if (inventories.stockChange === 0) {
+      dispatch(showError("Stock change cannot be 0."));
+      return;
+    }
     dispatch(
       createStockJournal({
         storeId: store_id,
         inventoryIds: inventories.inventoryIds,
         stockChange: inventories.stockChange,
+        changeCategory: inventories.changeCategory,
       })
     )
       .unwrap()
@@ -189,7 +195,7 @@ function ManageInventory() {
                   <CardTitle className="text-gray-700 text-sm font-medium ">
                     Total Products
                   </CardTitle>
-                  <LuPackage className="h-4 w-4 text-muted-foreground"/>
+                  <LuPackage className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalItems}</div>
@@ -199,7 +205,7 @@ function ManageInventory() {
           </div>
 
           <div className="my-5">
-            <SearchField 
+            <SearchField
               className=""
               placeholder="Search products..."
               searchTerm={searchQuery}
@@ -235,22 +241,36 @@ function ManageInventory() {
                   />
                 </th>
                 <th
-                  className="p-4 cursor-pointer flex items-center"
+                  className="p-4 cursor-pointer"
                   onClick={() => handleSort("product_name")}
                 >
-                  Product Name
-                  <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center">
+                    Product Name
+                    <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                  </div>
                   {sortField === "product_name"}
                 </th>
                 <th className="p-4">Category</th>
                 <th className="p-4">Price</th>
                 <th
-                  className="p-4 cursor-pointer flex items-center"
+                  className="p-4 cursor-pointer"
                   onClick={() => handleSort("stock")}
                 >
-                  Stock
-                  <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center">
+                    Stock
+                    <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                  </div>
                   {sortField === "stock"}
+                </th>
+                <th
+                  className="p-4 cursor-pointer"
+                  onClick={() => handleSort("items_sold")}
+                >
+                  <div className="flex items-center">
+                    Items Sold
+                    <FaSort className="ml-2 opacity-80 hover:opacity-100 transition-opacity" />
+                  </div>
+                  {sortField === "items_sold"}
                 </th>
                 <th className="p-4">Updated At</th>
               </tr>
@@ -301,6 +321,7 @@ function ManageInventory() {
                   >
                     {inventory.stock}
                   </td>
+                  <td className="p-4 text-gray-600">{inventory.items_sold}</td>
                   <td>{new Date(inventory.updated_at).toLocaleDateString()}</td>
                 </tr>
               ))}

@@ -5,6 +5,8 @@ import { VoucherController } from "../controllers/voucher.controller";
 
 import { ProductController } from "../controllers/product.controller";
 
+import { SalesController } from "../controllers/sales.controller";
+
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -13,6 +15,8 @@ const superAdminController = new SuperAdminController();
 const voucherController = new VoucherController();
 
 const productController = new ProductController();
+
+const salesController = new SalesController();
 
 const authenticateJwt = new AuthJwtMiddleware();
 
@@ -134,6 +138,27 @@ router.get(
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   superAdminController.getStoreNames.bind(superAdminController)
+)
+
+router.get(
+  "/sales",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesReport.bind(salesController)
+)
+
+router.get(
+  "/sales/categories",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesByCategory.bind(salesController)
+)
+
+router.get(
+  "/sales/Products",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesByProduct.bind(salesController)
 )
 
 export default router;

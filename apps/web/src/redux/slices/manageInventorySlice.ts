@@ -94,7 +94,7 @@ export const fetchInventoriesByStoreId = createAsyncThunk(
 export const createStockJournal = createAsyncThunk(
     "manageInventory/createStockJournal",
     async (
-      { storeId, inventoryIds, stockChange }: { storeId: number; inventoryIds: number[]; stockChange: number },
+      { storeId, inventoryIds, stockChange, changeCategory }: { storeId: number; inventoryIds: number[]; stockChange: number; changeCategory: string },
       { rejectWithValue }
     ) => {
       const access_token = Cookies.get("access_token");
@@ -103,6 +103,7 @@ export const createStockJournal = createAsyncThunk(
           inventories: inventoryIds.map((id) => ({
             inventoryId: id,
             stockChange,
+            changeCategory,
           })),
         };
         const response = await axios.post(

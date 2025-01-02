@@ -16,6 +16,19 @@ export class CategoryService {
     }
   }
 
+  async getCategories() {
+    const categories = await this.prisma.categories.findMany({
+      where: {
+        is_deleted: false,
+      },
+      select: {
+        category_id: true,
+        category_name: true,
+      },
+    });
+    return categories;
+  }
+
   async getAllCategory(
     page: number = 1,
     pageSize: number = 10,

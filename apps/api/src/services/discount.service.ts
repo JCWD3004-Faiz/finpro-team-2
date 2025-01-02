@@ -73,6 +73,22 @@ export class DiscountService {
           `Inventory ID ${validatedData.inventory_id} does not exist or does not belong to Store ID ${validatedData.store_id}.`
         );
       }
+
+      const checkDiscount = await this.prisma.discounts.findFirst({
+        where: {
+          inventory_id: validatedData.inventory_id,
+        },
+      });
+      
+      if(checkDiscount){
+        throw new Error(`Discount for Inventory ID ${validatedData.inventory_id} already exist`);
+      }
+
+      if (validatedData.min_purchase || validatedData.max_discount) {
+        throw new Error(
+          `Inventory-specific discounts cannot have minimum purchase or maximum discount.`
+        );
+      }
     }
 
     let uploadedImageUrl: string | null = null;
@@ -89,10 +105,16 @@ export class DiscountService {
         image: uploadedImageUrl,
       },
     });
-    await updateInventoriesDiscountedPrice(
-      newDiscount.store_id,
-      newDiscount.inventory_id
-    );
+    if (
+      newDiscount.inventory_id !== null &&
+      newDiscount.inventory_id !== undefined
+    ) {
+      await updateInventoriesDiscountedPrice(
+        newDiscount.store_id,
+        newDiscount.inventory_id
+      );
+    }
+
     return newDiscount;
   }
 
@@ -151,10 +173,16 @@ export class DiscountService {
       where: { discount_id },
       data: validatedData,
     });
-    await updateInventoriesDiscountedPrice(
-      updatedDiscount.store_id,
-      updatedDiscount.inventory_id
-    );
+    if (
+      updatedDiscount.inventory_id !== null &&
+      updatedDiscount.inventory_id !== undefined
+    ) {
+      await updateInventoriesDiscountedPrice(
+        updatedDiscount.store_id,
+        updatedDiscount.inventory_id
+      );
+    }
+
     return updatedDiscount;
   }
 
@@ -166,14 +194,20 @@ export class DiscountService {
         is_deleted: true,
       },
     });
-    await updateInventoriesDiscountedPrice(
-      deleteDiscount.store_id,
-      deleteDiscount.inventory_id
-    );
+    if (
+      deleteDiscount.inventory_id !== null &&
+      deleteDiscount.inventory_id !== undefined
+    ) {
+      await updateInventoriesDiscountedPrice(
+        deleteDiscount.store_id,
+        deleteDiscount.inventory_id
+      );
+    }
+
     return deleteDiscount;
   }
 
-  async updateDiscountImage( discount_id: number, image: string ) {
+  async updateDiscountImage(discount_id: number, image: string) {
     await this.checkDiscountId(discount_id);
     const uploadResponse = await cloudinary.uploader.upload(image, {
       folder: "discounts",
