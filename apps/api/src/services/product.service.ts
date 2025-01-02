@@ -95,13 +95,6 @@ export class ProductService {
     const createdInventories = this.prisma.inventories.createMany({
       data: inventoryData,
     });
-
-    await Promise.all(
-      stores.map((store) =>
-        updateInventoriesDiscountedPrice(store.store_id)
-      )
-    );
-
     return createdInventories;
   }
 
@@ -130,10 +123,12 @@ export class ProductService {
       });
 
       for (const inventory of inventories) {
-        await updateInventoriesDiscountedPrice(
-          inventory.store_id, // Pass the store_id
-          inventory.inventory_id // Pass the specific inventory_id
-        );
+        if (inventory.inventory_id !== null && inventory.inventory_id !== undefined) {
+          await updateInventoriesDiscountedPrice(
+            inventory.store_id, // Pass the store_id
+            inventory.inventory_id // Pass the specific inventory_id
+          );
+        }
       }
     }
 

@@ -15,6 +15,9 @@ export class InventoryController {
       if (!Array.isArray(inventories) || inventories.length === 0) {
         return sendErrorResponse(res, 400, `Invalid inventories data. It must be a non-empty array.`);
       }
+      if(inventories[0].stockChange === 0){
+        return sendErrorResponse(res, 400, `Invalid inventories data. stock change can't be 0.`);
+      }
       const stockJournals = await this.inventoryService.superAdminCreateStockJournal(store_id, inventories);
       //await this.inventoryService.superAdminCreateStockJournal(store_id);
       res.status(201).send({
@@ -59,7 +62,7 @@ export class InventoryController {
         storeId,
         page,
         pageSize,
-        sortField as "stock" | "product_name",
+        sortField as "stock" | "product_name" | "items_sold",
         sortOrder as "asc" | "desc",
         search,
       );
