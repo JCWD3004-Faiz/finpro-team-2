@@ -1,7 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
+import cartReducer from './slices/cartSlice';
 import storeAdminReducer from './slices/storeAdminSlice';
 import superAdminReducer from './slices/superAdminSlice';
 import manageInventoryReducer from "./slices/manageInventorySlice";
+import errorReducer from "./slices/errorSlice";
+import successReducer from "./slices/successSlice";
 import manageProductReducer from "./slices/manageProductSlice";
 import manageCategoryReducer from "./slices/manageCategorySlice";
 import errorReducer from "./slices/errorSlice"
@@ -11,9 +14,9 @@ import globalReducer from './slices/globalSlice';
 import managePaymentReducer from "./slices/managePaymentSlice";
 import manageVoucherReducer from "./slices/manageVoucherSlice";
 
-
 const store = configureStore({
   reducer: {
+    cart: cartReducer,
     superAdmin: superAdminReducer,
     storeAdmin: storeAdminReducer,
     manageInventory: manageInventoryReducer,
@@ -28,7 +31,7 @@ const store = configureStore({
   },
 });
 
-export type RootState = ReturnType<typeof store.getState>; // RootState type
-export type AppDispatch = typeof store.dispatch; // AppDispatch type for dispatching actions
+export type RootState = ReturnType<typeof store.getState>; 
+export type AppDispatch = typeof store.dispatch; 
 
 export default store;
