@@ -7,8 +7,6 @@ import errorReducer from "./slices/errorSlice";
 import successReducer from "./slices/successSlice";
 import manageProductReducer from "./slices/manageProductSlice";
 import manageCategoryReducer from "./slices/manageCategorySlice";
-import errorReducer from "./slices/errorSlice"
-import successReducer from "./slices/successSlice"
 import confirmReducer from "./slices/confirmSlice"
 import globalReducer from './slices/globalSlice';
 import managePaymentReducer from "./slices/managePaymentSlice";
