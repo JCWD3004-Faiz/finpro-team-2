@@ -1,22 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import SuperSidebar from "@/components/SuperSidebar";
-import { Button } from "@/components/ui/button";
-import { BsBoxSeamFill } from "react-icons/bs";
-import NewProduct from "@/components/product-create";
 import LoadingVignette from "@/components/LoadingVignette";
+import UpdateProductComponent from "@/components/product-update";
 import SuccessModal from "@/components/modal-success";
-import ErrorModal from "@/components/modal-error";
 import { hideSuccess } from "@/redux/slices/successSlice";
+import ErrorModal from "@/components/modal-error";
 import { hideError } from "@/redux/slices/errorSlice";
 
-function CreateProduct() {
+function UpdateProduct() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const params = useParams();
+  const product_id = Number(params?.product_id);
+
   const { isSidebarOpen } = useSelector((state: RootState) => state.superAdmin);
   const { isSuccessOpen, successMessage } = useSelector(
     (state: RootState) => state.success
@@ -52,12 +52,14 @@ function CreateProduct() {
       />
       <div className={`ml-0 ${isSidebarOpen ? "md:ml-64" : ""} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
-          Upload a new Product
+          Update Product 
         </h1>
-        <NewProduct />
+        <UpdateProductComponent
+        product_id={product_id}
+        />
       </div>
     </div>
   );
 }
 
-export default CreateProduct;
+export default UpdateProduct;

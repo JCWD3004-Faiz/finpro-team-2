@@ -7,7 +7,11 @@ interface StockJournalModalProps {
     inventory_id: number;
     product_name: string;
   }[];
-  onConfirm: (inventories: { inventoryIds: number[]; stockChange: number }) => void; // Confirmation handler
+  onConfirm: (inventories: {
+    inventoryIds: number[];
+    stockChange: number;
+    changeCategory: string;
+  }) => void; // Confirmation handler
 }
 
 function StockJournalModal({
@@ -17,10 +21,15 @@ function StockJournalModal({
   onConfirm,
 }: StockJournalModalProps) {
   const [stockChange, setStockChange] = useState<string | number>(0);
+  const [changeCategory, setChangeCategory] = useState<string>("STOCK_CHANGE");
 
   const handleSubmit = () => {
     const inventoryIds = inventories.map((item) => item.inventory_id);
-    onConfirm({ inventoryIds, stockChange: Number(stockChange) });
+    onConfirm({
+      inventoryIds,
+      stockChange: Number(stockChange),
+      changeCategory,
+    });
     onClose();
   };
 
@@ -46,14 +55,28 @@ function StockJournalModal({
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
             value={stockChange}
             onChange={(e) => {
-                const value = e.target.value
-                if(value === "" || value === "-"){
-                    setStockChange(value);
-                }else if(!isNaN(Number(value))){
-                    setStockChange(Number(value))
-                }
+              const value = e.target.value;
+              if (value === "" || value === "-") {
+                setStockChange(value);
+              } else if (!isNaN(Number(value))) {
+                setStockChange(Number(value));
+              }
             }}
           />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">
+            Change Category
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            value={changeCategory}
+            onChange={(e) => setChangeCategory(e.target.value)}
+          >
+            <option value="SOLD">Sold</option>
+            <option value="STOCK_CHANGE">Stock Change</option>
+            <option value="OTHERS">Others</option>
+          </select>
         </div>
         <div className="flex justify-end">
           <button

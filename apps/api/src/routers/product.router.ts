@@ -17,6 +17,13 @@ router.get(
   categoryController.getAllCategory.bind(categoryController)
 );
 
+router.get(
+  "/categories/all",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  categoryController.getCategories.bind(categoryController)
+);
+
 router.post(
   "/categories",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
@@ -52,28 +59,28 @@ router.patch(
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   productController.updateProduct.bind(productController)
-)
+);
 
 router.patch(
   "/description/:product_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   productController.updateProduct.bind(productController)
-)
+);
 
 router.patch(
   "/price/:product_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   productController.updateProduct.bind(productController)
-)
+);
 
 router.patch(
-    "/images/:image_id",
-    authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
-    upload.single("image"),
-    productController.updateProductImage.bind(productController)
+  "/images/:image_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  upload.single("image"),
+  productController.updateProductImage.bind(productController)
 );
 
 export default router;
