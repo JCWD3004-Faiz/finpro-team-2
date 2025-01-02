@@ -202,4 +202,37 @@ export class PaymentService {
             return { error: "Failed to fetch store item details." };
         }
     }
+
+    async getPaymentByIdSuper(payment_id: number) {
+        try {
+            const payment = await this.prisma.payments.findUnique({
+                where: { payment_id: payment_id },
+                include: { Order: { include: { Store: true } } }
+            });
+            return { message: "Payment found", payment };
+        } catch (error) {
+            console.error("Error fetching payment:", error);
+            return { error: "Failed to fetch payment." };
+        }
+    }
+
+    async getSuperItemDetails(order_id: number) {
+        try {
+            const order = await this.prisma.orders.findUnique({
+                where: { order_id: order_id },
+                include: {Cart: {include: {CartItems: {include: {Inventory: {include: {Product: true}}}}}},
+                    Store: true,
+                },
+            });
+            const cartItemsWithProductDetails = order?.Cart.CartItems.map(item => ({
+                cart_item_id: item.cart_item_id, quantity: item.quantity,
+                product_price: item.product_price, stock_available: item.Inventory.stock,
+                product_name: item.Inventory.Product.product_name,
+            }));
+            return { message: "Items found", cartItems: cartItemsWithProductDetails };
+        } catch (error) {
+            console.error("Error fetching store item details:", error);
+            return { error: "Failed to fetch store item details." };
+        }
+    }
 }

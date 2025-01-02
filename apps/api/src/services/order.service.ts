@@ -5,8 +5,38 @@ import { OrderStatus } from "../models/admin.models";
 export class OrderService {
     private prisma: PrismaClient = new PrismaClient();
 
-    async getAllOrders() {
-        return this.prisma.orders.findMany();
+    async getAllOrders(
+        page: number = 1, pageSize: number = 10, sortFieldAdmin: "created_at" = "created_at", 
+        sortOrder: "asc" | "desc" = "asc", search: string = "", orderStatus: OrderStatus[] = [], storeName: string = ""
+    ) {
+        try {
+            const whereCondition: any = {};
+            if (orderStatus.length > 0) {whereCondition.order_status = { in: orderStatus }}
+            if (storeName) {whereCondition.Store = { store_name: { contains: storeName, mode: "insensitive" }}}    
+            if (search) {whereCondition.User = { username: { contains: search, mode: "insensitive" }}}    
+            const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
+            if (sortFieldAdmin === "created_at") {orderBy = { created_at: sortOrder }} 
+            else if (sortFieldAdmin === "store") { orderBy = { Store: { store_name: sortOrder } }}    
+            const orders = await this.prisma.orders.findMany({
+                where: whereCondition, skip, take, orderBy: orderBy,
+                include: {
+                    Cart: { select: { cart_price: true } }, Address: { select: { address: true, city_name: true } },
+                    User: { select: { username: true } }, Payments: { select: { payment_id: true } }, Store: { select: { store_name: true } },
+                },
+            });
+            if (orders.length === 0) { return { message: "No orders found." }}    
+            const mappedOrders = orders.map(order => ({
+                order_id: order.order_id, username: order.User.username, store_name: order.Store.store_name,
+                address: order.Address.address, city_name: order.Address.city_name, order_status: order.order_status,
+                cart_price: order.Cart.cart_price, shipping_method: order.shipping_method, shipping_price: order.shipping_price,
+                created_at: order.created_at, payment_id: order.Payments ? order.Payments.payment_id : null,
+            }));    
+            const totalItems = await this.prisma.orders.count();
+            return { orders: mappedOrders, currentPage: page, totalPages: Math.ceil(totalItems / pageSize), totalItems};
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            return { error: "Failed to fetch orders." };
+        }
     }
 
     async getOrderById(user_id: number, order_id: number) {
@@ -68,14 +98,12 @@ export class OrderService {
             if (search) {whereCondition.User = { username: { contains: search, mode: "insensitive" }}}            
             if (orderStatus.length > 0) {whereCondition.order_status = { in: orderStatus }}       
             const skip = (page - 1) * pageSize; const take = pageSize; let orderBy: any = {};
-            if (sortFieldAdmin === "created_at") { orderBy = { created_at: sortOrder };
-            } else if (sortFieldAdmin === "store") { orderBy = { Store: { store_name: sortOrder } }}
+            if (sortFieldAdmin === "created_at") { orderBy = { created_at: sortOrder }} 
+            else if (sortFieldAdmin === "store") { orderBy = { Store: { store_name: sortOrder } }}
             const orders = await this.prisma.orders.findMany({
                 where: whereCondition, skip, take, orderBy: orderBy, include: {
-                    Cart: { select: { cart_price: true } },
-                    Address: { select: { address: true, city_name: true } },
-                    User: { select: { username: true } },
-                    Payments: { select: { payment_id: true } },
+                    Cart: { select: { cart_price: true } }, Address: { select: { address: true, city_name: true } },
+                    User: { select: { username: true } }, Payments: { select: { payment_id: true } },
                 },
             });
             if (orders.length === 0) return { message: "No orders found for this store." };

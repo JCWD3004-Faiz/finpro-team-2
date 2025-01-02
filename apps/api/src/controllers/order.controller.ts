@@ -13,8 +13,22 @@ export class OrderController {
     }
 
     async getAllOrders(req: Request, res: Response){
-        const order = await this.orderService.getAllOrders();
-        if (order) {
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const sortFieldAdmin = (req.query.sortFieldAdmin as string) || "created_at";
+        const sortOrder = (req.query.sortOrder as string) || "asc";
+        const search = (req.query.search as string) || "";
+        let orderStatus: OrderStatus[] = [];
+        if (req.query.orderStatus) { orderStatus = Array.isArray(req.query.orderStatus)
+            ? (req.query.orderStatus as string[]).map(status => status as OrderStatus)
+            : [req.query.orderStatus as string].map(status => status as OrderStatus);
+        }
+        const storeName = (req.query.storeName as string) || "";
+        const order = await this.orderService.getAllOrders(
+            page, pageSize, sortFieldAdmin as "created_at",
+            sortOrder as "asc" | "desc", search, orderStatus, storeName
+        );
+        if (order &&!order.error) {
           res.status(200).send ({
             data: order,
             status: res.statusCode,

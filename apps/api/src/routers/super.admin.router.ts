@@ -129,4 +129,11 @@ router.get(
   productController.getProductDetailforSuperAdmin.bind(productController)
 )
 
+router.get(
+  "/store-names",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  superAdminController.getStoreNames.bind(superAdminController)
+)
+
 export default router;

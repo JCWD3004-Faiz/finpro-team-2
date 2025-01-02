@@ -43,22 +43,46 @@ export class VoucherService {
         }); return newVoucher;
     }
     
-    async getAllVouchers(){
-        return await this.prisma.vouchers.findMany({ where: { is_deleted: false }});
+    async getAllVouchers({
+        sortField = 'discount_amount', sortOrder = 'asc', search = '', voucherType, discountType, page = 1, pageSize = 10 }: {
+        sortField?: string; sortOrder?: 'asc' | 'desc'; search?: string; voucherType?: string; discountType?: string; page?: number; pageSize?: number;
+      }) {
+        const orderBy: { [key: string]: 'asc' | 'desc' } = {};
+        if (sortField === 'discount_amount' || sortField === 'expire_period' || sortField === 'created_at') {
+          orderBy[sortField] = sortOrder } else { orderBy['discount_amount'] = 'asc';
+        }
+        const where: any = { is_deleted: false, ...(search && { description: { contains: search, mode: 'insensitive'},
+          }), ...(voucherType && { voucher_type: voucherType }), ...(discountType && { discount_type: discountType }),
+        };
+        const skip = (page - 1) * pageSize;
+        const vouchers = await this.prisma.vouchers.findMany({ where, orderBy, skip, take: pageSize });
+        const totalCount = await this.prisma.vouchers.count({ where });
+        return { vouchers, totalCount};
     }
 
     async editVoucher(
         voucher_id:number, voucher_type: VoucherType, discount_type: DiscountTypeEnum, discount_amount: number,
         expire_period: number, min_purchase?: number, max_discount?: number, description?: string
     ){
+        console.log('Service method called with:', {
+            voucher_id, voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description
+        });
         const dataToValidate = { discount_amount, expire_period }; const validatedVoucher = voucherSchema.parse(dataToValidate);
+        console.log('Data to validate:', dataToValidate);
+        console.log('Validated voucher:', validatedVoucher);
+
+
         const updatedVoucher = await this.prisma.vouchers.update({
             where: { voucher_id: voucher_id },
             data: {
                 voucher_type, discount_type, discount_amount: validatedVoucher.discount_amount, 
                 expire_period: validatedVoucher.expire_period, min_purchase, max_discount, description,
             },
-        }); return updatedVoucher;
+            
+        }); 
+        console.log('Updated voucher:', updatedVoucher);
+
+        return updatedVoucher;
     }
 
     async deleteVoucher(voucher_id:number){

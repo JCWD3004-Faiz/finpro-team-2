@@ -31,9 +31,9 @@ export default class MidtransController {
     }
 
     public async getTransactionStatus(req: Request, res: Response): Promise<any> {
-        const { orderId } = req.params
+        const { transaction_id } = req.params
         try {
-            const response = await this.midtransService.getTransactionStatus(orderId)
+            const response = await this.midtransService.getTransactionStatus(transaction_id)
             return res.status(200).json(response);
         } catch (error) {
             console.error(error);

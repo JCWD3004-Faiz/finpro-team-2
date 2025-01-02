@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { VoucherService } from "../services/voucher.service";
 import { CartService } from "../services/cart.service";
 import { sendErrorResponse } from "../utils/response.utils";
+import { DiscountTypeEnum, VoucherType } from "../models/all.models";
 
 
 export class VoucherController {
@@ -28,28 +29,42 @@ export class VoucherController {
         }
     }
 
-    async getAllVouchers(req: Request, res: Response){
+    async getAllVouchers(req: Request, res: Response) {
         try {
-            const vouchers = await this.voucherService.getAllVouchers();
-            res.status(200).send({
-                data: vouchers,
-                status: res.statusCode,
-            });
+          const { sortField = 'discount_amount', sortOrder = 'asc', search = '', voucherType = '', discountType = '', page = 1, pageSize = 10 } = req.query;
+          const { vouchers, totalCount } = await this.voucherService.getAllVouchers({
+            sortField: sortField as string, sortOrder: sortOrder === 'desc' ? 'desc' : 'asc',
+            search: search as string, voucherType: voucherType as string, discountType: discountType as string,
+            page: Number(page), pageSize: Number(pageSize),
+          });
+          const totalPages = Math.ceil(totalCount / Number(pageSize));
+          res.status(200).send({
+            status: res.statusCode, data: vouchers,
+            pagination: { page: Number(page), pageSize: Number(pageSize), totalCount, totalPages },
+          });
         } catch (error) {
-            sendErrorResponse(res, 500, `Failed to get all vouchers`);
+          sendErrorResponse(res, 400, `Failed to get all vouchers`);
         }
     }
 
     async editVoucher(req: Request, res: Response){
         try {
             const voucher_id = parseInt(req.params.voucher_id)
-            const { type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description } = req.body;
-            await this.voucherService.editVoucher(voucher_id, type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description);
+            console.log('voucher_id:', voucher_id); // Log voucher_id
+            
+
+            const { voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description } = req.body;
+            console.log('Request body:', { voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description });
+
+            await this.voucherService.editVoucher(voucher_id, voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description);
             res.status(200).send({
                 message: "Voucher successfully edited",
                 status: res.statusCode,
             });
         } catch (error) {
+            console.log('Error in editVoucher controller:', error);
+            console.error('Error in editVoucher controller:', error);  // Log the error in the controller
+
             sendErrorResponse(res, 400, `Failed to edit Voucher`);
         }
     }

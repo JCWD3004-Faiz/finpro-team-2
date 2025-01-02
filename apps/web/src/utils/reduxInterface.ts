@@ -21,7 +21,12 @@ export interface SuperAdminState {
     totalItems: number;
     sortField: string;
     sortFieldAdmin: string; 
-}
+    sortFieldOrder: string;
+    orderStatus: string,
+    allOrders: Order[];
+    storeName: string,
+    storeNames: string[]
+  }
 
 export interface FetchAllParams {
   page: number;

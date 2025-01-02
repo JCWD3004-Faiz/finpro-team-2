@@ -6,6 +6,7 @@ import errorReducer from "./slices/errorSlice"
 import successReducer from "./slices/successSlice"
 import globalReducer from './slices/globalSlice';
 import managePaymentReducer from "./slices/managePaymentSlice";
+import manageVoucherReducer from "./slices/manageVoucherSlice";
 
 
 const store = configureStore({
@@ -14,6 +15,7 @@ const store = configureStore({
     storeAdmin: storeAdminReducer,
     manageInventory: manageInventoryReducer,
     managePayment: managePaymentReducer,
+    manageVoucher: manageVoucherReducer,
     error: errorReducer,
     success: successReducer,
     global: globalReducer,

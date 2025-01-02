@@ -20,7 +20,7 @@ router.put('/status/',
     midtransController.updateMidtransPaymentStatus.bind(midtransController)
 )
 
-router.get('/status/:orderId',
+router.get('/status/:transaction_id',
     midtransController.getTransactionStatus.bind(midtransController)
 )
 
