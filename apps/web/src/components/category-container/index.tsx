@@ -9,10 +9,9 @@ interface CategoryContainerProps {
     productImage: string;
     productPrice: number; 
   }[];
-  onAddToCart: (product: any) => void; // Add onAddToCart to props
 }
 
-const CategoryContainer: React.FC<CategoryContainerProps> = ({ categoryName, products, onAddToCart }) => {
+const CategoryContainer: React.FC<CategoryContainerProps> = ({ categoryName, products }) => {
   if (!products || products.length === 0) {
     return (
       <div className="category-container w-full bg-white relative">
@@ -37,7 +36,6 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({ categoryName, pro
             productDescription={product.productDescription} 
             productImage={product.productImage}
             productPrice={product.productPrice}
-            onAddToCart={() => onAddToCart(product)} // Pass onAddToCart to ProductCard
           />
         ))}
       </div>
@@ -46,6 +44,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({ categoryName, pro
 };
 
 export default CategoryContainer;
+
 
 
 

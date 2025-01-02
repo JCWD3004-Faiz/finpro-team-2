@@ -1,3 +1,4 @@
+import React from "react";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -8,18 +9,18 @@ import Footer from "../components/footer";
 import axios from "axios";
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
-import LocationHeader from "../components/location-header"; // Import LocationHeader component
+import LocationHeader from "../components/location-header";
 
 axios.defaults.baseURL = "http://localhost:8000/";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
-  const accessDenied = useCheckAccess(); 
-  
+  const accessDenied = useCheckAccess();
+
   const hideNavAdmin = router.pathname.startsWith("/admin");
-  const hideNavAuth = router.pathname.startsWith("/auth")
-  
+  const hideNavAuth = router.pathname.startsWith("/auth");
+
   // Define paths where you want to show the LocationHeader
   const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
   const shouldShowLocationHeader = showLocationHeaderPaths.includes(router.pathname);
@@ -27,14 +28,14 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       {/* Conditionally render LocationHeader */}
-      {shouldShowLocationHeader && <LocationHeader />}  {/* Conditionally render LocationHeader */}
-      
-      {!hideNavAdmin && !hideNavAuth && <Navbar />} {/* Conditionally render Navbar */}
-      
-      {/* Conditionally render Component based on access or not */}
+      {shouldShowLocationHeader && <LocationHeader />}
+
+      {/* Pass cart state and handlers to Navbar */}
+      {!hideNavAdmin && !hideNavAuth && <Navbar />}
+
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
-      
-      {!hideNavAdmin && !hideNavAuth && <Footer />} {/* Conditionally render Footer */}
+
+      {!hideNavAdmin && !hideNavAuth && <Footer />}
     </Provider>
   );
 }

@@ -4,17 +4,23 @@ import { IoCloseSharp } from "react-icons/io5";
 interface ShoppingCartProps {
   isOpen: boolean;
   onClose: () => void;
-  children?: React.ReactNode; // Allow children to be passed to this component
+  cartItems: { productId: string; productName: string; productPrice: number }[];
 }
 
-const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose, children }) => {
+const ShoppingCart: React.FC<ShoppingCartProps> = ({
+  isOpen,
+  onClose,
+  cartItems,
+}) => {
+  const totalAmount = cartItems.reduce((total, item) => total + item.productPrice, 0);
+
   return (
     <>
       {/* Overlay */}
       {isOpen && (
         <div
           className="fixed top-0 left-0 h-full w-full bg-black opacity-40 z-50"
-          onClick={onClose} // Close the cart when clicking on the overlay
+          onClick={onClose}
         />
       )}
 
@@ -41,11 +47,25 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose, children }
 
         {/* Cart Content */}
         <div>
-          {React.Children.count(children) > 0 ? (
-            children
-          ) : (
+          {cartItems.length === 0 ? (
             <p>Your cart is empty.</p>
+          ) : (
+            <ul className="space-y-4">
+              {cartItems.map((item) => (
+                <li key={item.productId} className="flex justify-between">
+                  <span>{item.productName}</span>
+                  <span>IDR {item.productPrice.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
           )}
+        </div>
+
+        {/* Total */}
+        <div className="mt-6 border-t border-black pt-4">
+          <p className="text-lg font-bold">
+            Total: IDR {totalAmount.toLocaleString()}
+          </p>
         </div>
       </div>
     </>
@@ -53,3 +73,4 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose, children }
 };
 
 export default ShoppingCart;
+
