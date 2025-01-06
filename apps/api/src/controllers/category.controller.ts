@@ -25,6 +25,7 @@ export class CategoryController {
     }
   }
 
+  
   async getAllCategory(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;

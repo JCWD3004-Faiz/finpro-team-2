@@ -12,6 +12,14 @@ const Home: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
 
+  const formattedPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   const vegetablesAndFruits = [
     {
       productId: 'vf1',
@@ -137,7 +145,7 @@ const Home: React.FC = () => {
               <div className="p-4">
                 <h3 className="text-xl font-bold">{product.productName}</h3>
                 <p className="text-sm text-gray-600">{product.productDescription}</p>
-                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {formattedPrice(product.productPrice)}</p>
               </div>
               <FaCartArrowDown
                 className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"
@@ -165,7 +173,7 @@ const Home: React.FC = () => {
               <div className="p-4">
                 <h3 className="text-xl font-bold">{product.productName}</h3>
                 <p className="text-sm text-gray-600">{product.productDescription}</p>
-                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {formattedPrice(product.productPrice)}</p>
               </div>
               <FaCartArrowDown
                 className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"
@@ -193,7 +201,7 @@ const Home: React.FC = () => {
               <div className="p-4">
                 <h3 className="text-xl font-bold">{product.productName}</h3>
                 <p className="text-sm text-gray-600">{product.productDescription}</p>
-                <p className="text-lg font-semibold text-green-600 mt-2">IDR {product.productPrice.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-green-600 mt-2">IDR {formattedPrice(product.productPrice)}</p>
               </div>
               <FaCartArrowDown
                 className="absolute bottom-4 right-4 text-4xl text-black cursor-pointer"

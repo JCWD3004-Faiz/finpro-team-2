@@ -11,7 +11,7 @@ export const discountSchema = validate.object({
     ),
   store_id: validate.number({ required_error: "Store ID is required" }),
   type: validate.enum(["PERCENTAGE", "NOMINAL", "BOGO"], {
-    required_error: "Discount type is required",
+    required_error: "Discount type is required please",
   }),
   value: validate
     .number()

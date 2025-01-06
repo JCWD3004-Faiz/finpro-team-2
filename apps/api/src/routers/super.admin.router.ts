@@ -7,6 +7,8 @@ import { ProductController } from "../controllers/product.controller";
 
 import { SalesController } from "../controllers/sales.controller";
 
+import { StockController } from "../controllers/stock.controller";
+
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -17,6 +19,8 @@ const voucherController = new VoucherController();
 const productController = new ProductController();
 
 const salesController = new SalesController();
+
+const stockController = new StockController();
 
 const authenticateJwt = new AuthJwtMiddleware();
 
@@ -159,6 +163,20 @@ router.get(
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
   salesController.getMonthlySalesByProduct.bind(salesController)
+)
+
+router.get(
+  "/data/all",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  salesController.getCategoryProductStoreName.bind(salesController)
+)
+
+router.get(
+  "/stocks",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  stockController.getStockJournalByStoreId.bind(stockController),
 )
 
 export default router;

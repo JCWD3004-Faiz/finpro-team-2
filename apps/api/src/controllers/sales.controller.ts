@@ -1,11 +1,17 @@
 import { Request, Response } from "express";
 import { SalesService } from "../services/sales.service";
+import { CategoryService } from "../services/category.service";
+import { GetProductService } from "../services/product.get.service";
 import { sendErrorResponse } from "../utils/response.utils";
 
 export class SalesController {
   private salesService: SalesService;
+  private categoryService: CategoryService;
+  private getProductService: GetProductService;
   constructor() {
     this.salesService = new SalesService();
+    this.categoryService = new CategoryService();
+    this.getProductService = new GetProductService();
   }
 
   async getMonthlySalesReport(req: Request, res: Response) {
@@ -114,4 +120,22 @@ export class SalesController {
     }
   }
   
+  async getCategoryProductStoreName(req: Request, res: Response) {
+    try {
+      const categories = await this.categoryService.getAllCategoryNameId();
+      const products = await this.getProductService.getAllProductNameId();
+      const stores = await this.getProductService.getAllStoreNameId();
+      res.status(201).send({
+        message: "Get categories successfull",
+        status: res.statusCode,
+        categories,
+        products,
+        stores
+      });
+    } catch (error) {
+      sendErrorResponse(res, 404, `Failed to get categories`);
+    }
+  }
+
+
 }

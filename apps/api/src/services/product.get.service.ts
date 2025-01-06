@@ -207,4 +207,24 @@ export class GetProductService {
       })),
     };
   }
+
+  async getAllProductNameId(){
+    const products = await this.prisma.products.findMany({
+      select: {
+        product_id: true,
+        product_name: true,
+      }
+    })
+    return products;
+  }
+
+  async getAllStoreNameId(){
+    const stores = await this.prisma.stores.findMany({
+      select: {
+        store_id: true,
+        store_name: true,
+      }
+    })
+    return stores;
+  }
 }

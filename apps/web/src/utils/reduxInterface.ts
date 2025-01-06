@@ -58,6 +58,64 @@ export const fieldEndpointMap: { [key: string]: string } = {
   price: "price",
 };
 
+export interface InventoryName{
+  inventory_id: number;
+  product_id: number;
+  product_name: string;
+}
+
+export interface Discount {
+  discount_id: number;
+  inventory_id: number | null;
+  store_id: number;
+  product_name: string;
+  type: "BOGO" | "PERCENTAGE" | "NOMINAL";
+  value: number | null;
+  min_purchase: number | null;
+  max_discount: number | null;
+  bogo_product_name: string | null;
+  description: string;
+  is_active: boolean;
+  start_date: Date; 
+  end_date: Date;   
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface DiscountDetail {
+  discount_id: number;
+  inventory_id: number | null;
+  inventory_name: string | null;
+  type: string;
+  value: number | null;
+  min_purchase: number | null;
+  max_discount: number | null;
+  bogo_product_id: number | null;
+  bogo_product_name: string | null;
+  description: string;
+  is_active: boolean;
+  image: string;
+  start_date: Date;
+  end_date: Date;
+  created_at: Date;
+  updated_at: Date;
+  is_deleted: boolean;
+}
+
+export interface GetDiscountState{
+  discounts: Discount[];
+  inventoryNames: InventoryName[];
+  inventoryWithoutDiscounts: InventoryName[];
+  discountDetail: DiscountDetail;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  loading: boolean;
+  error: string | null;
+  sortField: string;
+  sortOrder: string;
+  search: string;
+}
 
 export interface ProductDetail {
   product_id: number;

@@ -79,14 +79,31 @@ export class DiscountService {
           inventory_id: validatedData.inventory_id,
         },
       });
-      
-      if(checkDiscount){
-        throw new Error(`Discount for Inventory ID ${validatedData.inventory_id} already exist`);
+
+      if (checkDiscount) {
+        throw new Error(
+          `Discount for Inventory ID ${validatedData.inventory_id} already exist`
+        );
       }
 
       if (validatedData.min_purchase || validatedData.max_discount) {
         throw new Error(
           `Inventory-specific discounts cannot have minimum purchase or maximum discount.`
+        );
+      }
+    }
+
+    if (validatedData.bogo_product_id) {
+      const bogoInventory = await this.prisma.inventories.findFirst({
+        where: {
+          product_id: validatedData.bogo_product_id,
+          store_id: validatedData.store_id,
+        },
+      });
+
+      if (!bogoInventory) {
+        throw new Error(
+          `BOGO Product ID ${validatedData.bogo_product_id} does not exist in the inventories table for Store ID ${validatedData.store_id}.`
         );
       }
     }
@@ -135,6 +152,20 @@ export class DiscountService {
         throw new Error(
           "Cannot update bogo_product_id for a NOMINAL type discount."
         );
+      }
+      if (validatedData.bogo_product_id) {
+        const bogoInventory = await this.prisma.inventories.findFirst({
+          where: {
+            product_id: validatedData.bogo_product_id,
+            store_id: validatedData.store_id,
+          },
+        });
+  
+        if (!bogoInventory) {
+          throw new Error(
+            `BOGO Product ID ${validatedData.bogo_product_id} does not exist in the inventories table for Store ID ${validatedData.store_id}.`
+          );
+        }
       }
     }
 
