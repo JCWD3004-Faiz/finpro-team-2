@@ -95,20 +95,37 @@ export class PaymentController {
         }
     }
 
-    async getUserPaymentHistory(req: Request, res: Response){
+    async getUserPaymentHistory(req: Request, res: Response) {
         try {
             const user_id = parseInt(req.params.user_id);
-            const data = await this.paymentService.getUserPaymentHistory(user_id);
-            if (data &&!data.error) {
+            const { page, limit, status } = req.query;
+    
+            // Pagination logic
+            const pageNumber = page ? parseInt(page as string) : 1;
+            const pageLimit = limit ? parseInt(limit as string) : 10;
+    
+            // Check if the status filter is valid (either ORDER_CONFIRMED or CANCELLED)
+            const validStatuses = ["ORDER_CONFIRMED", "CANCELLED"];
+            const statusFilter = validStatuses.includes(status as string) ? (status as "ORDER_CONFIRMED" | "CANCELLED") : undefined;
+    
+            const data = await this.paymentService.getUserPaymentHistory(user_id, pageNumber, pageLimit, statusFilter);
+    
+            if (data && !data.error) {
                 res.status(200).send({
                     message: "Payment history found",
                     status: res.statusCode,
                     data: data,
                 });
+            } else {
+                res.status(404).send({
+                    message: "No payment history found",
+                    status: res.statusCode,
+                    error: data.error,
+                });
             }
         } catch (error) {
             res.status(400).send({
-                message: `Payment history not found`,
+                message: "Payment history not found",
                 detail: (error as Error).message,
                 status: res.statusCode,
             });
@@ -118,8 +135,8 @@ export class PaymentController {
     async getUserPaymentDetails(req: Request, res: Response) {
         try {
             const user_id = parseInt(req.params.user_id);
-            const payment_id = parseInt(req.params.payment_id);
-            const data = await this.paymentService.getUserPaymentDetails(user_id, payment_id);
+            const order_id = parseInt(req.params.order_id);
+            const data = await this.paymentService.getUserPaymentDetails(user_id, order_id);
             if (data.error) {
                     res.status(404).send({
                     message: "Payment not found or does not belong to the user.",

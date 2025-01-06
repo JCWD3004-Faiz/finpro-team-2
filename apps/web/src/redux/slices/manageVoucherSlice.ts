@@ -90,6 +90,28 @@ export const giftVoucher = createAsyncThunk(
     }
 );
 
+export const createVoucher = createAsyncThunk(
+    'manageVoucher/createVoucher',
+    async (voucherData: {
+      voucher_type: string;
+      discount_type: string;
+      discount_amount: number;
+      expire_period: number;
+      min_purchase?: number;
+      max_discount?: number;
+      description: string;
+    }, { rejectWithValue }) => {
+      try {
+        const { data } = await axios.post('/api/super-admin/voucher', voucherData, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+        return data; // This will return the created voucher data
+      } catch (error: any) {
+        return rejectWithValue('Error creating voucher');
+      }
+    }
+);
+
 const manageVoucherSlice = createSlice({
     name: 'manageVoucher',
     initialState,
@@ -147,7 +169,18 @@ const manageVoucherSlice = createSlice({
         .addCase(giftVoucher.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload as string;
-        });
+        })
+        .addCase(createVoucher.pending, (state) => {
+            state.loading = true; // Show loading state while creating the voucher
+          })
+          .addCase(createVoucher.fulfilled, (state, action: PayloadAction<any>) => {
+            state.loading = false; // Hide loading
+            state.vouchers.push(action.payload); // Add the newly created voucher to the list
+          })
+          .addCase(createVoucher.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string; // Handle error
+          })
     }
 });
 

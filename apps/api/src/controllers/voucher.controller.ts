@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { VoucherService } from "../services/voucher.service";
 import { CartService } from "../services/cart.service";
 import { sendErrorResponse } from "../utils/response.utils";
-import { DiscountTypeEnum, VoucherType } from "../models/all.models";
-
 
 export class VoucherController {
     private voucherService: VoucherService;
@@ -18,8 +16,8 @@ export class VoucherController {
 
     async createVoucher(req: Request, res: Response){
         try {
-            const { type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description } = req.body;
-            await this.voucherService.createVoucher(type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description);
+            const {description, voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount } = req.body;
+            await this.voucherService.createVoucher( description, voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount);
             res.status(201).send({
                 message: "Voucher successfully created",
                 status: res.statusCode,

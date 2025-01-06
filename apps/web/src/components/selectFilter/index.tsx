@@ -24,7 +24,7 @@ const SelectFilter: React.FC<SelectFilterProps> = ({ label, value, options, onCh
           onChange(newValue); // Proceed with normal selection
         }
       }}>
-        <SelectTrigger className="bg-white p-2 border border-gray-300 rounded-md">
+        <SelectTrigger className="bg-white p-2 border border-gray-300 rounded-md text-gray-800">
           <SelectValue placeholder={label} />
         </SelectTrigger>
         <SelectContent>

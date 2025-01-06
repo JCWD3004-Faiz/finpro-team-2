@@ -7,7 +7,10 @@ import ShoppingCart from "../shopping-cart";
 
 const Navbar: React.FC = () => {
   const [isCartOpen, setCartOpen] = React.useState(false);
-  const [cartItems, setCartItems] = React.useState<string[]>([]); // Replace `string[]` with the actual type of cart items
+  const [cartItems, setCartItems] = React.useState<
+    { productId: string; productName: string; productPrice: number }[]
+  >([]); // Updated type for cart items
+
   const router = useRouter();
 
   const handleLoginClick = () => {
@@ -15,11 +18,19 @@ const Navbar: React.FC = () => {
   };
 
   const handleProfileClick = () => {
-    router.push("/profile-editor");
+    router.push("/user/profile-editor");
   };
 
   const toggleCart = () => {
     setCartOpen(!isCartOpen);
+  };
+
+  const addItemToCart = () => {
+    // Example: Add a sample item to the cart
+    setCartItems((prev) => [
+      ...prev,
+      { productId: "sample1", productName: "Sample Product", productPrice: 10000 },
+    ]);
   };
 
   return (
@@ -56,6 +67,8 @@ const Navbar: React.FC = () => {
         </div>
       </nav>
 
+      <button onClick={addItemToCart}>Add Item to Cart</button> {/* For testing */}
+
       <ShoppingCart
         isOpen={isCartOpen}
         onClose={() => setCartOpen(false)}
@@ -66,4 +79,5 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
 
