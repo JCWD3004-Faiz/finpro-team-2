@@ -32,7 +32,6 @@ const GiftVoucherModal: React.FC<GiftVoucherModalProps> = ({ isOpen, onClose, on
         <DialogHeader>
           <DialogTitle>Gift Voucher</DialogTitle>
         </DialogHeader>
-        {/* Use DialogContent for the input form */}
         <Input
           type="email"
           value={email}

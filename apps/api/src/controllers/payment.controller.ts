@@ -118,8 +118,8 @@ export class PaymentController {
     async getUserPaymentDetails(req: Request, res: Response) {
         try {
             const user_id = parseInt(req.params.user_id);
-            const payment_id = parseInt(req.params.payment_id);
-            const data = await this.paymentService.getUserPaymentDetails(user_id, payment_id);
+            const order_id = parseInt(req.params.order_id);
+            const data = await this.paymentService.getUserPaymentDetails(user_id, order_id);
             if (data.error) {
                     res.status(404).send({
                     message: "Payment not found or does not belong to the user.",

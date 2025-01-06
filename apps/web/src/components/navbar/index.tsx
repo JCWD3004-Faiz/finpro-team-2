@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleProfileClick = () => {
-    router.push("/profile-editor");
+    router.push("/user/profile-editor");
   };
 
   const toggleCart = () => {

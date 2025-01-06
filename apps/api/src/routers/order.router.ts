@@ -80,7 +80,7 @@ router.get("/payment-history/:user_id",
     paymentController.getUserPaymentHistory.bind(paymentController)
 )
 
-router.get("/payment-details/:user_id/:payment_id",
+router.get("/payment-details/:user_id/:order_id",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),

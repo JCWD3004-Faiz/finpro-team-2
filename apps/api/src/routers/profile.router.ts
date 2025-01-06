@@ -40,4 +40,11 @@ router.get("/cities",
     profileController.getRajaOngkirCities.bind(profileController)
 );
 
+router.get("/user/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    profileController.getUserProfile.bind(profileController)
+)
+
 export default router;

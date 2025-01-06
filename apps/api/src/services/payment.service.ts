@@ -121,22 +121,15 @@ export class PaymentService {
         try {
             const orders = await this.prisma.orders.findMany({
                 where: {user_id: user_id, order_status: { in: ["ORDER_CONFIRMED", "CANCELLED"]}},
-                include: { 
-                    Payments: true, 
-                    Store: { select: { store_name: true } },
-                    Address: { select: { address: true, city_name: true } },
-                },
+                include: { Payments: true,  Store: { select: { store_name: true } }, Address: { select: { address: true, city_name: true }}},
             });
             const payments = orders.flatMap(order => order.Payments);
             if (payments.length === 0) { return { error: "No payments found for this user." }}
             return { payments: orders.map(history => ({
-                transaction_id: history.Payments?.transaction_id,
-                store_name: history.Store.store_name, 
-                order_status: history.order_status,
-                total_price: history.Payments?.total_price, 
-                shipping_method: history.shipping_method,
-                payment_method: history.Payments?.payment_method,
-                payment_date: history.Payments?.payment_date
+                user_id:user_id, order_id: history.order_id, transaction_id: history.Payments?.transaction_id,
+                store_name: history.Store.store_name,  order_status: history.order_status, cart_price: history.cart_price,
+                shipping_price: history.shipping_price, total_price: history.Payments?.total_price, shipping_method: history.shipping_method,
+                payment_method: history.Payments?.payment_method, payment_date: history.Payments?.payment_date
             }))};
         } catch (error) {
             console.error("Error fetching payment history:", error);
@@ -144,19 +137,27 @@ export class PaymentService {
         }
     }
 
-    async getUserPaymentDetails(user_id: number, payment_id: number){
+    async getUserPaymentDetails(user_id: number, order_id: number) {
         try {
-            const payment = await this.prisma.payments.findUnique({
-                where: { payment_id: payment_id },
-                include: { Order: { include: { User: true } } }
+            const order = await this.prisma.orders.findUnique({
+                where: { order_id: order_id },
+                include: { User: true, Address: true, Cart: { include: { CartItems: { include: { Inventory: { include: { Product: true }}}}}},
+                    Payments: true,
+                }
             });
-            if (!payment || payment.Order?.user_id !== user_id) {
-                return { error: "Payment not found or does not belong to this user." };
-            }
-            return { message: "Payment found", payment };
+            if (!order || order.user_id !== user_id) { return { error: "Order not found or does not belong to this user." }}    
+            const items = order.Cart.CartItems.map(item => ({
+                cart_item_id: item.cart_item_id, quantity: item.quantity, product_price: item.product_price, 
+                product_name: item.Inventory.Product.product_name, original_price: item.Inventory.Product.price
+            }));    
+            return {
+                message: "Order found", payment_reference: order.Payments ? order.Payments.payment_reference : null,
+                address: order.Address.address, city_name: order.Address.city_name,
+                shipping_price: order.shipping_price, cart_price: order.cart_price, items,
+            };
         } catch (error) {
-            console.error("Error fetching payment:", error);
-            return { error: "Failed to fetch payment." };
+            console.error("Error fetching order details:", error);
+            return { error: "Failed to fetch order details." };
         }
     }
 
@@ -169,11 +170,11 @@ export class PaymentService {
             if (!payment || payment.Order?.user_id !== user_id) {
                 return { error: "Payment not found or does not belong to this user." };
             }
-            const cartItemsWithProductDetails = payment.Order.Cart.CartItems.map(item => ({
+            const items = payment.Order.Cart.CartItems.map(item => ({
                 cart_item_id: item.cart_item_id, quantity: item.quantity,
                 product_price: item.product_price, product_name: item.Inventory.Product.product_name,
             }));    
-            return { message: "Items found", cartItems: cartItemsWithProductDetails };
+            return { message: "Items found", cart: payment.Order.Cart.cart_price, items };
         } catch (error) {
             console.error("Error fetching user item details:", error);
             return { error: "Failed to fetch user item details." };

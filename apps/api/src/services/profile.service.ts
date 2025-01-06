@@ -86,4 +86,12 @@ export class ProfileService {
             return { error: 'Error fetching city data' };
         }
     }
+
+    async getUserProfile(user_id:number) {
+        try {
+            return await this.prisma.users.findUnique({ where: { user_id }});
+        } catch (error: any) {
+            return { error: error.message || "An error occurred." };
+        }
+    }
 }
