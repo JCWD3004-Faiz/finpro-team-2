@@ -129,7 +129,7 @@ export class PaymentService {
                 user_id:user_id, order_id: history.order_id, transaction_id: history.Payments?.transaction_id,
                 store_name: history.Store.store_name,  order_status: history.order_status, cart_price: history.cart_price,
                 shipping_price: history.shipping_price, total_price: history.Payments?.total_price, shipping_method: history.shipping_method,
-                payment_method: history.Payments?.payment_method, payment_date: history.Payments?.payment_date
+                payment_method: history.Payments?.payment_method, payment_date: history.Payments?.payment_date || history.created_at
             }))};
         } catch (error) {
             console.error("Error fetching payment history:", error);

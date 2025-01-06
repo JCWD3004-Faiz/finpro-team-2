@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Truck, CreditCard, Store, Calendar, Receipt, Eye } from "lucide-react";
 import { Transaction } from "@/utils/reduxInterface";
 import { Button } from "../ui/button";
@@ -132,7 +132,9 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
               <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600">Transaction Date</p>
+              <p className="text-sm font-medium text-gray-600">
+              {transaction.transaction_id ? "Transaction Date" : "Order Date"}
+              </p>
               <p className="text-base">
                 {transaction.payment_date 
                   ? new Date(transaction.payment_date).toLocaleDateString("en-US", {
