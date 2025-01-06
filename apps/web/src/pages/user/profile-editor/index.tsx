@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UserSidebar } from '@/components/UserSideBar';
 
 const ProfileEditor: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -20,7 +21,12 @@ const ProfileEditor: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
+            <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-8">
+            <UserSidebar />
+            <main className="flex-1">
+            <div className='flex items-center justify-center min-h-screen bg-white'>
             <div className="w-full max-w-sm p-6 bg-white">
                 <div className="flex flex-col items-center">
                     <div className="relative">
@@ -82,6 +88,10 @@ const ProfileEditor: React.FC = () => {
                         </button>
                     </form>
                 </div>
+            </div>
+            </div>
+            </main>
+            </div>
             </div>
         </div>
     );

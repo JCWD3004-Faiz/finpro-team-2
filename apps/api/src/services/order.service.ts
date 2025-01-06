@@ -76,7 +76,7 @@ export class OrderService {
                 },
             });
             if (!orders.length) return { message: "No orders found for this user." };
-            return { orders: orders.map(order => ({
+            return { orders: orders.map(order => ({ order_id: order.order_id,
                 store_name: order.Store.store_name, address: order.Address.address,
                 city_name: order.Address.city_name, order_status: order.order_status,
                 cart_price: order.Cart.cart_price, shipping_method: order.shipping_method,

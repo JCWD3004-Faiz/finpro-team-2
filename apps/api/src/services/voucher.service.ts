@@ -31,8 +31,8 @@ export class VoucherService {
     }
 
     async createVoucher(
-        discount_type: DiscountTypeEnum, voucher_type: VoucherType, discount_amount: number,
-        expire_period: number, min_purchase?: number, max_discount?: number, description?: string
+        description: string, voucher_type: VoucherType, discount_type: DiscountTypeEnum,
+        discount_amount: number, expire_period: number, min_purchase?: number, max_discount?: number,
     ) {
         const dataToValidate = { discount_amount, expire_period }; const validatedVoucher = voucherSchema.parse(dataToValidate);
         const newVoucher = await this.prisma.vouchers.create({
@@ -40,7 +40,8 @@ export class VoucherService {
                 voucher_type, discount_type, discount_amount: validatedVoucher.discount_amount, 
                 expire_period: validatedVoucher.expire_period, min_purchase, max_discount, description,
             },
-        }); return newVoucher;
+        }); 
+        return newVoucher;
     }
     
     async getAllVouchers({

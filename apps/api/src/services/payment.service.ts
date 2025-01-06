@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { VoucherService } from "./voucher.service";
-import { Payment, PaymentStatus } from "../models/all.models";
+import { OrderStatus, Payment, PaymentStatus } from "../models/all.models";
 import cloudinary from "../config/cloudinary";
 
 export class PaymentService {
@@ -117,46 +117,94 @@ export class PaymentService {
         }
     }
 
-    async getUserPaymentHistory(user_id: number) {
+    async getUserPaymentHistory(
+        user_id: number,
+        page: number = 1,
+        limit: number = 10,
+        status?: "ORDER_CONFIRMED" | "CANCELLED"
+    ) {
         try {
+            // Default status filter is for both "ORDER_CONFIRMED" and "CANCELLED"
+            const statusFilter = status
+                ? { in: [status as OrderStatus] } // Cast to OrderStatus
+                : { in: ["ORDER_CONFIRMED", "CANCELLED"] as OrderStatus[] }; // Cast to OrderStatus[]    
+    
+            // First, count the total number of orders with the applied filters
+            const totalItems = await this.prisma.orders.count({
+                where: {
+                    user_id: user_id,
+                    order_status: statusFilter,  // Use status filter
+                },
+            });
+    
+            // Fetch the orders with the applied filters, pagination, and included data
             const orders = await this.prisma.orders.findMany({
-                where: {user_id: user_id, order_status: { in: ["ORDER_CONFIRMED", "CANCELLED"]}},
-                include: { 
-                    Payments: true, 
+                where: {
+                    user_id: user_id,
+                    order_status: statusFilter,  // Use status filter
+                },
+                include: {
+                    Payments: true,
                     Store: { select: { store_name: true } },
                     Address: { select: { address: true, city_name: true } },
                 },
+                skip: (page - 1) * limit,  // Pagination offset
+                take: limit,  // Limit the number of results
             });
+    
             const payments = orders.flatMap(order => order.Payments);
-            if (payments.length === 0) { return { error: "No payments found for this user." }}
-            return { payments: orders.map(history => ({
-                transaction_id: history.Payments?.transaction_id,
-                store_name: history.Store.store_name, 
-                order_status: history.order_status,
-                total_price: history.Payments?.total_price, 
-                shipping_method: history.shipping_method,
-                payment_method: history.Payments?.payment_method,
-                payment_date: history.Payments?.payment_date
-            }))};
+            if (payments.length === 0) {
+                return { error: "No payments found for this user." };
+            }
+    
+            // Calculate total pages based on total items and limit per page
+            const totalPages = Math.ceil(totalItems / limit);
+    
+            return {
+                payments: orders.map(history => ({
+                    user_id: user_id,
+                    order_id: history.order_id,
+                    transaction_id: history.Payments?.transaction_id,
+                    store_name: history.Store.store_name,
+                    order_status: history.order_status,
+                    cart_price: history.cart_price,
+                    shipping_price: history.shipping_price,
+                    total_price: history.Payments?.total_price,
+                    shipping_method: history.shipping_method,
+                    payment_method: history.Payments?.payment_method,
+                    payment_date: history.Payments?.payment_date || history.created_at,
+                })),
+                totalItems, // Total count of orders (used for pagination)
+                currentPage: page, // Current page number
+                totalPages, // Total number of pages
+            };
         } catch (error) {
             console.error("Error fetching payment history:", error);
             return { error: "Failed to fetch payment history." };
         }
     }
 
-    async getUserPaymentDetails(user_id: number, payment_id: number){
+    async getUserPaymentDetails(user_id: number, order_id: number) {
         try {
-            const payment = await this.prisma.payments.findUnique({
-                where: { payment_id: payment_id },
-                include: { Order: { include: { User: true } } }
+            const order = await this.prisma.orders.findUnique({
+                where: { order_id: order_id },
+                include: { User: true, Address: true, Cart: { include: { CartItems: { include: { Inventory: { include: { Product: true }}}}}},
+                    Payments: true,
+                }
             });
-            if (!payment || payment.Order?.user_id !== user_id) {
-                return { error: "Payment not found or does not belong to this user." };
-            }
-            return { message: "Payment found", payment };
+            if (!order || order.user_id !== user_id) { return { error: "Order not found or does not belong to this user." }}    
+            const items = order.Cart.CartItems.map(item => ({
+                cart_item_id: item.cart_item_id, quantity: item.quantity, product_price: item.product_price, 
+                product_name: item.Inventory.Product.product_name, original_price: item.Inventory.Product.price
+            }));    
+            return {
+                message: "Order found", payment_reference: order.Payments ? order.Payments.payment_reference : null,
+                address: order.Address.address, city_name: order.Address.city_name,
+                shipping_price: order.shipping_price, cart_price: order.cart_price, items,
+            };
         } catch (error) {
-            console.error("Error fetching payment:", error);
-            return { error: "Failed to fetch payment." };
+            console.error("Error fetching order details:", error);
+            return { error: "Failed to fetch order details." };
         }
     }
 
@@ -169,11 +217,11 @@ export class PaymentService {
             if (!payment || payment.Order?.user_id !== user_id) {
                 return { error: "Payment not found or does not belong to this user." };
             }
-            const cartItemsWithProductDetails = payment.Order.Cart.CartItems.map(item => ({
+            const items = payment.Order.Cart.CartItems.map(item => ({
                 cart_item_id: item.cart_item_id, quantity: item.quantity,
                 product_price: item.product_price, product_name: item.Inventory.Product.product_name,
             }));    
-            return { message: "Items found", cartItems: cartItemsWithProductDetails };
+            return { message: "Items found", cart: payment.Order.Cart.cart_price, items };
         } catch (error) {
             console.error("Error fetching user item details:", error);
             return { error: "Failed to fetch user item details." };

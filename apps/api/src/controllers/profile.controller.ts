@@ -95,5 +95,21 @@ export class ProfileController {
             });
         }
     }
+
+    async getUserProfile(req: Request, res: Response) {
+      const user_id = parseInt(req.params.user_id);
+      const data = await this.profileService.getUserProfile(user_id);
+      if (data) {
+        res.status(200).send({
+          message: "User profile retrieved successfully",
+          status: res.statusCode, data: data
+        });
+      } else {
+        res.status(400).send({
+          message: "Failed to retrieve user profile",
+          status: res.statusCode,
+        });
+      }
+    }
     
 }

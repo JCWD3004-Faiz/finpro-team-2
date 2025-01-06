@@ -11,6 +11,8 @@ import confirmReducer from "./slices/confirmSlice"
 import globalReducer from './slices/globalSlice';
 import managePaymentReducer from "./slices/managePaymentSlice";
 import manageVoucherReducer from "./slices/manageVoucherSlice";
+import userProfileReducer from "./slices/userProfileSlice";
+import userPaymentReducer from "./slices/userPaymentSlice";
 
 const store = configureStore({
   reducer: {
@@ -26,6 +28,8 @@ const store = configureStore({
     success: successReducer,
     confirm: confirmReducer,
     global: globalReducer,
+    userProfile: userProfileReducer,
+    userPayment: userPaymentReducer,
   },
 });
 

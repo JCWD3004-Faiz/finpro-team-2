@@ -25,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       {/* Conditionally render LocationHeader */}
-      {shouldShowLocationHeader && <LocationHeader />}
+      {!hideNavAdmin && !hideNavAuth && <LocationHeader />}
 
       {/* Pass cart state and handlers to Navbar */}
       {!hideNavAdmin && !hideNavAuth && <Navbar />}

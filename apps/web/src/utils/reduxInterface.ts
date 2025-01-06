@@ -1,4 +1,5 @@
 import { StoreAdmin, Store, Order } from '@/utils/adminInterface';
+import { ItemDetails } from '@/components/transaction-details';
 
 export interface SuperAdminState {
     storeAdmins: StoreAdmin[];
@@ -129,4 +130,39 @@ export interface ManageCategoryState {
   loading: boolean;
   error: string | null;
   search: string;
+}
+
+export interface UserPaymentState {
+  orders: Order[];
+  payments: Transaction[];
+  loading: boolean;
+  error: string | null;
+  details: TransactionDetails | null;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  status: string
+}
+
+export interface Transaction {
+  user_id: number;
+  order_id: number;
+  transaction_id?: string;
+  store_name: string;
+  order_status: "ORDER_CONFIRMED" | "CANCELLED";
+  cart_price: number;
+  shipping_price: number;
+  total_price?: number;
+  shipping_method: string;
+  payment_method?: string;
+  payment_date?: string;
+}
+
+export interface TransactionDetails {
+    items: ItemDetails[];
+    payment_reference: string | null;
+    address: string;
+    city_name: string;
+    shipping_price: number;
+    cart_price: number;
 }
