@@ -161,6 +161,84 @@ export class InventoryService {
     }
   }
 
+  async getInventoryForDiscountByStoreId(store_id: number) {
+    const store = await this.prisma.stores.findUnique({
+      where: { store_id },
+    });
+    if (!store) {
+      throw new Error("Store not found");
+    }
+
+    const discountedInventoryIds = (
+      await this.prisma.discounts.findMany({
+        select: { inventory_id: true },
+      })
+    )
+      .map((discount) => discount.inventory_id)
+      .filter((id): id is number => id !== null);
+    const inventories = await this.prisma.inventories.findMany({
+      where: {
+        store_id,
+        // Ensure inventory_id is not in the discounts table
+        NOT: {
+          inventory_id: {
+            in: discountedInventoryIds
+          }
+        },
+      },
+      select: {
+        inventory_id: true,
+        product_id: true,
+        Product: {
+          select: {
+            product_name: true,
+          },
+        },
+      },
+    });
+
+    const sortedInventories = inventories
+      .map((inventory) => ({
+        inventory_id: inventory.inventory_id,
+        product_id: inventory.product_id,
+        product_name: inventory.Product?.product_name || "N/A",
+      }))
+      .sort((a, b) => a.product_name.localeCompare(b.product_name));
+
+    return sortedInventories;
+  }
+
+  async getInventoryWithProductNameByStoreId(store_id: number) {
+    const store = await this.prisma.stores.findUnique({
+      where: { store_id },
+    });
+    if (!store) {
+      throw new Error("Store not found");
+    }
+    const inventories = await this.prisma.inventories.findMany({
+      where: { store_id },
+      select: {
+        inventory_id: true,
+        product_id: true,
+        Product: {
+          select: {
+            product_name: true,
+          },
+        },
+      },
+    });
+
+    const sortedInventories = inventories
+      .map((inventory) => ({
+        inventory_id: inventory.inventory_id,
+        product_id: inventory.product_id,
+        product_name: inventory.Product?.product_name || "N/A",
+      }))
+      .sort((a, b) => a.product_name.localeCompare(b.product_name));
+
+    return sortedInventories;
+  }
+
   async getInventoriesByStoreId(
     store_id: number,
     page: number = 1,

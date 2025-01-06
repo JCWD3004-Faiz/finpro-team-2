@@ -10,14 +10,13 @@ export class StockService {
     store_id?: number,
     page: number = 1,
     pageSize: number = 10,
-    sortOrder: "asc" | "desc" = "desc", // Default to descending order
+    sortOrder: "asc" | "desc" = "desc", 
     changeType?: string,
-    search?: string // Search by product name
+    search?: string
   ) {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
   
-    // Build the where condition dynamically
     const whereCondition: any = {
       ...(store_id && {
         Inventory: {
@@ -32,14 +31,13 @@ export class StockService {
           Product: {
             product_name: {
               contains: search,
-              mode: "insensitive", // Case-insensitive search
+              mode: "insensitive", 
             },
           },
         },
       }),
     };
   
-    // Fetch the stock journal entries
     const stockJournalEntries = await this.prisma.stockJournal.findMany({
       where:
         Object.keys(whereCondition).length > 0 ? whereCondition : undefined,
@@ -50,16 +48,21 @@ export class StockService {
       },
       include: {
         Inventory: {
-          select: {
-            store_id: true,
+          include: {
             Product: {
               select: {
                 product_name: true,
               },
             },
+            Store: {
+              select: {
+                store_name: true,
+              },
+            },
           },
         },
       },
+  
     });
   
     // Count total items
@@ -68,9 +71,19 @@ export class StockService {
         Object.keys(whereCondition).length > 0 ? whereCondition : undefined,
     });
   
-    // Return paginated response
     return {
-      data: stockJournalEntries,
+      data: stockJournalEntries.map((stockJournalEntry) => ({
+        journal_id: stockJournalEntry.journal_id,
+        inventory_id: stockJournalEntry.inventory_id,
+        inventory_name: stockJournalEntry.Inventory.Product.product_name,
+        store_name: stockJournalEntry.Inventory.Store.store_name,
+        change_type: stockJournalEntry.change_type,
+        change_quantity: stockJournalEntry.change_quantity,
+        prev_stock: stockJournalEntry.prev_stock,
+        new_stock: stockJournalEntry.new_stock,
+        change_category: stockJournalEntry.change_category,
+        created_at: stockJournalEntry.created_at,
+      })),
       currentPage: page,
       totalPages: Math.ceil(totalItems / pageSize),
       totalItems,

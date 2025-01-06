@@ -28,7 +28,7 @@ model Users {
   UserVouchers      UserVouchers[]
   Address           Address[]
   Cart              Carts[]
-  Orders    Orders[]
+  Orders            Orders[]
 
   @@schema("finpro")
 }
@@ -97,6 +97,7 @@ model Products {
   Inventory     Inventories[]
   ProductImages ProductImage[]
   Sales         Sales[]
+  Discounts     Discounts[]
 
   @@schema("finpro")
 }
@@ -164,24 +165,25 @@ model Discounts {
   created_at      DateTime     @default(now())
   updated_at      DateTime     @updatedAt
 
-  Inventory Inventories? @relation(fields: [inventory_id], references: [inventory_id])
-  Store     Stores       @relation(fields: [store_id], references: [store_id])
+  Inventory   Inventories? @relation(fields: [inventory_id], references: [inventory_id])
+  Store       Stores       @relation(fields: [store_id], references: [store_id])
+  BogoProduct Products?    @relation(fields: [bogo_product_id], references: [product_id])
 
   @@schema("finpro")
 }
 
 model Vouchers {
-  voucher_id        Int              @id @default(autoincrement())
-  discount_type     DiscountTypeEnum
-  voucher_type      VoucherType
-  discount_amount   Decimal          @db.Decimal(10, 2)
-  min_purchase      Decimal?         @db.Decimal(10, 2)
-  max_discount      Decimal?         @db.Decimal(10, 2)
-  description       String?
-  expire_period     Int    
-  is_deleted        Boolean          @default(false)
-  created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
+  voucher_id      Int              @id @default(autoincrement())
+  discount_type   DiscountTypeEnum
+  voucher_type    VoucherType
+  discount_amount Decimal          @db.Decimal(10, 2)
+  min_purchase    Decimal?         @db.Decimal(10, 2)
+  max_discount    Decimal?         @db.Decimal(10, 2)
+  description     String?
+  expire_period   Int
+  is_deleted      Boolean          @default(false)
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   UserVouchers UserVouchers[]
 
@@ -192,7 +194,7 @@ model UserVouchers {
   user_voucher_id Int           @id @default(autoincrement())
   user_id         Int
   voucher_id      Int
-  redeem_code    String         @unique
+  redeem_code     String        @unique
   voucher_status  VoucherStatus @default(ACTIVE)
   used_at         DateTime?
   expiration_date DateTime
@@ -222,14 +224,14 @@ model Address {
 }
 
 model Carts {
-  cart_id    Int      @id @default(autoincrement())
-  user_id    Int
-  cart_price Decimal  @db.Decimal(10, 2)
-  discount_type     DiscountTypeEnum?
-  discount_amount   Decimal?          @db.Decimal(10, 2)
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  cart_id         Int               @id @default(autoincrement())
+  user_id         Int
+  cart_price      Decimal           @db.Decimal(10, 2)
+  discount_type   DiscountTypeEnum?
+  discount_amount Decimal?          @db.Decimal(10, 2)
+  is_active       Boolean           @default(true)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
   User      Users       @relation(fields: [user_id], references: [user_id])
   CartItems CartItems[]
@@ -239,15 +241,15 @@ model Carts {
 }
 
 model CartItems {
-  cart_item_id  Int      @id @default(autoincrement())
-  cart_id       Int
-  inventory_id  Int
-  quantity      Int
-  product_price Decimal  @db.Decimal(10, 2)
-  discount_type     DiscountTypeEnum?
-  discount_amount   Decimal?          @db.Decimal(10, 2)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  cart_item_id    Int               @id @default(autoincrement())
+  cart_id         Int
+  inventory_id    Int
+  quantity        Int
+  product_price   Decimal           @db.Decimal(10, 2)
+  discount_type   DiscountTypeEnum?
+  discount_amount Decimal?          @db.Decimal(10, 2)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
   Cart      Carts       @relation(fields: [cart_id], references: [cart_id])
   Inventory Inventories @relation(fields: [inventory_id], references: [inventory_id])
@@ -256,22 +258,22 @@ model CartItems {
 }
 
 model Orders {
-  order_id        Int             @id @default(autoincrement())
-  cart_id         Int             @unique
+  order_id        Int               @id @default(autoincrement())
+  cart_id         Int               @unique
   user_id         Int
   store_id        Int
   address_id      Int
-  cart_price      Decimal         @db.Decimal(10, 2)
-  order_status    OrderStatus     @default(PENDING_PAYMENT)
-  shipping_method ShippingMethod  @default(jne)
-  shipping_price  Decimal         @db.Decimal(10, 2)
-  discount_type     DiscountTypeEnum?
-  discount_amount   Decimal?          @db.Decimal(10, 2)
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
+  cart_price      Decimal           @db.Decimal(10, 2)
+  order_status    OrderStatus       @default(PENDING_PAYMENT)
+  shipping_method ShippingMethod    @default(jne)
+  shipping_price  Decimal           @db.Decimal(10, 2)
+  discount_type   DiscountTypeEnum?
+  discount_amount Decimal?          @db.Decimal(10, 2)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
   Cart     Carts     @relation(fields: [cart_id], references: [cart_id])
-  User      Users    @relation(fields: [user_id], references: [user_id])
+  User     Users     @relation(fields: [user_id], references: [user_id])
   Store    Stores    @relation(fields: [store_id], references: [store_id])
   Address  Address   @relation(fields: [address_id], references: [address_id])
   Payments Payments?

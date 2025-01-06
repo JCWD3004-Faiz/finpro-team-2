@@ -13,12 +13,24 @@ export class InventoryController {
       const store_id = parseInt(req.params.store_id);
       const { inventories } = req.body;
       if (!Array.isArray(inventories) || inventories.length === 0) {
-        return sendErrorResponse(res, 400, `Invalid inventories data. It must be a non-empty array.`);
+        return sendErrorResponse(
+          res,
+          400,
+          `Invalid inventories data. It must be a non-empty array.`
+        );
       }
-      if(inventories[0].stockChange === 0){
-        return sendErrorResponse(res, 400, `Invalid inventories data. stock change can't be 0.`);
+      if (inventories[0].stockChange === 0) {
+        return sendErrorResponse(
+          res,
+          400,
+          `Invalid inventories data. stock change can't be 0.`
+        );
       }
-      const stockJournals = await this.inventoryService.superAdminCreateStockJournal(store_id, inventories);
+      const stockJournals =
+        await this.inventoryService.superAdminCreateStockJournal(
+          store_id,
+          inventories
+        );
       //await this.inventoryService.superAdminCreateStockJournal(store_id);
       res.status(201).send({
         message: "Successfully updated stock journal",
@@ -26,11 +38,16 @@ export class InventoryController {
       });
     } catch (error) {
       const err = error as Error;
-      sendErrorResponse(res, 400, `Failed to create stock journal`, err.message);
+      sendErrorResponse(
+        res,
+        400,
+        `Failed to create stock journal`,
+        err.message
+      );
     }
   }
 
-  async storeAdminUpdateStock(req: Request, res: Response){
+  async storeAdminUpdateStock(req: Request, res: Response) {
     try {
       const inventoryId = parseInt(req.params.inventory_id);
       const { stock } = req.body;
@@ -42,13 +59,13 @@ export class InventoryController {
     } catch (error) {
       const err = error as Error;
       sendErrorResponse(res, 400, `Failed to update stock`, err.message);
-    } 
+    }
   }
 
-  async getInventoriesByStoreId(req: Request, res: Response){
+  async getInventoriesByStoreId(req: Request, res: Response) {
     try {
       const storeId = parseInt(req.params.store_id);
-      if(isNaN(storeId)){
+      if (isNaN(storeId)) {
         return sendErrorResponse(res, 400, `Invalid store ID provided`);
       }
 
@@ -64,16 +81,71 @@ export class InventoryController {
         pageSize,
         sortField as "stock" | "product_name" | "items_sold",
         sortOrder as "asc" | "desc",
-        search,
+        search
       );
       res.status(201).send({
         message: "Get inventories successfull",
         status: res.statusCode,
-        data: inventories
+        data: inventories,
       });
     } catch (error) {
       const err = error as Error;
-      sendErrorResponse(res, 400, `Failed to get Inventories for the store ID`, err.message);
+      sendErrorResponse(
+        res,
+        400,
+        `Failed to get Inventories for the store ID`,
+        err.message
+      );
+    }
+  }
+
+  async getInventoryforDiscountByStoreId(req: Request, res: Response) {
+    try {
+      const storeId = parseInt(req.params.store_id);
+      if (isNaN(storeId)) {
+        return sendErrorResponse(res, 400, `Invalid store ID provided`);
+      }
+      const inventories =
+        await this.inventoryService.getInventoryForDiscountByStoreId(storeId);
+      res.status(201).send({
+        message: "Get inventories successfull",
+        status: res.statusCode,
+        data: inventories,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(
+        res,
+        400,
+        `Failed to get Inventories for the store ID`,
+        err.message
+      );
+    }
+  }
+
+  async getInventoryWithProductNameByStoreId(req: Request, res: Response) {
+    try {
+      const storeId = parseInt(req.params.store_id);
+      if (isNaN(storeId)) {
+        return sendErrorResponse(res, 400, `Invalid store ID provided`);
+      }
+      const inventories =
+        await this.inventoryService.getInventoryWithProductNameByStoreId(
+          storeId
+        );
+      res.status(201).send({
+        message: "Get inventories successfull",
+        status: res.statusCode,
+        data: inventories,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(
+        res,
+        400,
+        `Failed to get Inventories for the store ID`,
+        err.message
+      );
     }
   }
 }

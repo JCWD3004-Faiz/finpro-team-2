@@ -29,6 +29,16 @@ export class CategoryService {
     return categories;
   }
 
+  async getAllCategoryNameId() {
+    const categories = await this.prisma.categories.findMany({
+      select: {
+        category_id: true,
+        category_name: true,
+      },
+    });
+    return categories;
+  }
+
   async getAllCategory(
     page: number = 1,
     pageSize: number = 10,

@@ -23,7 +23,11 @@ interface UpdateProductProps {
   product_id: number;
 }
 
-type UpdateProductFields = "category_id" | "product_name" | "description" | "price"
+type UpdateProductFields =
+  | "category_id"
+  | "product_name"
+  | "description"
+  | "price";
 
 function UpdateProductComponent({ product_id }: UpdateProductProps) {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,17 +81,25 @@ function UpdateProductComponent({ product_id }: UpdateProductProps) {
 
   const handleImageUpdate = async (index: number, file: File) => {
     if (!file || !productDetail) return;
+    const maxSizeInMB = 1; // Maximum file size in MB
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+    if (file.size > maxSizeInBytes) {
+      dispatch(
+        showError(
+          `File "${file.name}" exceeds the maximum size of ${maxSizeInMB}MB.`
+        )
+      );
+      return;
+    }
     const imageId = productDetail.product_images[index]?.image_id;
-    dispatch(
-      updateProductImage({ imageId: imageId, imageFile: file, index })
-    )
+    dispatch(updateProductImage({ imageId: imageId, imageFile: file, index }))
       .unwrap()
       .then(() => dispatch(showSuccess("Image updated successfully.")))
       .catch((error) => {
         dispatch(showError(error));
       });
   };
-  
 
   useEffect(() => {
     dispatch(fetchProductDetails(product_id));
@@ -101,11 +113,12 @@ function UpdateProductComponent({ product_id }: UpdateProductProps) {
 
   return (
     <div className="container mx-auto pb-8">
-
       <div className="space-y-6">
         <Card className="p-6">
           <div className="">
-          <Label className="font-semibold" htmlFor="name">Product Name</Label>
+            <Label className="font-semibold" htmlFor="name">
+              Product Name
+            </Label>
             <ProductField
               isLoading={loading}
               onUpdate={() =>
@@ -123,7 +136,9 @@ function UpdateProductComponent({ product_id }: UpdateProductProps) {
                 placeholder="Product Name"
               />
             </ProductField>
-            <Label className="font-semibold" htmlFor="description">Description</Label>
+            <Label className="font-semibold" htmlFor="description">
+              Description
+            </Label>
             <ProductField
               isLoading={loading}
               onUpdate={() =>
@@ -146,7 +161,9 @@ function UpdateProductComponent({ product_id }: UpdateProductProps) {
                 placeholder="Product Description"
               />
             </ProductField>
-            <Label className="font-semibold" htmlFor="price">Price Rp</Label>
+            <Label className="font-semibold" htmlFor="price">
+              Price Rp
+            </Label>
             <ProductField
               isLoading={loading}
               onUpdate={() =>
@@ -185,7 +202,9 @@ function UpdateProductComponent({ product_id }: UpdateProductProps) {
                   index={index}
                   isLoading={loading}
                   onImageChange={handleImageChange}
-                  onUpdateClick={() => handleImageUpdate(index, imageFiles[index])}
+                  onUpdateClick={() =>
+                    handleImageUpdate(index, imageFiles[index])
+                  }
                 />
               ))
             ) : (

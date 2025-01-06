@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { DiscountService } from "../services/discount.service";
+import { GetDiscountService } from "../services/discount.get.service";
 import { CreateDiscount, UpdateDiscount } from "../models/discount.models";
 import {
   sendErrorResponse,
@@ -9,8 +10,10 @@ import { ZodError } from "zod";
 
 export class DiscountController {
   private discountService: DiscountService;
+  private getDiscountService: GetDiscountService;
   constructor() {
     this.discountService = new DiscountService();
+    this.getDiscountService = new GetDiscountService();
   }
 
   async createDiscount(req: Request, res: Response) {
@@ -64,14 +67,17 @@ export class DiscountController {
     }
   }
 
-  async updateDiscount(req: Request, res: Response){
+  async updateDiscount(req: Request, res: Response) {
     try {
       const discount_id = parseInt(req.params.discount_id);
       if (isNaN(discount_id)) {
         throw new Error("Invalid discount_id provided.");
       }
-      const data: UpdateDiscount = req.body
-      const updatedDiscount = await this.discountService.updateDiscount(discount_id, data);
+      const data: UpdateDiscount = req.body;
+      const updatedDiscount = await this.discountService.updateDiscount(
+        discount_id,
+        data
+      );
       res.status(201).send({
         message: "Discount updated successfully",
         status: res.statusCode,
@@ -87,13 +93,14 @@ export class DiscountController {
     }
   }
 
-  async deleteDiscount(req: Request, res: Response){
+  async deleteDiscount(req: Request, res: Response) {
     try {
       const discount_id = parseInt(req.params.discount_id);
       if (isNaN(discount_id)) {
         throw new Error("Invalid discount_id provided.");
       }
-      const deleteDiscount = await this.discountService.deleteDiscount(discount_id);
+      const deleteDiscount =
+        await this.discountService.deleteDiscount(discount_id);
       res.status(201).send({
         message: "Discount deleted successfully",
         status: res.statusCode,
@@ -104,7 +111,7 @@ export class DiscountController {
     }
   }
 
-  async updateDiscountImage(req: Request, res: Response){
+  async updateDiscountImage(req: Request, res: Response) {
     try {
       if (!req.file) {
         throw new Error("no file uploaded");
@@ -118,7 +125,61 @@ export class DiscountController {
       });
     } catch (error) {
       const err = error as Error;
-      sendErrorResponse(res, 400, "Failed to update discount image", err.message);
+      sendErrorResponse(
+        res,
+        400,
+        "Failed to update discount image",
+        err.message
+      );
+    }
+  }
+
+  async getDiscountsForAdmin(req: Request, res: Response) {
+    try {
+      const storeId = parseInt(req.params.store_id);
+      // Parse query parameters
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const sortField = (req.query.sortField as string) || "start_date";
+      const sortOrder = (req.query.sortOrder as string) || "asc";
+      const search = (req.query.search as string) || "";
+      
+      if (!storeId) {
+        return sendErrorResponse(res, 400, "Invalid Store ID provided");
+      }
+
+      const discounts = await this.getDiscountService.getAllDiscountsAdmin(
+        storeId,
+        page,
+        pageSize,
+        search,
+        sortField as "start_date" | "type" | "end_date",
+        sortOrder as "asc" | "desc"
+      );
+
+      res.status(200).send({
+        message: "Get Discounts successful",
+        status: res.statusCode,
+        discounts,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to get discounts", err.message);
+    }
+  }
+
+  async getDiscountDetail(req: Request, res: Response){
+    try {
+      const discount_id = parseInt(req.params.discount_id);
+      const discount = await this.getDiscountService.getDiscountDetail(discount_id);
+      res.status(201).send({
+        message: "Get product successfull",
+        status: res.statusCode,
+        discount,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to get product details", err.message);
     }
   }
 }

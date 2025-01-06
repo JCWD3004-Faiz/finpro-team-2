@@ -43,6 +43,26 @@ export default function NewProduct() {
     const files = e.target.files;
     if (!files) return;
 
+    const maxSizeInMB = 1; // Maximum file size in MB
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+    const validFiles = Array.from(files).filter((file) => {
+      if (file.size > maxSizeInBytes) {
+        dispatch(
+          showError(
+            `File "${file.name}" exceeds the maximum size of ${maxSizeInMB}MB.`
+          )
+        );
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) {
+      dispatch(showError("No valid files to upload. Please try again."));
+      return;
+    }
+
     const newImages = Array.from(files);
     dispatch(
       setFormData({
@@ -71,8 +91,7 @@ export default function NewProduct() {
       let errorMessage = "Failed to create category";
       if (error instanceof ZodError) {
         errorMessage = error.errors.map((e) => e.message).join(", ");
-      }
-      else if (error instanceof AxiosError && error.response?.data?.error) {
+      } else if (error instanceof AxiosError && error.response?.data?.error) {
         errorMessage = error.response.data.error;
       }
       dispatch(showError(errorMessage));
@@ -198,7 +217,7 @@ export default function NewProduct() {
                   </div>
                   <p className="mt-2 text-sm text-gray-500">
                     Upload up to 4 product images. First image will be the main
-                    display image.
+                    display image. Max image size is 1MB
                   </p>
                 </div>
               </div>
