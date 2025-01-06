@@ -10,6 +10,10 @@ const initialState: UserPaymentState = {
     loading: false,
     error: null,
     details: null,
+    totalItems: 0,
+    currentPage: 1,
+    totalPages: 0,
+    status:"",
 };
 
 const access_token = Cookies.get('access_token');
@@ -62,20 +66,35 @@ export const confirmOrder = createAsyncThunk<number, { user_id: number, order_id
   }
 );
 
-export const fetchPaymentHistory = createAsyncThunk<Transaction[], number, { rejectValue: string }>(
-    'userPayment/fetchPaymentHistory',
-    async (user_id, { rejectWithValue }) => {
-      try {
-        const response = await axios.get(`/api/order/payment-history/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        });
-        return response.data.data.payments;
-      } catch (error) {
-        return rejectWithValue('Failed to fetch payment history.');
-      }
+export const fetchPaymentHistory = createAsyncThunk<
+  { payments: Transaction[]; totalItems: number; currentPage: number; totalPages: number },
+  { user_id: number; page: number; limit: number; status?:string },
+  { rejectValue: string }
+>(
+  'userPayment/fetchPaymentHistory',
+  async ({ user_id, page, limit, status }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/api/order/payment-history/${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+        params: {
+          page,
+          limit,
+          status
+        },
+      });
+
+      return {
+        payments: response.data.data.payments,
+        totalItems: response.data.data.totalItems,
+        currentPage: response.data.data.currentPage,
+        totalPages: response.data.data.totalPages,
+      };
+    } catch (error) {
+      return rejectWithValue('Failed to fetch payment history.');
     }
+  }
 );
 
 export const fetchTransactionDetails = createAsyncThunk<TransactionDetails, { user_id: number, order_id: number }, { rejectValue: string }>(
@@ -99,6 +118,8 @@ const userPaymentSlice = createSlice({
   initialState,
   reducers: {
     clearTransactionDetails: (state) => {state.details = null},
+    setStatus(state, action) { state.status = action.payload; },
+
   },
   extraReducers: (builder) => {
     builder
@@ -111,15 +132,27 @@ const userPaymentSlice = createSlice({
       .addCase(confirmOrder.pending, (state) => {state.loading = true})
       .addCase(confirmOrder.fulfilled, (state) => {state.loading = false})
       .addCase(confirmOrder.rejected, (state, action) => {state.loading = false; state.error = action.payload || 'Unknown error'})
-      .addCase(fetchPaymentHistory.pending, (state) => {state.loading = true; state.error = null})
-      .addCase(fetchPaymentHistory.fulfilled, (state, action) => {state.loading = false; state.payments = action.payload})
-      .addCase(fetchPaymentHistory.rejected, (state, action) => {state.loading = false;state.error = action.payload || 'Unknown error'})
+      .addCase(fetchPaymentHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPaymentHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.payments = action.payload.payments;
+        state.totalItems = action.payload.totalItems;
+        state.currentPage = action.payload.currentPage;
+        state.totalPages = action.payload.totalPages;
+      })
+      .addCase(fetchPaymentHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Unknown error';
+      })
       .addCase(fetchTransactionDetails.pending, (state) => {state.error = null})
       .addCase(fetchTransactionDetails.fulfilled, (state, action) => {state.details = action.payload})
       .addCase(fetchTransactionDetails.rejected, (state, action) => {state.error = action.payload || 'Unknown error'});
   },
 });
 
-export const { clearTransactionDetails } = userPaymentSlice.actions;
+export const { clearTransactionDetails, setStatus } = userPaymentSlice.actions;
 
 export default userPaymentSlice.reducer;

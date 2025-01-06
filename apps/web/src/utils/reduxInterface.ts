@@ -138,6 +138,10 @@ export interface UserPaymentState {
   loading: boolean;
   error: string | null;
   details: TransactionDetails | null;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  status: string
 }
 
 export interface Transaction {
