@@ -12,6 +12,7 @@ import { showError, hideError } from "@/redux/slices/errorSlice";
 import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 import ConfirmationModal from '@/components/modal-confirm';
 import { showConfirmation, hideConfirmation } from '@/redux/slices/confirmSlice';
+import { LuTruck } from 'react-icons/lu';
 
 function OrderTracking() {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,11 +78,15 @@ function OrderTracking() {
               {loading ? (
                 <div> <LoadingVignette /> </div> 
               ) :error || !orders || orders.length === 0 ? (
-                <p>You currently have no ongoing orders.</p>
-              ) : (
-                orders.map((order:any) => (
-                  <div key={order.order_id} className="bg-white rounded-lg p-6 text-gray-800 md:mx-12"
-                  style={{ boxShadow: '0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)' }}>
+                <div className="text-center py-12">
+                <LuTruck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-800">No Ongoing Orders</h3>
+                <p className="text-muted-foreground">Browse our products and order now!</p>
+              </div>            
+                ) : (
+                orders.map((order:any, index) => (
+                  <div key={order.order_id} className="bg-white rounded-lg p-6 text-gray-800 md:mx-12 shadow-md border animate-in fade-in slide-in-from-bottom-4"
+                  style={{ animationDelay: `${index * 100}ms` }}>
                     <div className="mb-8">
                       <OrderStatus status={order.order_status} />
                     </div>
@@ -96,7 +101,7 @@ function OrderTracking() {
                         </div>
                         <div className="flex justify-between font-medium pt-2">
                           <span>Cart Total</span>
-                          <span>Rp. {order.cart_price}</span>
+                          <span>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(order.cart_price))}</span>
                         </div>
                       </div>
                       <div className="pt-4 border-t space-y-2">
@@ -110,7 +115,7 @@ function OrderTracking() {
                         </div>
                         <div className="flex justify-between font-medium pt-2">
                           <span>Shipping Cost</span>
-                          <span>Rp. {order.shipping_price}</span>
+                          <span>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(order.shipping_price))}</span>
                         </div>
                       </div>
                       {order.order_status === 'PENDING_PAYMENT' && (

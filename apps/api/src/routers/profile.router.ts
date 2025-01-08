@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { ProfileController } from "../controllers/profile.controller";
+import { VoucherController } from "../controllers/voucher.controller";
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload.middleware";
 
 const router = Router();
 const profileController = new ProfileController();
+const voucherController = new VoucherController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 
@@ -80,5 +82,12 @@ router.get("/closest-store/:user_id",
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
     profileController.getClosestStoreById.bind(profileController)
 );
+
+router.get("/vouchers/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.getUserVouchers.bind(voucherController)
+)
 
 export default router;

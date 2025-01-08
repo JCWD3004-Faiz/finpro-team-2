@@ -141,8 +141,8 @@ function StoreOrders() {
                   >
                     <td className="p-4">{order.username}</td>
                     <td className="p-4">{order.address}, {order.city_name}</td>
-                    <td className="p-4">Rp. {order.cart_price}</td>
-                    <td className="p-4">Rp. {order.shipping_price}</td>
+                    <td className="p-4">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(order.cart_price))}</td>
+                    <td className="p-4">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(order.shipping_price))}</td>
                     <td className="p-4">{new Date(order.created_at).toLocaleDateString()}</td>
                     <td className="py-3 px-2 text-center whitespace-nowrap">
                     <div className={`${getStatusColor(order.order_status)} font-bold py-2 rounded-full text-white`}>

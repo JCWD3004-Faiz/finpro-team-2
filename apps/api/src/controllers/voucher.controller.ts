@@ -155,4 +155,17 @@ export class VoucherController {
             sendErrorResponse(res, 400, `Failed to apply shipping voucher discount`);
         }
     }
+
+    async getUserVouchers(req: Request, res: Response){
+        try {
+            const user_id = parseInt(req.params.user_id)
+            const data = await this.voucherService.getUserVouchers(user_id);
+            res.status(200).send({
+                message: "Successfully retrieved user vouchers",
+                status: res.statusCode, data: data
+            });
+        } catch (error) {
+            sendErrorResponse(res, 400, `Failed to retrieve user vouchers`);
+        }
+    }
 }

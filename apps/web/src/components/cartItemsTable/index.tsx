@@ -31,13 +31,13 @@ export function CartItemsTable({ items }: CartItemsTableProps) {
                     {item.product_name}
                   </td>
                   <td className="px-6 py-4">
-                    Rp.{item.product_price}
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(item.product_price))}                  
                   </td>
                   <td className="px-6 py-4">
                     {item.quantity}
                   </td>
                   <td className="px-6 py-4">
-                    Rp.{(item.product_price * item.quantity)}
+                    {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number((item.product_price) * item.quantity))}                  
                   </td>
                   <td className="px-6 py-4">
                     <span className={`${

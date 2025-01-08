@@ -45,9 +45,9 @@ export function TransactionDetails({ items, payment_reference, address, city_nam
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-medium">Rp. {item.original_price}</p>
+                    <p className="font-medium">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(item.original_price))}</p>
                     <p className="text-sm text-muted-foreground">
-                      Subtotal: Rp. {item.product_price}
+                      Subtotal: {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(item.product_price))}
                     </p>
                   </div>
                 </div>
@@ -57,15 +57,17 @@ export function TransactionDetails({ items, payment_reference, address, city_nam
         </div>
         <div className="flex justify-between items-center pt-2 border-t pr-4">
           <p>Cart Price</p>
-          <p>Rp. {total}</p>
+          <p>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(total))}</p>
         </div>
-        <div className="flex justify-between items-center pr-4">
-          <p>Discount Amount</p>
-          <p>- Rp. {totalDiscount}</p>
-        </div>
+        {totalDiscount !== 0 && (
+            <div className="flex justify-between items-center pr-4">
+              <p>Discount Amount</p>
+              <p>- {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(totalDiscount))}</p>
+            </div>
+          )}
         <div className="flex justify-between items-center pt-2 font-semibold pr-4">
           <p>Cart Total</p>
-          <p>Rp. {cart_price}</p>
+          <p>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(cart_price))}</p>
         </div>
       </div>
 
@@ -74,7 +76,7 @@ export function TransactionDetails({ items, payment_reference, address, city_nam
       <div className="space-y-3">
         <div className="flex justify-between items-center font-semibold pr-4">
           <p>Shipping Price</p>
-          <p>Rp. {shipping_price}</p>
+          <p>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(shipping_price))}</p>
         </div>
         <div className="text-sm text-muted-foreground">
           <p className="font-medium">Billing Address:</p>
