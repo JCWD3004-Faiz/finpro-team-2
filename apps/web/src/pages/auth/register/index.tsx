@@ -89,7 +89,7 @@ const Register: React.FC = () => {
       />
       <div className="bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center">
         {/* Header */}
-        <h1 className="text-5xl font-bold text-right mb-6">FRUGGER</h1>
+        <h1 className="text-5xl font-bold text-right mb-6">REGISTER</h1>
 
         {/* Register Form */}
         <form

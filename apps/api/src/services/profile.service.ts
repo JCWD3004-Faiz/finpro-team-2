@@ -27,7 +27,7 @@ export class ProfileService {
       const { lat, lng } = data.results[0]?.geometry || {};
       if (!lat || !lng) throw new Error("No geocoding results found.");
       const existingAddresses = await this.prisma.address.findMany({
-        where: { user_id },
+        where: { user_id, is_deleted:false },
       });
       const isDefault = existingAddresses.length === 0;
       return await this.prisma.address.create({
@@ -46,14 +46,14 @@ export class ProfileService {
     }
   }
 
-  async getAddressesByUserId(user_id: number) {
-    try {
-      if (!user_id) throw new Error("Missing required parameters.");
-      return await this.prisma.address.findMany({ where: { user_id } });
-    } catch (error: any) {
-      return { error: error.message || "An error occurred." };
+    async getAddressesByUserId(user_id: number) {
+        try {
+            if (!user_id) throw new Error("Missing required parameters.");
+            return await this.prisma.address.findMany({ where: { user_id, is_deleted:false } });
+        } catch (error: any) {
+            return { error: error.message || "An error occurred." };
+        }
     }
-  }
 
   async changeDefaultAddress(user_id: number, new_address_id: number) {
     try {

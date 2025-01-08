@@ -57,7 +57,7 @@ const Login: React.FC = () => {
         redirectUrl = "/admin-store";
       }
 
-      dispatch(showSuccess("Welcome to Frugger"));
+      dispatch(showSuccess("Welcome to FrugMart!"));
       setTimeout(() => {
         window.location.href = redirectUrl;
       }, 2000);

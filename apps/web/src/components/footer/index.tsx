@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
                         />
                         <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white text-xl cursor-pointer hover:text-gray-400" />
                     </div>
-                    <p className="font-bold text-4xl">Get Frugal With FRUGGER.</p>
+                    <p className="font-bold text-4xl">Get Frugal With FRUGMART.</p>
                     <div className="flex items-center space-x-8 mt-4">
                         <FaYoutube className="text-4xl hover:text-red-600 cursor-pointer" />
                         <FaInstagram className="text-4xl hover:text-pink-500 cursor-pointer" />
@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
 
             {/* Border and Copyright Section */}
             <div className="border-t border-white text-right py-4 mx-12 my-4">
-                <p className="text-sm">Copyright © {new Date().getFullYear()} Frugger Indonesia</p>
+                <p className="text-sm">Copyright © {new Date().getFullYear()} FrugMart Indonesia</p>
             </div>
         </footer>
     );

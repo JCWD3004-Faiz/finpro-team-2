@@ -41,7 +41,7 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (user_id) {
-      dispatch(fetchAddresses(user_id));
+      dispatch(fetchAddresses(user_id));  // Fetch addresses if user is logged in
     } else if (!access_token) {
       getGeolocation()
         .then(({ lat, lon }) => {
@@ -56,7 +56,7 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (addresses.length > 0) {
-      setIsLoading(false);
+      setIsLoading(false);  // If addresses exist, stop loading
     }
   }, [addresses]);
 
@@ -65,15 +65,9 @@ const LocationHeader: React.FC = () => {
 
     if (user_id) {
       if (addresses.length > 0) {
-        dispatch(fetchClosestStoreById(user_id));
+        dispatch(fetchClosestStoreById(user_id));  // Fetch closest store by user ID if addresses exist
       } else {
-        getGeolocation()
-          .then(({ lat, lon }) => {
-            dispatch(fetchClosestStore({ lat, lon }));
-          })
-          .catch(() => {
-            setIsLoading(false); 
-          });
+        setIsLoading(false);  // No addresses, fallback to default store
       }
     } else {
       getGeolocation()
@@ -89,11 +83,11 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (closestStore) {
-      setIsLoading(false);
+      setIsLoading(false);  // If closest store is fetched, stop loading
     }
   }, [closestStore]);
 
-  const storeToDisplay = closestStore || defaultStore;
+  const storeToDisplay = closestStore || defaultStore;  // If closest store is available, use it; otherwise, use default store.
 
   useEffect(() => {
     Cookies.set('current_store_id', storeToDisplay.store_id.toString());
@@ -101,8 +95,6 @@ const LocationHeader: React.FC = () => {
 
   return (
     <header className="fixed top-0 left-0 border-b border-black w-full h-[3vh] bg-white text-gray-800 z-50 flex items-center">
-      {isLoading && <div className="text-gray-500 text-sm">Loading location...</div>}
-      {!isLoading && (
       <div className="w-full flex items-center absolute left-0 right-0 text-xs md:text-sm md:static">
       <div className="flex items-center absolute left-0 md:pl-2 md:flex-row md:static">
         <MdLocationOn />
@@ -113,7 +105,6 @@ const LocationHeader: React.FC = () => {
         <p>{storeToDisplay.store_name}</p>
       </div>
     </div>
-      )}
     </header>
   );
 };
