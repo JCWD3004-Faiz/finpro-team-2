@@ -53,12 +53,12 @@ const Navbar: React.FC = () => {
             </div>
             {/* "FRUGGER" logo visible on larger screens */}
             <div className="hidden sm:flex font-bold text-2xl text-black">
-              FRUGGER
+              FRUGMART
             </div>
             {/* "FRUGGER" logo for smaller screens, centered */}
             <div className="sm:hidden flex w-full justify-center items-center">
               <div className="text-black font-bold text-2xl">
-                FRUGGER
+                FRUGMART
               </div>
             </div>
           </div>
