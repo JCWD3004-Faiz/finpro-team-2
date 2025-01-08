@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 interface UserProfileState {
   username: string;
   email: string | null;
+  is_verified: boolean;
   image: string | null;
   loading: boolean;
   error: string | null;
@@ -16,6 +17,7 @@ interface UserProfileState {
 const initialState: UserProfileState = {
   username: '',
   email: null,
+  is_verified: false,
   image: null,
   loading: true,
   error: null,
@@ -111,6 +113,7 @@ const userProfileSlice = createSlice({
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
         state.username = action.payload.username;
+        state.is_verified = action.payload.is_verified;
         state.email = action.payload.email;
         state.image = action.payload.image;
         state.loading = false;
