@@ -8,6 +8,7 @@ import { fetchPaymentHistory, setStatus } from '@/redux/slices/userPaymentSlice'
 import LoadingVignette from '@/components/LoadingVignette';
 import Pagination from '@/components/pagination';
 import SelectFilter from '@/components/selectFilter';
+import { MdOutlinePayment } from 'react-icons/md';
 
 function TransactionHistory() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,7 +42,7 @@ function TransactionHistory() {
     { value: 'CANCELLED', label: 'Cancelled' },
   ];
 
-  console.log('Selected status:', status);
+  console.log('Selected status:', payments.length);
 
   return (
     <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
@@ -50,19 +51,21 @@ function TransactionHistory() {
           <UserSidebar />
           <main className="flex-1">
             <div className="mb-6">
-            <div className="flex justify-between">
-              <div>
-              <h1 className="text-2xl text-gray-800 font-semibold">Transaction History</h1>
-              <p className="text-muted-foreground mb-6">Showing your recent transactions</p>
-              </div>
-              <div>
-                <SelectFilter
-                  label="All Statuses"
-                  value={status || 'none'}
-                  options={statusOptions}
-                  onChange={handleStatusChange}
-                />
-              </div>
+              <div className="flex justify-between">
+                <div>
+                  <h1 className="text-2xl text-gray-800 font-semibold">Transaction History</h1>
+                  <p className="text-muted-foreground mb-6">Showing your recent transactions</p>
+                </div>
+                {payments.length > 0 && (
+                  <div>
+                    <SelectFilter
+                      label="All Statuses"
+                      value={status || 'none'}
+                      options={statusOptions}
+                      onChange={handleStatusChange}
+                    />
+                  </div>
+                )}
               </div>
               {loading ? (
                 <div>
@@ -74,17 +77,21 @@ function TransactionHistory() {
                 </div>
               ) : payments.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No transactions found</p>
-                </div>
+                <MdOutlinePayment className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-800">No Transaction History</h3>
+                <p className="text-muted-foreground">Check back later for completed orders!</p>
+              </div> 
               ) : (
                 <div className="space-y-4">
-                  {payments.map((transaction: any) => (
+                  {payments.map((transaction: any, index) => (
                     <TransactionCard key={transaction.transaction_id} transaction={transaction} />
                   ))}
                 </div>
               )}
             </div>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            {payments.length > 0 && (
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            )}
           </main>
         </div>
       </div>

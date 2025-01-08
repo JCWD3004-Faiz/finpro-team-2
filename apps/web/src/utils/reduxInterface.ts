@@ -1,5 +1,5 @@
 import { StoreAdmin, Store, Order } from '@/utils/adminInterface';
-import { ItemDetails } from './userInterface';
+import { ItemDetails, UserVoucher } from './userInterface';
 
 export interface SuperAdminState {
     storeAdmins: StoreAdmin[];
@@ -193,6 +193,7 @@ export interface ManageCategoryState {
 export interface UserPaymentState {
   orders: Order[];
   payments: Transaction[];
+  vouchers: UserVoucher[]
   loading: boolean;
   error: string | null;
   details: TransactionDetails | null;

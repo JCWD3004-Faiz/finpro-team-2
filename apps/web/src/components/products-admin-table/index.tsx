@@ -148,7 +148,7 @@ function ProductAdminTable() {
                     ? new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
-                        minimumFractionDigits: 0, // Ensures no decimals like "Rp. 35.000"
+                        minimumFractionDigits: 0,
                       }).format(Number(product.price))
                     : "N/A"}
                 </td>

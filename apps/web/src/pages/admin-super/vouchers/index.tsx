@@ -244,21 +244,21 @@ const ManageVouchers: React.FC = () => {
                       <input type="number" value={editingVoucher.discount_amount} onChange={(e) => handleInputChange(e, 'discount_amount')}
                         className="p-2 w-full border border-gray-300 rounded"
                       />
-                      : voucher.discount_type === "PERCENTAGE" ? `${voucher.discount_amount}%` : `Rp. ${voucher.discount_amount.toLocaleString()}`}
+                      : voucher.discount_type === "PERCENTAGE" ? `${voucher.discount_amount}%` : `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(voucher.discount_amount))}`}
                   </td>
                   <td className="p-4">
                     {editingVoucher && editingVoucher.voucher_id === voucher.voucher_id ?
                       <input type="number" value={editingVoucher.min_purchase} onChange={(e) => handleInputChange(e, 'min_purchase')}
                         className="p-2 w-full border border-gray-300 rounded"
                       />
-                      : voucher.min_purchase !== null ? `Rp. ${voucher.min_purchase}` : "-"}
+                      : voucher.min_purchase !== null ? `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(voucher.min_purchase))}` : "-"}
                   </td>
                   <td className="p-4">
                     {editingVoucher && editingVoucher.voucher_id === voucher.voucher_id ?
                       <input type="number" value={editingVoucher.max_discount} onChange={(e) => handleInputChange(e, 'max_discount')}
                         className="p-2 w-full border border-gray-300 rounded"
                       />
-                      : voucher.max_discount !== null ? `${voucher.max_discount} Off` : "-"}
+                      : voucher.max_discount !== null ? `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(voucher.max_discount))} Off` : "-"}
                   </td>
                   <td className="p-4">
                     {editingVoucher && editingVoucher.voucher_id === voucher.voucher_id ?

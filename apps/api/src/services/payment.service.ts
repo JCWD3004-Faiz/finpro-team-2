@@ -117,66 +117,24 @@ export class PaymentService {
         }
     }
 
-    async getUserPaymentHistory(
-        user_id: number,
-        page: number = 1,
-        limit: number = 10,
-        status?: "ORDER_CONFIRMED" | "CANCELLED"
-    ) {
+    async getUserPaymentHistory( user_id: number, page: number = 1, limit: number = 10, status?: "ORDER_CONFIRMED" | "CANCELLED") {
         try {
-            // Default status filter is for both "ORDER_CONFIRMED" and "CANCELLED"
-            const statusFilter = status
-                ? { in: [status as OrderStatus] } // Cast to OrderStatus
-                : { in: ["ORDER_CONFIRMED", "CANCELLED"] as OrderStatus[] }; // Cast to OrderStatus[]    
-    
-            // First, count the total number of orders with the applied filters
-            const totalItems = await this.prisma.orders.count({
-                where: {
-                    user_id: user_id,
-                    order_status: statusFilter,  // Use status filter
-                },
-            });
-    
-            // Fetch the orders with the applied filters, pagination, and included data
+            const statusFilter = status ? { in: [status as OrderStatus] } : { in: ["ORDER_CONFIRMED", "CANCELLED"] as OrderStatus[] };    
+            const totalItems = await this.prisma.orders.count({ where: { user_id: user_id, order_status: statusFilter}});    
             const orders = await this.prisma.orders.findMany({
-                where: {
-                    user_id: user_id,
-                    order_status: statusFilter,  // Use status filter
-                },
-                include: {
-                    Payments: true,
-                    Store: { select: { store_name: true } },
-                    Address: { select: { address: true, city_name: true } },
-                },
-                skip: (page - 1) * limit,  // Pagination offset
-                take: limit,  // Limit the number of results
+                where: { user_id: user_id, order_status: statusFilter},
+                include: { Payments: true, Store: { select: { store_name: true } }, Address: { select: { address: true, city_name: true }}},
+                skip: (page - 1) * limit, take: limit,
             });
-    
-            const payments = orders.flatMap(order => order.Payments);
-            if (payments.length === 0) {
-                return { error: "No payments found for this user." };
-            }
-    
-            // Calculate total pages based on total items and limit per page
             const totalPages = Math.ceil(totalItems / limit);
-    
             return {
                 payments: orders.map(history => ({
-                    user_id: user_id,
-                    order_id: history.order_id,
-                    transaction_id: history.Payments?.transaction_id,
-                    store_name: history.Store.store_name,
-                    order_status: history.order_status,
-                    cart_price: history.cart_price,
-                    shipping_price: history.shipping_price,
-                    total_price: history.Payments?.total_price,
-                    shipping_method: history.shipping_method,
-                    payment_method: history.Payments?.payment_method,
-                    payment_date: history.Payments?.payment_date || history.created_at,
+                    user_id: user_id, order_id: history.order_id, transaction_id: history.Payments?.transaction_id,
+                    store_name: history.Store.store_name, order_status: history.order_status, cart_price: history.cart_price,
+                    shipping_price: history.shipping_price, total_price: history.Payments?.total_price, shipping_method: history.shipping_method,
+                    payment_method: history.Payments?.payment_method, payment_date: history.Payments?.payment_date || history.created_at,
                 })),
-                totalItems, // Total count of orders (used for pagination)
-                currentPage: page, // Current page number
-                totalPages, // Total number of pages
+                totalItems, currentPage: page, totalPages,
             };
         } catch (error) {
             console.error("Error fetching payment history:", error);

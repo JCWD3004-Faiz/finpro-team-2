@@ -102,7 +102,8 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Price</p>
               <p className="text-lg font-semibold">
-                Rp. {transaction.total_price !== undefined ? `${transaction.total_price}` : frontPrice}
+                {transaction.total_price !== undefined ? `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(transaction.total_price))}` 
+                : new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(frontPrice))}
               </p>
             </div>
           </div>

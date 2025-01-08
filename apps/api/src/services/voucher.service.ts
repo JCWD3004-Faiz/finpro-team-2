@@ -257,4 +257,23 @@ export class VoucherService {
             return { error: "Failed to apply shipping voucher discount" };
         }
     }
+
+    async getUserVouchers(user_id: number) {
+        try {
+            const userVouchers = await this.prisma.userVouchers.findMany({
+                where: { user_id: user_id, voucher_status: "ACTIVE" },
+                include: { Voucher: true},
+            });
+            const mappedVouchers = userVouchers.map((userVoucher) => ({ user_voucher_id: userVoucher.user_voucher_id,
+                redeem_code: userVoucher.redeem_code, expiration_date: userVoucher.expiration_date,
+                discount_type: userVoucher.Voucher.discount_type, voucher_type: userVoucher.Voucher.voucher_type,
+                discount_amount: userVoucher.Voucher.discount_amount, min_purchase: userVoucher.Voucher.min_purchase,
+                max_discount: userVoucher.Voucher.max_discount, description: userVoucher.Voucher.description,
+            }));
+            return { vouchers: mappedVouchers };
+        } catch (error) {
+            console.error("Error fetching user vouchers:", error);
+            return { error: "Failed to fetch user vouchers." };
+        }
+    }
 }

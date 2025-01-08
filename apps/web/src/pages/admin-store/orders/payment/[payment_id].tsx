@@ -100,7 +100,7 @@ function PaymentManagement() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Amount</p>
-                    <p className="font-medium">Rp. {payment?.total_price}</p>
+                    <p className="font-medium">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(payment?.total_price))}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Date</p>

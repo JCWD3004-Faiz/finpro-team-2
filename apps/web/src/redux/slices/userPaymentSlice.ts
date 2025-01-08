@@ -3,10 +3,12 @@ import axios from '@/utils/interceptor';
 import Cookies from 'js-cookie';
 import { Order } from '@/utils/adminInterface';
 import { Transaction, TransactionDetails, UserPaymentState } from '@/utils/reduxInterface';
+import { UserVoucher } from '@/utils/userInterface';
 
 const initialState: UserPaymentState = {
     orders: [],
     payments: [],
+    vouchers: [],
     loading: false,
     error: null,
     details: null,
@@ -113,6 +115,22 @@ export const fetchTransactionDetails = createAsyncThunk<TransactionDetails, { us
     }
 );
 
+export const fetchUserVouchers = createAsyncThunk<UserVoucher[], number,{ rejectValue: string }>(
+  'userPayment/fetchUserVouchers',
+  async (user_id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/api/profile/vouchers/${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      return response.data.data.vouchers;
+    } catch (error) {
+      return rejectWithValue('Failed to fetch user vouchers.');
+    }
+  }
+);
+
 const userPaymentSlice = createSlice({
   name: 'userPayment',
   initialState,
@@ -149,7 +167,16 @@ const userPaymentSlice = createSlice({
       })
       .addCase(fetchTransactionDetails.pending, (state) => {state.error = null})
       .addCase(fetchTransactionDetails.fulfilled, (state, action) => {state.details = action.payload})
-      .addCase(fetchTransactionDetails.rejected, (state, action) => {state.error = action.payload || 'Unknown error'});
+      .addCase(fetchTransactionDetails.rejected, (state, action) => {state.error = action.payload || 'Unknown error'})
+      .addCase(fetchUserVouchers.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchUserVouchers.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.vouchers = action.payload; 
+      })
+      .addCase(fetchUserVouchers.rejected, (state, action) => { 
+        state.loading = false; 
+        state.error = action.payload || 'Unknown error'; 
+      });
   },
 });
 
