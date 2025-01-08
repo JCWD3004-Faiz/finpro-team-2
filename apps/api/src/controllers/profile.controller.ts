@@ -111,5 +111,56 @@ export class ProfileController {
         });
       }
     }
+
+    async deleteAddress(req: Request, res: Response) {
+      const user_id = parseInt(req.params.user_id);
+      const address_id = parseInt(req.params.address_id);
+      const data:any = await this.profileService.deleteAddress(user_id, address_id);
+      if (data &&!data.error) {
+        res.status(200).send({
+          message: "Address deleted successfully",
+          status: res.statusCode
+        });
+      } else {
+        res.status(400).send({
+          message: "Failed to delete address",
+          status: res.statusCode,
+        });
+      }
+    }
+
+    async getClosestStore(req: Request, res: Response) {
+      const { latitude, longitude } = req.body;
+      const lat = Number(latitude)
+      const long = Number(longitude)
+      const data = await this.profileService.getClosestStore(lat, long);
+      if (data) {
+        res.status(200).send({
+          message: "Closest store retrieved successfully",
+          status: res.statusCode, data: data
+        });
+      } else {
+        res.status(400).send({
+          message: "Failed to retrieve closest store",
+          status: res.statusCode,
+        });
+      }
+    }
+
+    async getClosestStoreById(req: Request, res: Response){
+      const user_id = parseInt(req.params.user_id);
+      const data = await this.profileService.getClosestStoreById(user_id);
+      if (data) {
+        res.status(200).send({
+          message: "Store retrieved successfully",
+          status: res.statusCode, data: data
+        });
+      } else {
+        res.status(400).send({
+          message: "Failed to retrieve store",
+          status: res.statusCode,
+        });
+      }
+    }
     
 }

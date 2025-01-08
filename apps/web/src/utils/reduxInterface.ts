@@ -1,5 +1,5 @@
 import { StoreAdmin, Store, Order } from '@/utils/adminInterface';
-import { ItemDetails } from '@/components/transaction-details';
+import { ItemDetails } from './userInterface';
 
 export interface SuperAdminState {
     storeAdmins: StoreAdmin[];
@@ -95,10 +95,10 @@ export interface DiscountDetail {
   description: string;
   is_active: boolean;
   image: string;
-  start_date: Date;
-  end_date: Date;
-  created_at: Date;
-  updated_at: Date;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  updated_at: string;
   is_deleted: boolean;
 }
 
@@ -125,8 +125,8 @@ export interface ProductDetail {
   price: number;
   availability: boolean;
   is_deleted: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   product_images: {
     image_id: number;
     product_image: string;

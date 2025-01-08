@@ -18,6 +18,7 @@ import updateDiscountReducer from "./slices/updateDiscountSlice";
 import superSalesReducer from "./slices/superSalesSlice";
 import userProfileReducer from "./slices/userProfileSlice";
 import userPaymentReducer from "./slices/userPaymentSlice";
+import landingReducer from "./slices/landingSlice";
 
 const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ const store = configureStore({
     global: globalReducer,
     userProfile: userProfileReducer,
     userPayment: userPaymentReducer,
+    landing: landingReducer,
   },
 });
 

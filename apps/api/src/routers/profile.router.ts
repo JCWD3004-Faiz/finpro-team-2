@@ -47,4 +47,22 @@ router.get("/user/:user_id",
     profileController.getUserProfile.bind(profileController)
 )
 
+router.put("/address/:user_id/:address_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    profileController.deleteAddress.bind(profileController)
+)
+
+router.post("/closest-store/",
+    profileController.getClosestStore.bind(profileController)
+);
+
+router.get("/closest-store/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    profileController.getClosestStoreById.bind(profileController)
+);
+
 export default router;

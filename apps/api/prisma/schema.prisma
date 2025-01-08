@@ -214,6 +214,7 @@ model Address {
   city_id    Int
   city_name  String
   is_default Boolean  @default(false)
+  is_deleted Boolean  @default(false)
   created_at DateTime @default(now())
   update_at  DateTime @updatedAt
 

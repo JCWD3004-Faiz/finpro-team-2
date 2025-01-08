@@ -17,10 +17,10 @@ const initialDiscountDetail: DiscountDetail = {
   description: "",
   is_active: false,
   image: "",
-  start_date: new Date(),
-  end_date: new Date(),
-  created_at: new Date(),
-  updated_at: new Date(),
+  start_date: new Date().toISOString(),
+  end_date: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
   is_deleted: false,
 };
 

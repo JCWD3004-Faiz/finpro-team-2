@@ -1,14 +1,7 @@
 import { CreditCard } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-export interface ItemDetails {
-    cart_item_id: string;
-    product_name: string;
-    quantity: number;
-    product_price: number;
-    original_price: number;
-}
+import { ItemDetails } from "@/utils/userInterface";
   
 interface TransactionDetailsProps {
   items: ItemDetails[];

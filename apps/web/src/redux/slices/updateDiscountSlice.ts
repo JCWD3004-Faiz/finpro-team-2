@@ -19,10 +19,10 @@ const initialDiscountDetail: DiscountDetail = {
   description: "",
   is_active: false,
   image: "",
-  start_date: new Date(),
-  end_date: new Date(),
-  created_at: new Date(),
-  updated_at: new Date(),
+  start_date: new Date().toISOString(),
+  end_date: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
   is_deleted: false,
 };
 
@@ -220,10 +220,10 @@ const updateDiscountSlice = createSlice({
     setDiscountValue: (state, action: PayloadAction<number | null>) => {
       state.discountDetail.value = action.payload;
     },
-    setDiscountStartDate: (state, action: PayloadAction<Date>) => {
+    setDiscountStartDate: (state, action: PayloadAction<string>) => {
       state.discountDetail.start_date = action.payload;
     },
-    setDiscountEndDate: (state, action: PayloadAction<Date>) => {
+    setDiscountEndDate: (state, action: PayloadAction<string>) => {
       state.discountDetail.end_date = action.payload;
     },
     setDiscountImage: (state, action: PayloadAction<File | null>) => {
