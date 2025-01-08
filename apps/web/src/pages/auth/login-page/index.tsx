@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
-import axios from "@/utils/interceptor"
-import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
+import React, { useState } from "react";
+import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import LoadingVignette from "@/components/LoadingVignette";
+import SuccessModal from "@/components/modal-success";
+import ErrorModal from "@/components/modal-error";
+import { hideSuccess, showSuccess } from "@/redux/slices/successSlice";
+import { hideError, showError } from "@/redux/slices/errorSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { FaGoogle } from "react-icons/fa";
 
 const Login: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [isRegisterClicked, setIsRegisterClicked] = useState(false); // State to trigger register click
   const [isLoginFaded, setIsLoginFaded] = useState(false); // State for fading effect
+  const [loading, setLoading] = useState(false);
+  const { isSuccessOpen, successMessage } = useSelector(
+    (state: RootState) => state.success
+  );
+  const { isErrorOpen, errorMessage } = useSelector(
+    (state: RootState) => state.error
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -18,8 +34,9 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post("/api/auth/login", {
         email: formData.username,
         password: formData.password,
       });
@@ -29,48 +46,77 @@ const Login: React.FC = () => {
       const { role } = decodedToken;
 
       if (access_token) {
-        Cookies.set('access_token', access_token, { expires: 1 }); // expires in 1 day
-        Cookies.set('refreshToken', refreshToken, { expires: 7 }); // expires in 7 days
+        Cookies.set("access_token", access_token, { expires: 1 }); // expires in 1 day
+        Cookies.set("refreshToken", refreshToken, { expires: 7 }); // expires in 7 days
       }
 
-      let redirectUrl = '/';
-      if (role === 'SUPER_ADMIN') {
-        redirectUrl = '/admin-super';
-      } else if (role === 'STORE_ADMIN') {
-        redirectUrl = '/admin-store';
+      let redirectUrl = "/";
+      if (role === "SUPER_ADMIN") {
+        redirectUrl = "/admin-super";
+      } else if (role === "STORE_ADMIN") {
+        redirectUrl = "/admin-store";
       }
 
-      alert('Successfully logged in');
-      window.location.href = redirectUrl;
-
+      dispatch(showSuccess("Welcome to Frugger"));
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 2000);
     } catch (error) {
-      alert('Failed to log in. Please check your email and password');
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage =
+          typeof error.response.data?.detail === "string"
+            ? error.response.data.detail
+            : "An error occurred.";
+        dispatch(showError(errorMessage));
+      } else {
+        dispatch(showError("An unexpected error occurred."));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegisterClick = () => {
-    // Trigger the sliding effect
-    setIsRegisterClicked(true);
+    window.location.href = "/auth/register";
+  };
 
-    // Use setTimeout to fade the LOGIN header after the transition
-    setTimeout(() => {
-      setIsLoginFaded(true);
-    }, 300); // Set the timeout slightly after the sliding effect starts
+  const handleForgotPassClick = () => {
+    window.location.href = "/auth/passwordReset"
+  }
+
+  const handleGoogleClick = () => {
+    const googleLoginUrl = `${axios.defaults.baseURL}/auth/google`;
+    window.location.href = googleLoginUrl;
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-end bg-black">
+    <div className="min-h-screen flex items-center justify-end text-gray-800 bg-black">
+      {loading && <LoadingVignette />}
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {
+          dispatch(hideSuccess());
+        }}
+        successMessage={successMessage}
+      />
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => {
+          dispatch(hideError());
+        }}
+        errorMessage={errorMessage}
+      />
       <div
         className={`bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center transform transition-transform duration-500 ${
-          isRegisterClicked ? 'translate-x-negative' : ''
+          isRegisterClicked ? "translate-x-negative" : ""
         }`}
       >
         {/* Header */}
         <h1
-  className={`text-5xl font-bold mb-6 transform transition-transform duration-500 opacity-transition ${
-    isRegisterClicked ? 'translate-x-positive' : ''
-  } ${isLoginFaded ? 'opacity-0' : 'opacity-100'}`}
->
+          className={`text-5xl font-bold mb-6 transform transition-transform duration-500 opacity-transition ${
+            isRegisterClicked ? "translate-x-positive" : ""
+          } ${isLoginFaded ? "opacity-0" : "opacity-100"}`}
+        >
           LOGIN
         </h1>
 
@@ -78,27 +124,33 @@ const Login: React.FC = () => {
         <form
           onSubmit={handleSubmit}
           className={`flex flex-col transform transition-transform duration-500 ${
-            isRegisterClicked ? 'translate-x-positive' : ''
+            isRegisterClicked ? "translate-x-positive" : ""
           }`}
         >
           <div className="mb-4 w-96">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Username
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
             </label>
             <input
               id="username"
               name="username"
-              type="text"
+              type="email"
               value={formData.username}
               onChange={handleChange}
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               className="mt-1 block w-full px-4 py-2 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
               required
             />
           </div>
 
           <div className="mb-6 w-96">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -127,6 +179,24 @@ const Login: React.FC = () => {
             >
               Register
             </button>
+            <button
+              type="button"
+              className="my-4 px-4 py-2 w-full rounded shadow border border-gray-300 hover:bg-gray-100"
+              onClick={handleGoogleClick}
+            >
+              <div className="flex justify-center items-center gap-2">
+                <div>Login with Google</div>
+                <div>
+                  <FaGoogle />
+                </div>
+              </div>
+            </button>
+            <p
+              className="mt-4 text-sm text-gray-500 cursor-pointer hover:underline"
+              onClick={() => (window.location.href = "/auth/passwordReset")}
+            >
+              Forgot password?
+            </p>
           </div>
         </form>
       </div>

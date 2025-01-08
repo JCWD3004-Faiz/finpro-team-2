@@ -30,7 +30,7 @@ export async function sendEmailRegistration(email: string): Promise<void> {
       }
   
       const templatePath = path.join(__dirname, '/views/', 'emailVerification.ejs');
-      const verificationLink = `http://localhost:3000/auth/verify-registration/${user[0].verification_token}`;
+      const verificationLink = `${config.FRONTEND_URL}/auth/verify-registration/${user[0].verification_token}`;
       const html = await ejs.renderFile(templatePath, {
         userName: user[0].username,
         verificationLink,
@@ -63,7 +63,7 @@ export async function sendEmailPasswordReset(email: string): Promise<void> {
     }
 
     const templatePath = path.join(__dirname, '/views/', 'passwordReset.ejs');
-    const verificationLink = `http://localhost:3000/auth/verify-password/${user[0].verification_token}`;
+    const verificationLink = `${config.FRONTEND_URL}/auth/verify-password/${user[0].verification_token}`;
     const html = await ejs.renderFile(templatePath, {
       verificationLink,
       userEmail: email
@@ -95,7 +95,7 @@ export async function sendEmailVerification(email: string): Promise<void> {
     }
 
     const templatePath = path.join(__dirname, '/views/', 'emailVerification.ejs');
-    const verificationLink = `http://localhost:3000/auth/verify-email/${user[0].verification_token}`;
+    const verificationLink = `${config.FRONTEND_URL}/auth/verify-email/${user[0].verification_token}`;
     const html = await ejs.renderFile(templatePath, {
       userName: user[0].username,
       verificationLink,

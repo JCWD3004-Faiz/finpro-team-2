@@ -36,6 +36,22 @@ router.post(
     profileController.updateUserProfilePic.bind(profileController)
 );
 
+router.patch(
+    "/username/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    profileController.updateUserProfile.bind(profileController)
+)
+
+router.patch(
+    "/email/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    profileController.updateUserProfile.bind(profileController)
+)
+
 router.get("/cities",
     profileController.getRajaOngkirCities.bind(profileController)
 );
