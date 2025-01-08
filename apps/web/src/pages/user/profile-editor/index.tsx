@@ -203,7 +203,7 @@ const ProfileEditor: React.FC = () => {
   }, [dispatch, username, email]);
 
   return (
-    <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
+    <div className="min-h-screen w-screen bg-white mt-[7vh] p-8">
       {isLoading && <LoadingVignette />}
       <SuccessModal
         isOpen={isSuccessOpen}
@@ -291,7 +291,6 @@ const ProfileEditor: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">

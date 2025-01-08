@@ -13,8 +13,8 @@ const initialProductDetail: ProductDetail = {
   price: 0,
   availability: false,
   is_deleted: false,
-  created_at: new Date(),
-  updated_at: new Date(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
   product_images: [],
 };
 

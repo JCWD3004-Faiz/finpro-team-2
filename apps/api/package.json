@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "ts-node src/app.ts"
+    "dev": "ts-node src/app.ts",
+    "prisma:generate": "npx prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
+    "@turf/turf": "^7.2.0",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import cloudinary from "../config/cloudinary";
 import axios from "axios";
+import * as turf from '@turf/turf';
 import { userPendingSchema } from "../validators/profile.validator";
 import { UpdateUserData } from "../models/profile.models";
 
@@ -44,6 +45,15 @@ export class ProfileService {
       return { error: error.message || "An error occurred." };
     }
   }
+
+    async getAddressesByUserId(user_id: number) {
+        try {
+            if (!user_id) throw new Error("Missing required parameters.");
+            return await this.prisma.address.findMany({ where: { user_id, is_deleted:false } });
+        } catch (error: any) {
+            return { error: error.message || "An error occurred." };
+        }
+    }
 
   async getAddressesByUserId(user_id: number) {
     try {
@@ -161,6 +171,95 @@ export class ProfileService {
       return await this.prisma.users.findUnique({ where: { user_id } });
     } catch (error: any) {
       return { error: error.message || "An error occurred." };
+    }
+  }
+
+
+    async deleteAddress(user_id: number, address_id: number) {
+        try {
+            if (!user_id || !address_id) throw new Error("Missing required parameters.");    
+            const address = await this.prisma.address.findUnique({
+                where: { address_id: address_id },
+            });
+            if (!address) throw new Error("Address not found.");    
+            const updatedAddress = await this.prisma.address.update({
+                where: { address_id: address_id },
+                data: { is_deleted: true },
+            });
+    
+            return updatedAddress;
+        } catch (error: any) {
+            return { error: error.message || "An error occurred while deleting the address." };
+        }
+    }
+
+    async getClosestStore(latitude: number, longitude: number) {
+        try {
+            if (!latitude || !longitude) throw new Error("Missing latitude or longitude.");
+            const stores = await this.prisma.stores.findMany({
+                where: { is_deleted: false },
+                select: { store_id: true, store_name: true, store_location:true, latitude: true, longitude: true}
+            });
+            if (stores.length === 0) throw new Error("No stores found.");
+            const userLocation = turf.point([longitude, latitude]);    
+            let closestStore = null;
+            let closestDistance = Infinity;
+            stores.forEach(store => {
+                const storeLocation = turf.point([Number(store.longitude), Number(store.latitude)]);    
+                const distance = turf.distance(userLocation, storeLocation, { units: 'meters' });    
+                if (distance < closestDistance) { closestDistance = distance; closestStore = store}
+            });
+            return closestStore;
+        } catch (error: any) {
+            return { error: error.message || "An error occurred while finding the closest store." };
+        }
+    }
+
+    async getClosestStoreById(user_id: number) {
+        try {
+            if (!user_id) throw new Error("Missing user_id.");
+    
+            // Fetch the user's default address
+            const userAddress = await this.prisma.address.findFirst({
+                where: {
+                    user_id: user_id,
+                    is_default: true,
+                    is_deleted: false
+                }
+            });
+    
+            if (!userAddress) throw new Error("User's default address not found.");
+    
+            const { latitude, longitude } = userAddress;
+    
+            // Fetch all stores to find the closest one
+            const stores = await this.prisma.stores.findMany({
+                where: { is_deleted: false },
+                select: { store_id: true, store_name: true, store_location: true, latitude: true, longitude: true }
+            });
+    
+            if (stores.length === 0) throw new Error("No stores found.");
+    
+            const userLocation = turf.point([Number(longitude), Number(latitude)]); // User's address location
+            let closestStore = null;
+            let closestDistance = Infinity;
+    
+            // Loop through stores and calculate the closest one
+            stores.forEach(store => {
+                const storeLocation = turf.point([Number(store.longitude), Number(store.latitude)]);
+                const distance = turf.distance(userLocation, storeLocation, { units: 'meters' });
+    
+                // Update the closest store if the current one is closer
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestStore = store;
+                }
+            });
+    
+            return closestStore;
+        } catch (error: any) {
+            return { error: error.message || "An error occurred while finding the closest store by user_id." };
+        }
     }
   }
 }

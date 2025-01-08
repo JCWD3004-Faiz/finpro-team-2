@@ -18,6 +18,7 @@ import updateDiscountReducer from "./slices/updateDiscountSlice";
 import superSalesReducer from "./slices/superSalesSlice";
 import userProfileReducer from "./slices/userProfileSlice";
 import userPaymentReducer from "./slices/userPaymentSlice";
+import landingReducer from "./slices/landingSlice";
 import updateProfileReduce from "./slices/updateProfileSlice";
 
 const store = configureStore({
@@ -41,6 +42,7 @@ const store = configureStore({
     global: globalReducer,
     userProfile: userProfileReducer,
     userPayment: userPaymentReducer,
+    landing: landingReducer,
     updateProfile: updateProfileReduce,
   },
 });
