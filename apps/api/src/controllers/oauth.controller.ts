@@ -44,13 +44,14 @@ export class OauthController {
         });
         
         await this.oauthService.updateRefreshToken(savedUser.email, refreshToken);
-
-        res.status(200).json({
+        const frontendUrl = `${config.FRONTEND_URL}/auth/google/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+        res.redirect(frontendUrl);
+        /* res.status(200).json({
             message: "Authentication successful",
             user: savedUser,
             accessToken: accessToken,
             refreshToken: refreshToken,
-          });
+          }); */
       } catch (error) {
         const err = error as Error
         sendErrorResponse(res, 500, "Error during authentication", err.message);

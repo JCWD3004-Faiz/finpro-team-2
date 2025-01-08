@@ -9,6 +9,9 @@ import Footer from "../components/footer";
 import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
 import LocationHeader from "../components/location-header";
+import axios from "axios";
+
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_AXIOS_BASE_URL;
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();

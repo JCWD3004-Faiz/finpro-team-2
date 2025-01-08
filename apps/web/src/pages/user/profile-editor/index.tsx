@@ -1,100 +1,412 @@
-import React, { useState } from 'react';
-import { UserSidebar } from '@/components/UserSideBar';
+import React, { useState, useEffect } from "react";
+import useAuth from "@/hooks/useAuth";
+import axios, { AxiosError } from "axios";
+import { UserSidebar } from "@/components/UserSideBar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, User, Mail } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import SuccessModal from "@/components/modal-success";
+import ErrorModal from "@/components/modal-error";
+import { hideSuccess, showSuccess } from "@/redux/slices/successSlice";
+import { hideError, showError } from "@/redux/slices/errorSlice";
+import ConfirmationModal from "@/components/modal-confirm";
+import {
+  showConfirmation,
+  hideConfirmation,
+} from "@/redux/slices/confirmSlice";
+import {
+  setUpdateUsername,
+  setUpdateEmail,
+  setUpdateImage,
+} from "@/redux/slices/updateProfileSlice";
+import Cookies from "js-cookie";
+import LoadingVignette from "@/components/LoadingVignette";
+
+const access_token = Cookies.get("access_token");
 
 const ProfileEditor: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const user = useAuth();
+  const user_id = user?.id;
+  const is_verified = user?.is_verified;
+  const dispatch = useDispatch<AppDispatch>();
+  const { username, email, image, loading } = useSelector(
+    (state: RootState) => state.userProfile
+  );
+  const { updateUsername, updateEmail, updateImage } = useSelector(
+    (state: RootState) => state.updateProfile
+  );
+  const { isSuccessOpen, successMessage } = useSelector(
+    (state: RootState) => state.success
+  );
+  const { isErrorOpen, errorMessage } = useSelector(
+    (state: RootState) => state.error
+  );
+  const { isConfirmationOpen, confirmationMessage, onConfirm } = useSelector(
+    (state: RootState) => state.confirm
+  );
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => setProfilePicture(reader.result as string);
-            reader.readAsDataURL(file);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+  
+    const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validImageTypes.includes(file.type)) {
+      dispatch(showError("Invalid file type. Only JPEG, PNG, GIV and WebP are allowed."));
+      return;
+    }
+  
+    const maxSizeInBytes = 1 * 1024 * 1024; // 1MB
+    if (file.size > maxSizeInBytes) {
+      dispatch(showError("File size exceeds 1MB. Please upload a smaller image."));
+      return;
+    }
+  
+    dispatch(setUpdateImage(file));
+  
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `/api/profile/upload-pic`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`, // Replace `access_token` with your actual access token variable
+            "Content-Type": "multipart/form-data",
+          },
         }
-    };
+      );
+  
+      const updatedImageUrl = response.data.imageUrl;
+  
+      dispatch(setUpdateImage(updatedImageUrl));
+      dispatch(showSuccess("Profile picture updated successfully!"));
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage =
+          typeof error.response.data?.detail === "string"
+            ? error.response.data.detail
+            : "An error occurred.";
+        dispatch(showError(errorMessage));
+      } else {
+        dispatch(showError("Failed to update profile picture. Please try again."));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  
 
-    const handleSave = () => {
-        console.log({ username, password, profilePicture });
-        alert('Profile updated!');
-    };
+  const handleUsernameUpdate = async () => {
+    if (updateUsername.trim()) {
+      if (updateUsername.length > 50) {
+        dispatch(showError("Username cannot be more than 50 characters!"));
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const response = await axios.patch(
+          `/api/profile/username/${user_id}`,
+          {
+            username: updateUsername,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+        dispatch(setUpdateUsername(updateUsername));
+        dispatch(showSuccess("Username updated successfully!"));
+        setIsEditingUsername(false);
+      } catch (error) {
+        if (error instanceof AxiosError && error.response) {
+          const errorMessage =
+            typeof error.response.data?.detail === "string"
+              ? error.response.data.detail
+              : "An error occurred.";
+          dispatch(showError(errorMessage));
+        } else {
+          dispatch(showError("Failed to update username. Please try again."));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      dispatch(showError("Username cannot be empty!"));
+    }
+  };
 
-    return (
-        <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
-            <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row gap-8">
-            <UserSidebar />
-            <main className="flex-1">
-            <div className='flex items-center justify-center min-h-screen bg-white'>
-            <div className="w-full max-w-sm p-6 bg-white">
-                <div className="flex flex-col items-center">
-                    <div className="relative">
-                        <div className="w-40 h-40 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-                            {profilePicture ? (
-                                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-gray-400">No Image</span>
-                            )}
-                        </div>
-                        <label
-                            htmlFor="profilePicture"
-                            className="absolute bottom-0 right-0 bg-blue-500 text-white text-sm px-2 py-1 rounded-md cursor-pointer hover:bg-blue-600"
-                        >
-                            Edit
-                        </label>
-                        <input
-                            type="file"
-                            id="profilePicture"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handlePictureChange}
-                        />
+  const handleEmailUpdate = async () => {
+    if (updateEmail.trim()) {
+      dispatch(
+        showConfirmation({
+          message: "Are you sure you want to update your email?",
+          onConfirm: async () => {
+            setIsLoading(true);
+            try {
+              const response = await axios.patch(
+                `/api/profile/email/${user_id}`,
+                {
+                  email: updateEmail,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${access_token}`,
+                  },
+                }
+              );
+              dispatch(setUpdateEmail(updateEmail));
+              dispatch(showSuccess("Email updated successfully!"));
+              setIsEditingEmail(false);
+            } catch (error) {
+              if (error instanceof AxiosError && error.response) {
+                const errorMessage =
+                  typeof error.response.data?.detail === "string"
+                    ? error.response.data.detail
+                    : "An error occurred.";
+                dispatch(showError(errorMessage));
+              } else {
+                dispatch(
+                  showError("Failed to update email. Please try again.")
+                );
+              }
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        })
+      );
+    } else {
+      dispatch(showError("Email cannot be empty!"));
+    }
+  };
+
+  useEffect(() => {
+    if (username) {
+      dispatch(setUpdateUsername(username));
+    }
+    if (email) {
+      dispatch(setUpdateEmail(email));
+    }
+  }, [dispatch, username, email]);
+
+  return (
+    <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
+      {isLoading && <LoadingVignette />}
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {
+          dispatch(hideSuccess());
+          window.location.href = "/";
+        }}
+        successMessage={successMessage}
+      />
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => {
+          dispatch(hideError());
+        }}
+        errorMessage={errorMessage}
+      />
+      <ConfirmationModal
+        isOpen={isConfirmationOpen}
+        message={confirmationMessage || "Are you sure you want to proceed?"}
+        onConfirm={() => {
+          if (onConfirm) {
+            onConfirm();
+          }
+          dispatch(hideConfirmation());
+        }}
+        onClose={() => dispatch(hideConfirmation())} // Close the modal if canceled
+      />
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8">
+          <UserSidebar />
+
+          {/* main profile update */}
+          <div
+            className="min-h-screen bg-white py-6 rounded-lg sm:py-12 px-4 sm:px-6 lg:px-8 lg:ml-24"
+            style={{
+              boxShadow:
+                "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+            }}
+          >
+            <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900">
+                Update Profile
+              </h1>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Camera className="w-5 h-5" />
+                    Profile Picture
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col items-center gap-4">
+                    <Avatar className="w-24 h-24 sm:w-32 sm:h-32">
+                      <AvatarImage
+                        src={
+                          updateImage
+                            ? URL.createObjectURL(updateImage) // Use the selected image
+                            : image || undefined // Fallback to the original image
+                        }
+                        alt="Profile picture"
+                        className="w-full h-full object-cover"
+                      />
+                      <AvatarFallback>
+                        <User className="w-8 h-8 sm:w-12 sm:h-12" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col sm:flex-row w-full items-center gap-4">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="w-full max-w-xs text-sm sm:text-base"
+                        id="picture-upload"
+                      />
+                      <Button
+                        onClick={() =>
+                          document.getElementById("picture-upload")?.click()
+                        }
+                        className="w-full sm:w-auto"
+                      >
+                        Update Picture
+                      </Button>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                    <form className="w-full mt-6 space-y-4">
-                        <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                                Username
-                            </label>
-                            <input
-                                type="text"
-                                id="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border-b border-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <User className="w-5 h-5" />
+                    Username
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="grid w-full items-center gap-1.5">
+                      <Label htmlFor="username">Current Username</Label>
+                      {isEditingUsername ? (
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Input
+                            type="text"
+                            id="username"
+                            value={updateUsername}
+                            onChange={(e) =>
+                              dispatch(setUpdateUsername(e.target.value))
+                            }
+                            className="w-full sm:max-w-md"
+                          />
+                          <div className="flex gap-2 mt-2 sm:mt-0">
+                            <Button
+                              onClick={handleUsernameUpdate}
+                              className="flex-1 sm:flex-none"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsEditingUsername(false)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border-b border-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            />
+                      ) : (
+                        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                          <span className="text-lg">{username}</span>
+                          <Button
+                            onClick={() => setIsEditingUsername(true)}
+                            className="w-full sm:w-auto"
+                          >
+                            Edit
+                          </Button>
                         </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            className="w-full px-4 py-2 bg-black text-white font-medium rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
-                            Save Changes
-                        </button>
-                    </form>
-                </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Mail className="w-5 h-5" />
+                    Email Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="grid w-full items-center gap-1.5">
+                      <Label htmlFor="email">Current Email</Label>
+                      {isEditingEmail ? (
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Input
+                            type="email"
+                            id="email"
+                            value={updateEmail ?? ""}
+                            onChange={(e) =>
+                              dispatch(setUpdateEmail(e.target.value))
+                            }
+                            className="w-full sm:max-w-md"
+                          />
+                          <div className="flex gap-2 mt-2 sm:mt-0">
+                            <Button
+                              onClick={handleEmailUpdate}
+                              className="flex-1 sm:flex-none"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsEditingEmail(false)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                          <span className="text-lg break-all sm:break-normal">
+                            {email}
+                          </span>
+                          <Button
+                            onClick={() => setIsEditingEmail(true)}
+                            className="w-full sm:w-auto"
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            </div>
-            </main>
-            </div>
-            </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ProfileEditor;
