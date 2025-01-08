@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
 import axios, { AxiosError } from "axios";
 import { UserSidebar } from "@/components/UserSideBar";
+import { EmailVerificationCard } from "@/components/email-verification-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,9 +33,8 @@ const access_token = Cookies.get("access_token");
 const ProfileEditor: React.FC = () => {
   const user = useAuth();
   const user_id = user?.id;
-  const is_verified = user?.is_verified;
   const dispatch = useDispatch<AppDispatch>();
-  const { username, email, image, loading } = useSelector(
+  const { username, is_verified, email, image, loading } = useSelector(
     (state: RootState) => state.userProfile
   );
   const { updateUsername, updateEmail, updateImage } = useSelector(
@@ -56,39 +56,46 @@ const ProfileEditor: React.FC = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
-    const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+    const validImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     if (!validImageTypes.includes(file.type)) {
-      dispatch(showError("Invalid file type. Only JPEG, PNG, GIV and WebP are allowed."));
+      dispatch(
+        showError(
+          "Invalid file type. Only JPEG, PNG, GIV and WebP are allowed."
+        )
+      );
       return;
     }
-  
+
     const maxSizeInBytes = 1 * 1024 * 1024; // 1MB
     if (file.size > maxSizeInBytes) {
-      dispatch(showError("File size exceeds 1MB. Please upload a smaller image."));
+      dispatch(
+        showError("File size exceeds 1MB. Please upload a smaller image.")
+      );
       return;
     }
-  
+
     dispatch(setUpdateImage(file));
-  
+
     const formData = new FormData();
     formData.append("image", file);
-  
+
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `/api/profile/upload-pic`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`, // Replace `access_token` with your actual access token variable
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-  
+      const response = await axios.post(`/api/profile/upload-pic`, formData, {
+        headers: {
+          Authorization: `Bearer ${access_token}`, // Replace `access_token` with your actual access token variable
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       const updatedImageUrl = response.data.imageUrl;
-  
+
       dispatch(setUpdateImage(updatedImageUrl));
       dispatch(showSuccess("Profile picture updated successfully!"));
     } catch (error) {
@@ -99,14 +106,14 @@ const ProfileEditor: React.FC = () => {
             : "An error occurred.";
         dispatch(showError(errorMessage));
       } else {
-        dispatch(showError("Failed to update profile picture. Please try again."));
+        dispatch(
+          showError("Failed to update profile picture. Please try again.")
+        );
       }
     } finally {
       setIsLoading(false);
     }
   };
-  
-  
 
   const handleUsernameUpdate = async () => {
     if (updateUsername.trim()) {
@@ -236,19 +243,24 @@ const ProfileEditor: React.FC = () => {
           <UserSidebar />
 
           {/* main profile update */}
-          <div
-            className="min-h-screen bg-white py-6 rounded-lg sm:py-12 px-4 sm:px-6 lg:px-8 lg:ml-24"
-            style={{
-              boxShadow:
-                "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
-            }}
-          >
-            <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
-              <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900">
-                Update Profile
-              </h1>
+          <div className="min-h-screen bg-white rounded-lg">
+            <div className="max-w-4xl space-y-6 sm:space-y-8">
+              <div>
+                <h1 className="text-2xl text-gray-800 font-semibold">
+                  My Profile
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage your Profile here
+                </p>
+              </div>
 
-              <Card>
+              {/* update profile picture */}
+              <Card
+                style={{
+                  boxShadow:
+                    "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+                }}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Camera className="w-5 h-5" />
@@ -291,7 +303,14 @@ const ProfileEditor: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+
+              {/* update username */}
+              <Card
+                style={{
+                  boxShadow:
+                    "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+                }}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <User className="w-5 h-5" />
@@ -345,7 +364,13 @@ const ProfileEditor: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              {/* update email address */}
+              <Card
+                style={{
+                  boxShadow:
+                    "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+                }}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Mail className="w-5 h-5" />
@@ -400,6 +425,19 @@ const ProfileEditor: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* email verify card */}
+              {!is_verified && (
+                <div
+                  className="flex items-center justify-center bg-gradient-to-b from-background to-muted"
+                  style={{
+                    boxShadow:
+                      "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+                  }}
+                >
+                  <EmailVerificationCard email={email || ""} />
+                </div>
+              )}
             </div>
           </div>
         </div>

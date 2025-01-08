@@ -94,7 +94,7 @@ export async function sendEmailVerification(email: string): Promise<void> {
       return;
     }
 
-    const templatePath = path.join(__dirname, '/views/', 'emailVerification.ejs');
+    const templatePath = path.join(__dirname, '/views/', 'emailVerif.ejs');
     const verificationLink = `${config.FRONTEND_URL}/auth/verify-email/${user[0].verification_token}`;
     const html = await ejs.renderFile(templatePath, {
       userName: user[0].username,
@@ -105,7 +105,7 @@ export async function sendEmailVerification(email: string): Promise<void> {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user[0].email,
-      subject: 'Password Reset',
+      subject: 'New Email Verification',
       html: html, 
     };
 

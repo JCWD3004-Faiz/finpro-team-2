@@ -1,13 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { User, MapPin, Ticket, Package, History, Settings, Menu } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  User,
+  MapPin,
+  Ticket,
+  Package,
+  History,
+  Settings,
+  Menu,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchProfile } from '@/redux/slices/userProfileSlice';
-import Skeleton from 'react-loading-skeleton';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProfile } from "@/redux/slices/userProfileSlice";
+import Skeleton from "react-loading-skeleton";
 import { cn } from "@/lib/utils";
-import { RootState, AppDispatch } from '@/redux/store';
-import useAuth from '@/hooks/useAuth';
+import { RootState, AppDispatch } from "@/redux/store";
+import useAuth from "@/hooks/useAuth";
+import { Badge } from "./ui/badge";
 
 const navigationItems = [
   { label: "Edit Profile", icon: Settings, href: "/user/profile-editor" },
@@ -19,7 +30,7 @@ const navigationItems = [
 
 export function UserSidebar() {
   const dispatch = useDispatch<AppDispatch>();
-  const { username, email, image, loading } = useSelector(
+  const { username, is_verified, email, image, loading } = useSelector(
     (state: RootState) => state.userProfile
   );
 
@@ -27,7 +38,6 @@ export function UserSidebar() {
   const user_id = Number(user?.id);
 
   const [isOpen, setIsOpen] = useState(false);
-
 
   useEffect(() => {
     if (user_id) {
@@ -37,19 +47,19 @@ export function UserSidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex flex-col w-64 bg-white rounded-lg p-4"
-        style={{ boxShadow: '0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)' }}>
+      <aside
+        className="hidden md:flex flex-col w-64 bg-white rounded-lg p-4"
+        style={{
+          boxShadow:
+            "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+        }}
+      >
         <div className="flex flex-col items-center pb-6 border-b">
           <div className="relative w-24 h-24 mb-4 rounded-full overflow-hidden bg-muted">
             {loading ? (
               <Skeleton circle={true} height={96} width={96} />
             ) : image ? (
-              <Image
-                src={image}
-                alt={username}
-                fill
-                className="object-cover"
-              />
+              <Image src={image} alt={username} fill className="object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary/10">
                 <User className="w-12 h-12 text-primary/40" />
@@ -62,6 +72,24 @@ export function UserSidebar() {
           <p className="text-sm text-muted-foreground">
             {loading ? <Skeleton width={150} /> : email}
           </p>
+          {!loading &&
+            (is_verified ? (
+              <Badge
+                variant="secondary"
+                className="text-white flex items-center gap-1 mt-2"
+              >
+                <CheckCircle2 className="w-3 h-3" />
+                Verified
+              </Badge>
+            ) : (
+              <Badge
+                variant="destructive"
+                className="text-white flex items-center gap-1 mt-2"
+              >
+                <XCircle className="w-3 h-3" />
+                Not Verified
+              </Badge>
+            ))}
         </div>
 
         <nav className="mt-6 space-y-1">
@@ -120,6 +148,12 @@ export function UserSidebar() {
             <p className="text-lg font-semibold text-gray-900">
               {loading ? <Skeleton width={120} /> : username}
             </p>
+            {!loading && is_verified && (
+              <Badge variant="default" className="flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Verified
+              </Badge>
+            )}
             <p className="text-sm text-muted-foreground">
               {loading ? <Skeleton width={150} /> : email}
             </p>
