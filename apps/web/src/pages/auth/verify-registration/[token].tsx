@@ -70,7 +70,7 @@ function verifyPassword() {
         }
       );
       dispatch(showSuccess("Successfully registered"));
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof AxiosError && error.response) {
         const errorMessage =
           typeof error.response.data?.detail === "string"

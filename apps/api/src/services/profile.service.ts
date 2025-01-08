@@ -46,6 +46,7 @@ export class ProfileService {
     }
   }
 
+
     async getAddressesByUserId(user_id: number) {
         try {
             if (!user_id) throw new Error("Missing required parameters.");
