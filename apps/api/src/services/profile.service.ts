@@ -46,15 +46,6 @@ export class ProfileService {
     }
   }
 
-    async getAddressesByUserId(user_id: number) {
-        try {
-            if (!user_id) throw new Error("Missing required parameters.");
-            return await this.prisma.address.findMany({ where: { user_id, is_deleted:false } });
-        } catch (error: any) {
-            return { error: error.message || "An error occurred." };
-        }
-    }
-
   async getAddressesByUserId(user_id: number) {
     try {
       if (!user_id) throw new Error("Missing required parameters.");
@@ -261,5 +252,4 @@ export class ProfileService {
             return { error: error.message || "An error occurred while finding the closest store by user_id." };
         }
     }
-  }
 }

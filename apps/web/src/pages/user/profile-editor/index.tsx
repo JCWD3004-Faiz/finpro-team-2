@@ -203,7 +203,7 @@ const ProfileEditor: React.FC = () => {
   }, [dispatch, username, email]);
 
   return (
-    <div className="min-h-screen w-screen bg-white mt-[7vh] p-8">
+    <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
       {isLoading && <LoadingVignette />}
       <SuccessModal
         isOpen={isSuccessOpen}
