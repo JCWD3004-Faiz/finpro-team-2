@@ -89,6 +89,23 @@ export class ProductController {
     }
   }
 
+  async deleteProduct(req: Request, res: Response){
+    try {
+      const product_id = parseInt(req.params.product_id);
+      if(isNaN(product_id)){
+        throw new Error("Invalid product_id provided");
+      }
+      const deleteProduct = await this.productService.deleteProduct(product_id);
+      res.status(201).send({
+        message: "Product deleted successfully",
+        status: res.statusCode,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to delete product", err.message);
+    }
+  }
+
   async getProductsForUserByStoreId(req: Request, res: Response) {
     try {
       const store_Id = parseInt(req.params.store_id);

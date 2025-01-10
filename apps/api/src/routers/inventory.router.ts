@@ -28,4 +28,11 @@ router.get(
   inventoryController.getInventoriesByStoreId.bind(inventoryController)
 );
 
+router.get(
+  "/store/:store_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  inventoryController.getInventoriesByStoreId.bind(inventoryController)
+);
+
 export default router;

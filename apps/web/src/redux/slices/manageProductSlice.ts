@@ -1,7 +1,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Product, ManageProductState, ProductDetail, fieldEndpointMap } from "@/utils/reduxInterface";
+import {
+  Product,
+  ManageProductState,
+  ProductDetail,
+  fieldEndpointMap,
+} from "@/utils/reduxInterface";
 import axios from "@/utils/interceptor";
-import { AxiosError } from "axios";
+import axioss, { AxiosError, isAxiosError } from "axios";
 import Cookies from "js-cookie";
 import { WritableDraft } from "immer";
 
@@ -103,7 +108,7 @@ export const createProduct = createAsyncThunk(
       if (category_id == null) {
         throw new Error("Category ID is required.");
       }
-    
+
       if (price == null) {
         throw new Error("Price is required.");
       }
@@ -139,9 +144,12 @@ export const fetchProductDetails = createAsyncThunk(
   "manageProduct/fetchProductDetails",
   async (productId: number, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/api/super-admin/products/details/${productId}`, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const response = await axios.get(
+        `/api/super-admin/products/details/${productId}`,
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
       return response.data.product as ProductDetail;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
@@ -190,7 +198,11 @@ export const updateProductField = createAsyncThunk(
 export const updateProductImage = createAsyncThunk(
   "manageProduct/updateProductImage",
   async (
-    { imageId, imageFile, index }: { imageId: number; imageFile: File; index: number },
+    {
+      imageId,
+      imageFile,
+      index,
+    }: { imageId: number; imageFile: File; index: number },
     { rejectWithValue }
   ) => {
     try {
@@ -210,7 +222,9 @@ export const updateProductImage = createAsyncThunk(
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        return rejectWithValue(error.response.data.message || "Failed to update image.");
+        return rejectWithValue(
+          error.response.data.message || "Failed to update image."
+        );
       } else {
         return rejectWithValue("An unexpected error occurred.");
       }
@@ -218,6 +232,36 @@ export const updateProductImage = createAsyncThunk(
   }
 );
 
+export const deleteProduct = createAsyncThunk(
+  "manageProduct/deleteProduct",
+  async (productId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+        `/api/products/remove/${productId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+      return { message: response.data.message, productId };
+    } catch (error) {
+      if (axioss.isAxiosError(error)) {
+        console.error("Error Object:", error.response);
+        const errorMessage =
+          error.response?.data?.detail || "Failed to delete product.";
+        return rejectWithValue(errorMessage);
+      } else if (error instanceof Error) {
+        return rejectWithValue(
+          error.message || "An unexpected error occurred."
+        );
+      } else {
+        return rejectWithValue("An unexpected error occurred.");
+      }
+    }
+  }
+);
 
 const manageProductSlice = createSlice({
   name: "manageProduct",
@@ -308,7 +352,7 @@ const manageProductSlice = createSlice({
       })
       .addCase(updateProductField.fulfilled, (state, action) => {
         state.loading = false;
-        state.productDetail = action.payload
+        state.productDetail = action.payload;
       })
       .addCase(updateProductField.rejected, (state, action) => {
         state.loading = false;
@@ -321,16 +365,27 @@ const manageProductSlice = createSlice({
       .addCase(updateProductImage.fulfilled, (state, action) => {
         state.loading = false;
         const { index, updatedImage } = action.payload;
-        state.productDetail.product_images = state.productDetail.product_images.map(
-          (image, idx) => {
+        state.productDetail.product_images =
+          state.productDetail.product_images.map((image, idx) => {
             if (idx === index) {
               return { ...image, product_image: updatedImage };
             }
             return image;
-          }
-        );
+          });
       })
       .addCase(updateProductImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
@@ -344,7 +399,7 @@ export const {
   setSearch,
   setCategory,
   setFormData,
-  resetFormData
+  resetFormData,
 } = manageProductSlice.actions;
 
 export default manageProductSlice.reducer;

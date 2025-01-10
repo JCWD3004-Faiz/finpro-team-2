@@ -123,7 +123,10 @@ export class ProductService {
       });
 
       for (const inventory of inventories) {
-        if (inventory.inventory_id !== null && inventory.inventory_id !== undefined) {
+        if (
+          inventory.inventory_id !== null &&
+          inventory.inventory_id !== undefined
+        ) {
           await updateInventoriesDiscountedPrice(
             inventory.store_id, // Pass the store_id
             inventory.inventory_id // Pass the specific inventory_id
@@ -149,5 +152,21 @@ export class ProductService {
       where: { image_id },
       data: { product_image: uploadResponse.secure_url },
     });
+  }
+
+  async deleteProduct(product_id: number) {
+    const product = await this.prisma.products.findUnique({
+      where: { product_id },
+    });
+    if(!product){
+      throw new Error("Product not found");
+    }
+    const deleteProduct = await this.prisma.products.update({
+      where: {product_id},
+      data: {
+        is_deleted: true,
+      }
+    })
+    return deleteProduct;
   }
 }

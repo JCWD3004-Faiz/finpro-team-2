@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { FaSort } from "react-icons/fa6";
 import {
   fetchAllProductsAdmin,
+  deleteProduct,
   setSortField,
   setSortOrder,
   setCurrentPage,
@@ -17,6 +18,9 @@ import Pagination from "../pagination";
 import useDebounce from "@/hooks/useDebounce";
 import { MdDelete, MdEditSquare, MdCategory } from "react-icons/md";
 import router from "next/router";
+import { hideConfirmation, showConfirmation } from "@/redux/slices/confirmSlice";
+import { showSuccess } from "@/redux/slices/successSlice";
+import { showError } from "@/redux/slices/errorSlice";
 
 function ProductAdminTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,6 +63,31 @@ function ProductAdminTable() {
     if (page > 0 && page <= totalPages) {
       dispatch(setCurrentPage(page));
     }
+  };
+
+  const handleDeleteProduct = (productId: number) => {
+    dispatch(
+      showConfirmation({
+        message: "Are you sure you want to delete this product?",
+        onConfirm: () => {
+          dispatch(deleteProduct(productId))
+            .unwrap()
+            .then(() => {
+              dispatch(showSuccess("Product successfully deleted!"));
+            })
+            .catch((error) => {
+              dispatch(
+                showError(
+                  error || "Failed to delete product. Please try again."
+                )
+              );
+            })
+            .finally(() => {
+              dispatch(hideConfirmation());
+            });
+        },
+      })
+    );
   };
 
   useEffect(() => {
@@ -174,7 +203,7 @@ function ProductAdminTable() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      //handleDeleteStore(store.store_id);
+                      handleDeleteProduct(product.product_id)
                     }}
                     className="mx-2 py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform"
                     title="Delete product"

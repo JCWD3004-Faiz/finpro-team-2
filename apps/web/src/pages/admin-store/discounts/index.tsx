@@ -9,6 +9,12 @@ import StoreSidebar from "@/components/StoreSidebar";
 import DiscountAdminTable from "@/components/discount-admin-table";
 import { Button } from "@/components/ui/button";
 import { MdDiscount } from "react-icons/md";
+import ConfirmationModal from "@/components/modal-confirm";
+import { hideConfirmation } from "@/redux/slices/confirmSlice";
+import SuccessModal from "@/components/modal-success";
+import ErrorModal from "@/components/modal-error";
+import { hideSuccess } from "@/redux/slices/successSlice";
+import { hideError } from "@/redux/slices/errorSlice";
 
 function DiscountManagment() {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,7 +22,15 @@ function DiscountManagment() {
   const { isSidebarOpen, storeName } = useSelector(
     (state: RootState) => state.storeAdmin
   );
-
+  const { isSuccessOpen, successMessage } = useSelector(
+    (state: RootState) => state.success
+  );
+  const { isErrorOpen, errorMessage } = useSelector(
+    (state: RootState) => state.error
+  );
+  const { isConfirmationOpen, confirmationMessage, onConfirm } = useSelector(
+    (state: RootState) => state.confirm
+  );
   const { loading } = useSelector((state: RootState) => state.getDiscount);
 
   const toggleSidebar = () => {
@@ -27,6 +41,30 @@ function DiscountManagment() {
       <StoreSidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
+      />
+      <ConfirmationModal
+        isOpen={isConfirmationOpen}
+        message={confirmationMessage || "Are you sure you want to proceed?"}
+        onConfirm={() => {
+          if (onConfirm) {
+            onConfirm(); // Execute the confirmation action
+          }
+          dispatch(hideConfirmation()); // Close the modal after confirmation
+        }}
+        onClose={() => dispatch(hideConfirmation())} // Close the modal if canceled
+      />
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {
+          dispatch(hideSuccess());
+          window.location.reload();
+        }}
+        successMessage={successMessage}
+      />
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => dispatch(hideError())}
+        errorMessage={errorMessage}
       />
       {loading && <LoadingVignette />}
       <div
@@ -39,7 +77,7 @@ function DiscountManagment() {
           size="default"
           onClick={() => router.push("/admin-store/discounts/create-discount")}
         >
-          <MdDiscount/> 
+          <MdDiscount />
           Create a Discount
         </Button>
         <div className="mt-5">

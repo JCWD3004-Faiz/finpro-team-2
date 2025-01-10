@@ -93,6 +93,24 @@ export class DiscountController {
     }
   }
 
+  async getDiscountByStoreId(req: Request, res: Response){
+    try {
+      const store_id = parseInt(req.params.store_id);
+      if (isNaN(store_id)) {
+        throw new Error("Invalid discount_id provided.");
+      }
+      const discounts = await this.getDiscountService.getDiscountByStoreId(store_id);
+      res.status(200).send({
+        message: "Get Discounts successful",
+        status: res.statusCode,
+        data: discounts,
+      });
+    } catch (error) {
+      const err = error as Error;
+      sendErrorResponse(res, 400, "Failed to get discounts", err.message);
+    }
+  }
+
   async deleteDiscount(req: Request, res: Response) {
     try {
       const discount_id = parseInt(req.params.discount_id);

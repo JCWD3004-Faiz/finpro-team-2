@@ -74,6 +74,21 @@ export class InventoryService {
           );
         }
 
+        const updatedData: any = {
+          stock: newStock,
+          user_stock: newStock - 10,
+        };
+
+        if (changeCategory === "SOLD") {
+          updatedData.items_sold =
+            (inventoryRecord.items_sold || 0) + stockChange;
+        }
+
+        await this.prisma.inventories.update({
+          where: { inventory_id: inventoryId },
+          data: updatedData,
+        });
+
         let changeType: ChangeType;
         if (inventoryRecord.stock > newStock) {
           changeType = ChangeType.DECREASE;
@@ -182,8 +197,8 @@ export class InventoryService {
         // Ensure inventory_id is not in the discounts table
         NOT: {
           inventory_id: {
-            in: discountedInventoryIds
-          }
+            in: discountedInventoryIds,
+          },
         },
       },
       select: {
