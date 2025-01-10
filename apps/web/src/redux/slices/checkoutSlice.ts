@@ -14,7 +14,8 @@ interface CheckoutState {
   newShippingPrice: number
   shippingVouchers: any[]
   paymentError: string | null;
-
+  vaBankTransferData: any;
+  vaBankTransferError: string | null;
 }
 
 const initialState: CheckoutState = {
@@ -28,6 +29,8 @@ const initialState: CheckoutState = {
   newShippingPrice: 0,
   shippingVouchers: [],
   paymentError: null,
+  vaBankTransferData: null,
+  vaBankTransferError: null,
 };
 
 const access_token = Cookies.get('access_token');
@@ -130,6 +133,25 @@ export const submitPayment = createAsyncThunk(
   }
 );
 
+export const createVABankTransfer = createAsyncThunk(
+  'checkout/createVABankTransfer',
+  async (params: { user_id: number; transaction_id: string }, { rejectWithValue }) => {
+    const { user_id, transaction_id } = params;
+    try {
+      const response = await axios.post(
+        '/api/midtrans',
+        { user_id, transaction_id },
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+      return response.data; // Return the successful response data
+    } catch (error) {
+      return rejectWithValue('Failed to create VA Bank Transfer');
+    }
+  }
+);
+
 const checkoutSlice = createSlice({
   name: 'checkout',
   initialState,
@@ -200,7 +222,7 @@ const checkoutSlice = createSlice({
     })
     .addCase(submitPayment.pending, (state) => {
       state.loading = true;
-      state.paymentError = null; // Reset previous errors
+      state.paymentError = null;
     })
     .addCase(submitPayment.fulfilled, (state) => {
       state.loading = false;
@@ -208,7 +230,19 @@ const checkoutSlice = createSlice({
     .addCase(submitPayment.rejected, (state, action) => {
       state.loading = false;
       state.paymentError = action.payload as string || 'Failed to submit payment';
-    });
+    })
+    .addCase(createVABankTransfer.pending, (state) => {
+      state.loading = true;
+      state.vaBankTransferError = null;
+    })
+    .addCase(createVABankTransfer.fulfilled, (state, action) => {
+      state.loading = false;
+      state.vaBankTransferData = action.payload;
+    })
+    .addCase(createVABankTransfer.rejected, (state, action) => {
+      state.loading = false;
+      state.vaBankTransferError = action.payload as string || 'Failed to create VA Bank Transfer';
+    })
   },
 });
 

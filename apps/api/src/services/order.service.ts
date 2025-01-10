@@ -79,7 +79,7 @@ export class OrderService {
             return { orders: orders.map(order => ({ order_id: order.order_id,
                 store_name: order.Store.store_name, address: order.Address.address,
                 city_name: order.Address.city_name, order_status: order.order_status,
-                cart_price: order.Cart.cart_price, shipping_method: order.shipping_method,
+                cart_price: order.cart_price, shipping_method: order.shipping_method,
                 shipping_price: order.shipping_price, created_at: order.created_at
             }))};
         } catch (error) {

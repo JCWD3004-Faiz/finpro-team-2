@@ -11,12 +11,14 @@ const authenticateJwt = new AuthJwtMiddleware();
 router.post('/',
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
     midtransController.createVABankTransfer.bind(midtransController)
 )
 
 router.put('/status/',
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
     midtransController.updateMidtransPaymentStatus.bind(midtransController)
 )
 
