@@ -52,9 +52,9 @@ export class OrderService {
             if (!order) {return { error: "Order not found or user does not own this order." }}
             return {
                 order: {
-                    store_name: order.Store.store_name, address: order.Address.address,
-                    city_name: order.Address.city_name, order_status: order.order_status,
-                    shipping_method: order.shipping_method, created_at: order.created_at,
+                    order_id:order.order_id, store_name: order.Store.store_name, address: order.Address.address, 
+                    city_name: order.Address.city_name, order_status: order.order_status, shipping_method: order.shipping_method, 
+                    cart_price:order.cart_price, shipping_price: order.shipping_price, created_at: order.created_at,
                 },
             };
         } catch (error) {

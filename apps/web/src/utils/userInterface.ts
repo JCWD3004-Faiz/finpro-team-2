@@ -34,3 +34,15 @@ export interface UserVoucher {
     max_discount: number;    
     description: string;
 }
+
+export interface OrderDetails {
+    order_id: number;
+    store_name: string;
+    order_status: string;
+    created_at: string;
+    shipping_price: number;
+    address: string;
+    city_name: string;
+    cart_price: number;
+    shipping_method: string;
+}

@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  User,
-  MapPin,
-  Ticket,
-  Package,
-  History,
-  Settings,
-  Menu,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { User, MapPin, Ticket, Package, History, Settings, Menu, CheckCircle2, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
@@ -148,15 +138,27 @@ export function UserSidebar() {
             <p className="text-lg font-semibold text-gray-900">
               {loading ? <Skeleton width={120} /> : username}
             </p>
-            {!loading && is_verified && (
-              <Badge variant="default" className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                Verified
-              </Badge>
-            )}
             <p className="text-sm text-muted-foreground">
               {loading ? <Skeleton width={150} /> : email}
             </p>
+            {!loading &&
+            (is_verified ? (
+              <Badge
+                variant="secondary"
+                className="text-white flex items-center gap-1 mt-2"
+              >
+                <CheckCircle2 className="w-3 h-3" />
+                Verified
+              </Badge>
+            ) : (
+              <Badge
+                variant="destructive"
+                className="text-white flex items-center gap-1 mt-2"
+              >
+                <XCircle className="w-3 h-3" />
+                Not Verified
+              </Badge>
+            ))}
           </div>
 
           <nav className="mt-6 space-y-1 pb-16">

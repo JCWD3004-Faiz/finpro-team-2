@@ -21,6 +21,9 @@ export const useCheckAccess = () => {
     if ((role === "USER" || !role) && (router.pathname.startsWith("/admin"))) {
       return true;
     }
+    if (!role && router.pathname.startsWith("/user")) {
+      return true;
+    }
     return false;
   };
 

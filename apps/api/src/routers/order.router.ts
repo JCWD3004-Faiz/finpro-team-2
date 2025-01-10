@@ -38,14 +38,14 @@ router.get("/store/:store_id",
     orderController.getStoreOrders.bind(orderController)
 )
 
-router.post("/address",
+router.put("/address",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
     orderController.changeOrderAddress.bind(orderController)
 );
 
-router.post("/method",
+router.put("/method",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
@@ -140,5 +140,12 @@ router.get("/super-items/:order_id",
     authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
     paymentController.getSuperItemDetails.bind(paymentController)
 )
+
+router.get("/shipping-vouchers/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.getShippingVouchers.bind(voucherController)
+);
 
 export default router;

@@ -292,6 +292,7 @@ model Payments {
   payment_reference String?
   pop_image         String?
   payment_date      DateTime
+  gateway_link      String?
   created_at        DateTime      @default(now())
   updated_at        DateTime      @updatedAt
 

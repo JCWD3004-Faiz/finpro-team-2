@@ -67,4 +67,11 @@ router.post("/redeem-cart/",
     voucherController.redeemCartVoucher.bind(voucherController)
 );
 
+router.get("/cart-vouchers/:user_id",
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    voucherController.getCartVouchers.bind(voucherController)
+);
+
 export default router;
