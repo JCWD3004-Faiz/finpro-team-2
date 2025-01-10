@@ -76,6 +76,13 @@ router.patch(
 );
 
 router.patch(
+  "/remove/:product_id",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  productController.deleteProduct.bind(productController)
+)
+
+router.patch(
   "/images/:image_id",
   authenticateJwt.authenticateJwt.bind(authenticateJwt),
   authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),

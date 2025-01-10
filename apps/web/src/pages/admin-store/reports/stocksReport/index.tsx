@@ -3,36 +3,36 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { fetchStocksSuper } from "@/redux/slices/superStockSlice";
-import SuperSidebar from "@/components/SuperSidebar";
+import { fetchStocksStore } from "@/redux/slices/storeStockSlice";
+import StoreSidebar from "@/components/StoreSidebar";
 import LoadingVignette from "@/components/LoadingVignette";
 import { Button } from "@/components/ui/button";
 import SearchField from "@/components/searchField";
 import useDebounce from "@/hooks/useDebounce";
 
-function AllStocksReports() {
+function StoreStocksReports() {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
   const dispatch = useDispatch<AppDispatch>();
-  const { isSidebarOpen } = useSelector((state: RootState) => state.superAdmin);
+  const { isSidebarOpen } = useSelector((state: RootState) => state.storeAdmin);
   const { stocksData, currentPage, totalPages, storeId, loading, error } =
-    useSelector((state: RootState) => state.superStock);
+    useSelector((state: RootState) => state.storeStocks);
 
   useEffect(() => {
     dispatch(
-      fetchStocksSuper({ page: currentPage, storeId: storeId, search: debouncedQuery })
+      fetchStocksStore({ page: currentPage, search: debouncedQuery })
     );
   }, [dispatch, currentPage, debouncedQuery]);
 
   console.log("stocks data: ", stocksData);
 
   const toggleSidebar = () => {
-    dispatch({ type: "superAdmin/toggleSidebar" });
+    dispatch({ type: "storeAdmin/toggleSidebar" });
   };
 
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
-      <SuperSidebar
+      <StoreSidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
       />
@@ -102,4 +102,4 @@ function AllStocksReports() {
   );
 }
 
-export default AllStocksReports;
+export default StoreStocksReports;

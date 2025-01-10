@@ -77,6 +77,7 @@ export interface Inventory {
     store_id: number;
     product_id: number;
     stock: number;
+    user_stock?: number;
     items_sold?: number;
     discounted_price?: number;
     updated_at: Date;

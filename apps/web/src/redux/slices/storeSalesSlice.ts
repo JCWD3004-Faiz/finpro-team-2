@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 
 const access_token = Cookies.get("access_token");
+const store_id = Cookies.get("storeId");
 
 interface Dataset {
   label: string;
@@ -60,13 +61,13 @@ const initialState: SalesState = {
 // Async thunk to fetch sales data
 export const fetchSalesData = createAsyncThunk(
   "sales/fetchSalesData",
-  async (
-    { year, store_id }: { year: number; store_id?: number },
-    { rejectWithValue }
-  ) => {
+  async ({ year }: { year: number }, { rejectWithValue }) => {
     try {
+      if (!store_id) {
+        return rejectWithValue("Store ID is missing in cookies.");
+      }
       const response = await axios.get(
-        `/api/super-admin/sales/?year=${year}&store_id=${store_id}`,
+        `/api/store-admin/sales/?year=${year}&store_id=${store_id}`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -89,16 +90,15 @@ export const fetchSalesData = createAsyncThunk(
 export const fetchSalesByProductData = createAsyncThunk(
   "sales/fetchSalesByProductData",
   async (
-    {
-      year,
-      store_id,
-      product_id,
-    }: { year: number; store_id?: number; product_id?: number },
+    { year, product_id }: { year: number; product_id?: number },
     { rejectWithValue }
   ) => {
     try {
+      if (!store_id) {
+        return rejectWithValue("Store ID is missing in cookies.");
+      }
       const response = await axios.get(
-        `/api/super-admin/sales/products/?year=${year}&store_id=${store_id}&product_id=${product_id}`,
+        `/api/store-admin/sales/products/?year=${year}&store_id=${store_id}&product_id=${product_id}`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -119,10 +119,10 @@ export const fetchSalesByProductData = createAsyncThunk(
 );
 
 export const fetchCategoriesProductStoreData = createAsyncThunk(
-  "superAdmin/fetchCategoriesProductStoreData",
+  "storeAdmin/fetchCategoriesProductStoreData",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/api/super-admin/data/all", {
+      const response = await axios.get("/api/store-admin/data/all", {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -143,27 +143,23 @@ export const fetchCategoriesProductStoreData = createAsyncThunk(
 export const fetchSalesByCategory = createAsyncThunk(
   "sales/fetchSalesByCategory",
   async (
-    {
-      year,
-      store_id,
-      category_id,
-    }: { year: number; store_id?: number | null; category_id?: number | null },
+    { year, category_id }: { year: number; category_id?: number | null },
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.get(
-        "/api/super-admin/sales/categories/",
-        {
-          params: {
-            year,
-            ...(store_id ? { store_id } : {}),
-            ...(category_id ? { category_id } : {}),
-          },
-          headers: {
-            Authorization: `Bearer ${access_token}`, // Include the token if necessary
-          },
-        }
-      );
+      if (!store_id) {
+        return rejectWithValue("Store ID is missing in cookies.");
+      }
+      const response = await axios.get("/api/store-admin/sales/categories/", {
+        params: {
+          year,
+          ...(store_id ? { store_id } : {}),
+          ...(category_id ? { category_id } : {}),
+        },
+        headers: {
+          Authorization: `Bearer ${access_token}`, // Include the token if necessary
+        },
+      });
 
       return response.data.data; // Return only the data field
     } catch (error) {

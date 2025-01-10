@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "@/utils/interceptor";
-import { AxiosError } from "axios";
+import axioss, { AxiosError, isAxiosError } from "axios";
 import Cookies from "js-cookie";
 import { DiscountDetail, GetDiscountState } from "@/utils/reduxInterface";
 
@@ -148,6 +148,37 @@ export const fetchDiscountDetails = createAsyncThunk(
   }
 );
 
+export const deleteDiscount = createAsyncThunk(
+  "discounts/deleteDiscount",
+  async (discountId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+        `/api/store-admin/discounts/remove/${discountId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (axioss.isAxiosError(error)) {
+        console.error("Error Object:", error.response);
+        const errorMessage =
+          error.response?.data?.detail || "Failed to delete discount.";
+        return rejectWithValue(errorMessage);
+      } else if (error instanceof Error) {
+        return rejectWithValue(
+          error.message || "An unexpected error occurred."
+        );
+      } else {
+        return rejectWithValue("An unexpected error occurred.");
+      }
+    }
+  }
+);
+
 const discountsSlice = createSlice({
   name: "discounts",
   initialState,
@@ -226,7 +257,22 @@ const discountsSlice = createSlice({
           state.loading = false;
           state.error = action.payload;
         }
-      );
+      )
+      .addCase(deleteDiscount.pending, (state) => {
+        state.loading = true; // Set loading to true while the request is in progress
+        state.error = null; // Reset any previous errors
+      })
+      .addCase(
+        deleteDiscount.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.error = null;
+        }
+      )
+      .addCase(deleteDiscount.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false; // Set loading to false when the request fails
+        state.error = action.payload; // Store the error message
+      });
   },
 });
 

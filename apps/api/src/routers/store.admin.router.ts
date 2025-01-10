@@ -2,6 +2,8 @@ import { Router } from "express";
 import { StoreAdminController } from "../controllers/store.admin.controller";
 import { DiscountController } from "../controllers/discount.controller";
 import { InventoryController } from "../controllers/inventory.controller";
+import { SalesController } from "../controllers/sales.controller";
+import { StockController } from "../controllers/stock.controller";
 import { AuthJwtMiddleware } from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload.middleware";
 
@@ -9,6 +11,8 @@ const router = Router();
 const storeAdminController = new StoreAdminController();
 const discountController = new DiscountController();
 const inventoryController = new InventoryController();
+const salesController = new SalesController();
+const stockController = new StockController();
 const authenticateJwt = new AuthJwtMiddleware();
 
 router.get(
@@ -121,5 +125,41 @@ router.get("/inventories/discounts/:store_id",
   inventoryController.getInventoryforDiscountByStoreId.bind(
     inventoryController
   ))
+
+/* router for reports store admin */
+router.get(
+  "/sales",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesReport.bind(salesController)
+)
+
+router.get(
+  "/sales/categories",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesByCategory.bind(salesController)
+)
+
+router.get(
+  "/sales/Products",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  salesController.getMonthlySalesByProduct.bind(salesController)
+)
+
+router.get(
+  "/data/all",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  salesController.getCategoryProductStoreName.bind(salesController)
+)
+
+router.get(
+  "/stocks",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("STORE_ADMIN").bind(authenticateJwt),
+  stockController.getStockJournalByStoreId.bind(stockController),
+)
 
 export default router;

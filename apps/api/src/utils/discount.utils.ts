@@ -40,19 +40,6 @@ export async function updateInventoriesDiscountedPrice(
       orderBy: { value: "desc" }, // Prioritize higher-value discounts
     });
 
-    // Fetch store-wide discounts
-    const storeWideDiscounts = await prisma.discounts.findMany({
-      where: {
-        store_id,
-        inventory_id: null, // Match store-wide discounts
-        is_active: true,
-        start_date: { lte: new Date() },
-        end_date: { gte: new Date() },
-        is_deleted: false,
-      },
-      orderBy: { value: "desc" }, // Prioritize higher-value discounts
-    });
-
     // Combine both inventory-specific and store-wide discounts
     //discounts = [...inventorySpecificDiscounts, ...storeWideDiscounts];
     discounts = [...inventorySpecificDiscounts];
@@ -88,4 +75,52 @@ export async function updateInventoriesDiscountedPrice(
       data: { discounted_price: discountedPrice },
     });
   }
+}
+
+export async function wholeStoreCartDiscount(
+  cartPrice: number,
+  store_id: number
+) {
+  const wholeDiscount = await prisma.discounts.findFirst({
+    where: {
+      store_id: store_id,
+      is_active: true,
+      start_date: { lte: new Date() },
+      end_date: { gte: new Date() },
+      is_deleted: false,
+      inventory_id: null,
+    },
+    orderBy: { value: "asc" },
+  });
+
+  //check if there is any discount, if none, return original price
+  if (!wholeDiscount) {
+    return cartPrice;
+  }
+
+  const { value, type, min_purchase, max_discount } = wholeDiscount;
+
+  // Check if the cart meets the minimum purchase requirement
+  if (min_purchase && cartPrice < min_purchase.toNumber()) {
+    return cartPrice;
+  }
+
+  let discountedCartPrice = cartPrice;
+
+  if (type === "PERCENTAGE" && value) {
+    const discountAmount = (cartPrice * value.toNumber()) / 100;
+    const cappedDiscount =
+      max_discount && discountAmount > max_discount.toNumber()
+        ? max_discount.toNumber()
+        : discountAmount;
+    discountedCartPrice -= cappedDiscount;
+  } else if (type === "NOMINAL" && value) {
+    const cappedDiscount =
+      max_discount && value.toNumber() > max_discount.toNumber()
+        ? max_discount.toNumber()
+        : value.toNumber();
+    discountedCartPrice = Math.max(discountedCartPrice - cappedDiscount, 0);
+  }
+
+  return parseFloat(discountedCartPrice.toFixed(2));
 }

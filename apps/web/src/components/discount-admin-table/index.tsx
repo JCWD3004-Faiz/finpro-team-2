@@ -10,12 +10,19 @@ import router from "next/router";
 import Cookies from "js-cookie";
 import {
   fetchDiscountsAdmin,
+  deleteDiscount,
   setSortField,
   setSortOrder,
   setCurrentPage,
   setSearch,
 } from "@/redux/slices/getDiscountSlice";
 import { MdDelete, MdEditSquare } from "react-icons/md";
+import { showSuccess } from "@/redux/slices/successSlice";
+import { showError } from "@/redux/slices/errorSlice";
+import {
+  showConfirmation,
+  hideConfirmation,
+} from "@/redux/slices/confirmSlice";
 
 function DiscountAdminTable() {
   const storeId = Cookies.get("storeId");
@@ -62,6 +69,27 @@ function DiscountAdminTable() {
         })
       );
     }
+  };
+
+  const handleDeleteDiscount = (discountId: number) => {
+    dispatch(
+      showConfirmation({
+        message: "Are you sure you want to delete this discount?",
+        onConfirm: () => {
+          dispatch(deleteDiscount(discountId))
+            .unwrap()
+            .then(() => {
+              dispatch(showSuccess("Discount successfully deleted"));
+            })
+            .catch((error) => {
+              dispatch(showError(error || "Failed to delete discount"));
+            })
+            .finally(() => {
+              dispatch(hideConfirmation());
+            });
+        },
+      })
+    );
   };
 
   useEffect(() => {
@@ -133,7 +161,15 @@ function DiscountAdminTable() {
                   {discount.product_name || "Unkown Product"}
                 </td>
                 <td className="p-4 text-gray-700 font-medium">
-                  {discount.value || "-"}
+                  {discount.type === "PERCENTAGE"
+                    ? `${discount.value}%`
+                    : discount.type === "BOGO"
+                      ? "Buy One Get One"
+                      : new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(Number(discount.value))}
                 </td>
                 <td className="p-4 text-gray-700 text-sm text-center">
                   <div
@@ -163,7 +199,7 @@ function DiscountAdminTable() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        //handleDeleteStore(store.store_id);
+                        handleDeleteDiscount(discount.discount_id);
                       }}
                       className="py-2 px-2 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition-colors transform"
                       title="Delete product"

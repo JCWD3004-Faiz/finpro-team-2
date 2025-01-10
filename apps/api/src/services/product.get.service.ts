@@ -19,10 +19,13 @@ export class GetProductService {
     const whereCondition: any = {
       store_id,
       Product: {
-        product_name: {
-          contains: search,
-          mode: "insensitive",
-        },
+        is_deleted: false, // Ensure only non-deleted products are fetched
+        ...(search && {
+          product_name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
         ...(category && {
           Category: {
             category_name: {
@@ -35,7 +38,7 @@ export class GetProductService {
     };
 
     const inventories = await this.prisma.inventories.findMany({
-      where: search || category ? whereCondition : { store_id },
+      where: search || category ? whereCondition : { store_id, Product: { is_deleted: false } },
       skip,
       take,
       orderBy:
@@ -48,7 +51,7 @@ export class GetProductService {
             product_id: true,
             product_name: true,
             price: true,
-            Category: { select: { category_name: true } },
+            Category: { select: { category_name: true, category_id: true } },
             ProductImages: {
               select: { product_image: true },
               where: { is_primary: true },
@@ -58,7 +61,7 @@ export class GetProductService {
       },
     });
     const totalItems = await this.prisma.inventories.count({
-      where: { store_id },
+      where: { store_id, Product: {is_deleted: false} },
     });
     return {
       data: inventories.map((inventory) => ({
@@ -67,6 +70,8 @@ export class GetProductService {
         product_image:
           inventory.Product.ProductImages[0]?.product_image || null,
         product_name: inventory.Product.product_name,
+        category_id: inventory.Product.Category.category_id,
+        category_name: inventory.Product.Category.category_name,
         user_stock: inventory.user_stock,
         price: inventory.Product.price,
         discounted_price: inventory.discounted_price,
@@ -88,10 +93,13 @@ export class GetProductService {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
     const whereCondition: any = {
-      product_name: {
-        contains: search,
-        mode: "insensitive",
-      },
+      is_deleted: false, // Exclude deleted products
+      ...(search && {
+        product_name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      }),
       ...(category && {
         Category: {
           category_name: {
@@ -103,7 +111,7 @@ export class GetProductService {
     };
 
     const products = await this.prisma.products.findMany({
-      where: search || category ? whereCondition : undefined,
+      where: search || category ? whereCondition : {is_deleted: false},
       skip,
       take,
       orderBy:
@@ -116,7 +124,9 @@ export class GetProductService {
         },
       },
     });
-    const totalItems = await this.prisma.products.count({});
+    const totalItems = await this.prisma.products.count({
+      where: {is_deleted: false},
+    });
     return {
       data: products.map((product) => ({
         product_id: product.product_id,
