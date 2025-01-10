@@ -70,6 +70,7 @@ export default class MidtransService {
             };
             await this.prisma.orders.update({ where: { order_id: order_id }, data: { order_status: "PROCESSING" }});
             const response = await axios.post(this.apiURL, data, { headers });
+            await this.prisma.payments.update({where: {transaction_id: transaction_id}, data: { gateway_link: response.data.redirect_url}})
             return response.data;
         } catch (error) {
             console.error("Error creating VA: ", error);

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { VoucherService } from "./voucher.service";
 import axios from "axios";
+import { wholeStoreCartDiscount } from "../utils/discount.utils";
 
 export class CartService {
     private prisma: PrismaClient;
@@ -124,9 +125,10 @@ export class CartService {
             if (!address) return { error: "No default address found" };
             const store = await this.prisma.stores.findUnique({ where: { store_id: cart.CartItems[0].Inventory.store_id } });
             if (!store) return { error: "Store not found" };
+            const storeDiscount = await wholeStoreCartDiscount(Number(cart.cart_price), store.store_id)
             const cartOrder = await this.prisma.orders.create({ 
                 data: { cart_id: cart.cart_id, user_id, store_id: store.store_id, address_id: address.address_id,
-                cart_price: cart.cart_price, shipping_method: "jne", shipping_price: 0} });
+                cart_price: storeDiscount, shipping_method: "jne", shipping_price: 0} });
             const shipping_price = await this.calculateShippingPrice(cartOrder.order_id);
             await this.prisma.carts.update({ where: { cart_id: cart.cart_id }, data: { is_active: false } });
             const voucherResponse = await this.voucherService.sendCartVoucher(user_id, Number(cart.cart_price));

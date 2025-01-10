@@ -6,13 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Store, Truck, CreditCard, Upload, SeparatorVertical } from 'lucide-react';
+import { Calendar as CalendarIcon, Store, Truck, CreditCard, Upload } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/redux/store';
 import useAuth from '@/hooks/useAuth';
-import { fetchOrderDetails, submitPayment } from '@/redux/slices/checkoutSlice';
+import { fetchOrderDetails, submitPayment, createVABankTransfer } from '@/redux/slices/checkoutSlice';
 import { useParams } from 'next/navigation';
 import LoadingVignette from '@/components/LoadingVignette';
 
@@ -56,19 +56,69 @@ function PaymentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!paymentMethod || !date || (paymentMethod !== 'MIDTRANS' && !popImage)) {
       setErrorMessage('Please fill all the required fields');
       return;
     }
+  
     const dateString = date.toISOString();
-    dispatch(submitPayment({ user_id, order_id, paymentMethod, date: dateString, popImage }))
-    .unwrap()
-    .then(() => {
-      alert('Payment submitted successfully!');
-    })
-    .catch((error: any) => {
-      alert(error || paymentError || 'Failed to submit payment');
-    });
+  
+    if (paymentMethod === 'MANUAL_TRANSFER') {
+      // Handle manual transfer payment
+      dispatch(submitPayment({ user_id, order_id, paymentMethod, date: dateString, popImage }))
+        .unwrap()
+        .then(() => {
+          alert('Payment submitted successfully!');
+        })
+        .catch((error: any) => {
+          alert(error || paymentError || 'Failed to submit payment');
+        });
+    } else if (paymentMethod === 'MIDTRANS') {
+      // Handle MIDTRANS payment
+      try {
+        // First, submit the payment to get the transaction_id
+        const paymentResponse = await dispatch(submitPayment({
+          user_id,
+          order_id,
+          paymentMethod,
+          date: dateString,
+          popImage,
+        })).unwrap();
+  
+        console.log('Payment Response:', paymentResponse); // Log the payment response to inspect its structure
+  
+        // Assuming the response structure is something like this:
+        // { payment: { transaction_id: "some-id", ...other data } }
+        const transaction_id = paymentResponse.data.payment.transaction_id;
+  
+        if (!transaction_id) {
+          throw new Error('Transaction ID not found in payment response');
+        }
+  
+        // Now, create the VA Bank Transfer
+        const vaResponse = await dispatch(createVABankTransfer({
+          user_id,
+          transaction_id,
+        })).unwrap();
+
+        console.log('VA Response:', vaResponse); // Log the payment response to inspect its structure
+
+  
+        const redirect_url = vaResponse?.redirect_url;
+  
+        if (!redirect_url) {
+          throw new Error('Redirect URL not found in VA Bank Transfer response');
+        }
+  
+        // Show the alert and redirect
+        alert('Redirecting to Midtrans...');
+        window.location.href = redirect_url; // Redirect the user to the Midtrans page
+  
+      } catch (error: any) {
+        alert(error?.message || 'An error occurred during payment processing');
+      }
+    }
   };
 
   return (
