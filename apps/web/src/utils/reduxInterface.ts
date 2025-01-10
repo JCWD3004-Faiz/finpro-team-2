@@ -225,3 +225,26 @@ export interface TransactionDetails {
     shipping_price: number;
     cart_price: number;
 }
+
+export interface ProductImage {
+  product_image: string;
+  is_primary: boolean;
+}
+
+export interface ProductDetailUser {
+  inventory_id: number;
+  product_id: number;
+  product_name: string;
+  description: string;
+  category_name: string;
+  discounted_price: number;
+  price: number; 
+  user_stock: number;
+  product_images: ProductImage[];
+}
+
+export interface getProductsState {
+  productDetailUser: ProductDetailUser;
+  loading: boolean;
+  error: string | null;
+}
