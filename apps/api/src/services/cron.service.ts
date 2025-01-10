@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function initializeCron() {
   await prisma.$connect();
 
-  cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("*/5 * * * *", async () => {
     console.log("Running email blocker cron job...");
     try {
       const blockedUsers = await prisma.pendingRegistrations.findMany({
@@ -42,7 +42,7 @@ export async function initializeCron() {
     }
   });
 
-  cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("0 0 * * *", async () => {
     console.log("Running inventory discount update cron job...");
 
     try {
