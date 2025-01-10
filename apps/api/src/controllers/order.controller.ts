@@ -112,6 +112,7 @@ export class OrderController {
             res.status(200).send({
                 message: "Successfully updated destination address",
                 status: res.statusCode,
+                new_shipping_price: shippingPrice
             });
         } else {
             res.status(400).send({
@@ -128,6 +129,7 @@ export class OrderController {
             res.status(200).send({
                 message: "Successfully updated shipping method",
                 status: res.statusCode,
+                new_shipping_price: shippingPrice
             });
         } else {
             res.status(400).send({

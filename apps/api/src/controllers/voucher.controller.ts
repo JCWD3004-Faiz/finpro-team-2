@@ -168,4 +168,30 @@ export class VoucherController {
             sendErrorResponse(res, 400, `Failed to retrieve user vouchers`);
         }
     }
+
+    async getShippingVouchers(req: Request, res: Response){
+        try {
+            const user_id = parseInt(req.params.user_id)
+            const data = await this.voucherService.getShippingVouchers(user_id);
+            res.status(200).send({
+                message: "Successfully retrieved shipping vouchers",
+                status: res.statusCode, data: data
+            });
+        } catch (error) {
+            sendErrorResponse(res, 400, `Failed to retrieve shipping vouchers`);
+        }
+    }
+
+    async getCartVouchers(req: Request, res: Response){
+        try {
+            const user_id = parseInt(req.params.user_id)
+            const data = await this.voucherService.getCartVouchers(user_id);
+            res.status(200).send({
+                message: "Successfully retrieved cart vouchers",
+                status: res.statusCode, data: data
+            });
+        } catch (error) {
+            sendErrorResponse(res, 400, `Failed to retrieve cart vouchers`);
+        }
+    }
 }

@@ -18,7 +18,7 @@ export function OrderStatus({ status }: { status: typeof steps[number]['key'] })
           <div 
             className="h-full bg-primary transition-all duration-300"
             style={{ 
-              width: `${(currentIdx / (steps.length - 1)) * 100}%`
+              width: `${(currentIdx / (steps.length - 1.23)) * 100}%`
             }}
           />
         </div>        

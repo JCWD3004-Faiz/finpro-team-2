@@ -6,7 +6,6 @@ export class CartService {
     private prisma: PrismaClient;
     private voucherService: VoucherService; 
 
-
     constructor() {
         this.prisma = new PrismaClient();
         this.voucherService = new VoucherService();
@@ -161,7 +160,7 @@ export class CartService {
                 }
             }    
             await this.prisma.orders.update({ where: { order_id: order_id }, data: { shipping_price: newPrice } });
-            return { message: "Shipping price calculated successfully" };
+            return newPrice;
         } catch (error) {
             console.error("Error calculating shipping price:", error);
             throw new Error("Failed to calculate shipping price");

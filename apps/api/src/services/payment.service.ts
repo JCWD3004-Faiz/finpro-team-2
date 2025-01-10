@@ -56,7 +56,7 @@ export class PaymentService {
             });
             await this.prisma.orders.update({ where: { order_id: order_id }, data: { order_status: "AWAITING_CONFIRMATION" }});
             const shippingVoucherResponse = await this.voucherService.sendShippingVoucher(user_id);
-            return { message: "Payment created successfully.", payment, voucher: shippingVoucherResponse || null };
+            return { message: "Payment created successfully.", payment:{...payment, transaction_id}, voucher: shippingVoucherResponse || null };
         } catch (error) {
             console.error("Error creating payment:", error);
             return { error: "Failed to create payment." };

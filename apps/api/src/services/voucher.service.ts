@@ -120,13 +120,13 @@ export class VoucherService {
             const vouchers = await this.prisma.vouchers.findMany({
                 where: { min_purchase: { lte: cart_price }, is_deleted: false}, orderBy: { min_purchase: 'desc'}
             });
-            if (vouchers.length === 0) { return { error: "No valid voucher found for this cart" }}
+            if (vouchers.length === 0) { return { error: "No valid voucher found for this user" }}
             const closestVoucher = vouchers[0]; const redeemCode = await this.generateRedeemCode();   
             const expiration_date = await this.calculateExpirationDate(closestVoucher.voucher_id);
             const userVoucher = await this.prisma.userVouchers.create({
                 data: { user_id, voucher_id: closestVoucher.voucher_id,redeem_code:redeemCode, expiration_date: expiration_date},
             });
-            return {message: "Voucher successfully applied to cart", userVoucher};
+            return {message: "Cart voucher successfully sent", userVoucher};
         } catch (error) {
             console.error("Error sending cart voucher:", error);
             return { error: "Failed to apply voucher to cart" };
@@ -144,7 +144,7 @@ export class VoucherService {
             const userVoucher = await this.prisma.userVouchers.create({
                 data: { user_id, voucher_id: shippingVoucher.voucher_id, redeem_code: redeemCode,expiration_date},
             });
-            return { message: "Shipping voucher successfully applied.", userVoucher};
+            return { message: "Shipping voucher successfully sent.", userVoucher};
         } catch (error) {
             console.error("Error sending shipping voucher:", error);
             return { error: "Failed to apply shipping voucher." };
@@ -274,6 +274,40 @@ export class VoucherService {
         } catch (error) {
             console.error("Error fetching user vouchers:", error);
             return { error: "Failed to fetch user vouchers." };
+        }
+    }
+
+    async getShippingVouchers(user_id: number) {
+        try {
+            const shippingVouchers = await this.prisma.userVouchers.findMany({
+                where: { user_id: user_id, voucher_status: "ACTIVE", Voucher: {voucher_type: "SHIPPING_DISCOUNT"}},
+                include: { Voucher: true },
+            });
+            const mappedVouchers = shippingVouchers.map((shippingVoucher) => ({
+                redeem_code: shippingVoucher.redeem_code, discount_type: shippingVoucher.Voucher.discount_type, 
+                discount_amount: shippingVoucher.Voucher.discount_amount,
+            }));
+            return { vouchers: mappedVouchers };
+        } catch (error) {
+            console.error("Error fetching shipping vouchers:", error);
+            return { error: "Failed to fetch shipping vouchers." };
+        }
+    }
+
+    async getCartVouchers(user_id: number) {
+        try {
+            const cartVouchers = await this.prisma.userVouchers.findMany({
+                where: { user_id: user_id, voucher_status: "ACTIVE", Voucher: {voucher_type: {in: ["PRODUCT_DISCOUNT", "CART_DISCOUNT"]}}},
+                include: { Voucher: true },
+            });
+            const mappedVouchers = cartVouchers.map((cartVoucher) => ({
+                redeem_code: cartVoucher.redeem_code, discount_type: cartVoucher.Voucher.discount_type, 
+                discount_amount: cartVoucher.Voucher.discount_amount,
+            }));
+            return { vouchers: mappedVouchers };
+        } catch (error) {
+            console.error("Error fetching cart vouchers:", error);
+            return { error: "Failed to fetch cart vouchers." };
         }
     }
 }

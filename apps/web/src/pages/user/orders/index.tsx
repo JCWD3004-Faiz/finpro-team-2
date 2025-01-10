@@ -13,6 +13,7 @@ import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 import ConfirmationModal from '@/components/modal-confirm';
 import { showConfirmation, hideConfirmation } from '@/redux/slices/confirmSlice';
 import { LuTruck } from 'react-icons/lu';
+import Link from 'next/link';
 
 function OrderTracking() {
   const dispatch = useDispatch<AppDispatch>();
@@ -90,7 +91,13 @@ function OrderTracking() {
                     <div className="mb-8">
                       <OrderStatus status={order.order_status} />
                     </div>
-
+                    {order.order_status === 'PENDING_PAYMENT' && (
+                    <Link href={`/checkout/${order.order_id}`} passHref>
+                      <p className="text-gray-900 hover:underline block text-center mb-4">
+                        Payment pending. Click here to complete your checkout
+                      </p>
+                    </Link>
+                    )}
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm mb-2">

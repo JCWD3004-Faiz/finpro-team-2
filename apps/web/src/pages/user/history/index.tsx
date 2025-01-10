@@ -42,8 +42,6 @@ function TransactionHistory() {
     { value: 'CANCELLED', label: 'Cancelled' },
   ];
 
-  console.log('Selected status:', payments.length);
-
   return (
     <div className="min-h-screen w-screen bg-white mt-[11vh] p-8">
       <div className="max-w-7xl mx-auto">
@@ -83,7 +81,7 @@ function TransactionHistory() {
               </div> 
               ) : (
                 <div className="space-y-4">
-                  {payments.map((transaction: any, index) => (
+                  {payments.map((transaction: any) => (
                     <TransactionCard key={transaction.transaction_id} transaction={transaction} />
                   ))}
                 </div>

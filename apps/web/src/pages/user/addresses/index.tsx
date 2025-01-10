@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { UserSidebar } from '@/components/UserSideBar';
 import { AddressList } from '@/components/address-list';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAddresses, addAddress, deleteAddress, setDefaultAddress } from '@/redux/slices/userProfileSlice';
+import { addAddress, deleteAddress, setDefaultAddress } from '@/redux/slices/userProfileSlice';
 import { RootState, AppDispatch } from '@/redux/store';
 import LoadingVignette from '@/components/LoadingVignette';
 import useAuth from '@/hooks/useAuth';
@@ -12,12 +12,6 @@ function ManageAddress() {
   const user = useAuth();
   const user_id = Number(user?.id);
   const { addresses, loading } = useSelector((state: RootState) => state.userProfile);
-
-  useEffect(() => {
-    if (user_id) {
-      dispatch(fetchAddresses(user_id));
-    }
-  }, [dispatch, user_id]);
 
   const handleAddAddress = (address: string, city_name: string, city_id: number) => {
     if (user_id) {

@@ -28,7 +28,7 @@ export class PaymentController {
           if (response && !response.error) {
             res.status(201).send({
               message: "Payment created successfully",
-              status: res.statusCode,
+              status: res.statusCode, data:response
             });
           }
         } catch (error) {
@@ -98,18 +98,12 @@ export class PaymentController {
     async getUserPaymentHistory(req: Request, res: Response) {
         try {
             const user_id = parseInt(req.params.user_id);
-            const { page, limit, status } = req.query;
-    
-            // Pagination logic
+            const { page, limit, status } = req.query;    
             const pageNumber = page ? parseInt(page as string) : 1;
-            const pageLimit = limit ? parseInt(limit as string) : 10;
-    
-            // Check if the status filter is valid (either ORDER_CONFIRMED or CANCELLED)
+            const pageLimit = limit ? parseInt(limit as string) : 10;    
             const validStatuses = ["ORDER_CONFIRMED", "CANCELLED"];
             const statusFilter = validStatuses.includes(status as string) ? (status as "ORDER_CONFIRMED" | "CANCELLED") : undefined;
-    
             const data = await this.paymentService.getUserPaymentHistory(user_id, pageNumber, pageLimit, statusFilter);
-    
             if (data && !data.error) {
                 res.status(200).send({
                     message: "Payment history found",
