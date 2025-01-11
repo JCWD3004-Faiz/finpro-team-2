@@ -85,7 +85,7 @@ export const createDiscount = createAsyncThunk(
         return rejectWithValue("Start date and end date are required.");
       if (type === "BOGO" && (!bogo_product_id || !inventory_id))
         return rejectWithValue(
-          "BOGO discounts require both Inventory ID and BOGO Product ID."
+          "BOGO discounts require both a product and a BOGO Product."
         );
 
       if (!description) return rejectWithValue("Description is required");
