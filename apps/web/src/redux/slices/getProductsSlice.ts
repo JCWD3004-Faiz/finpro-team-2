@@ -4,11 +4,14 @@ import axioss, { AxiosError, isAxiosError } from "axios";
 import Cookies from "js-cookie";
 import {
   getProductsState,
+  ProductAllUser,
   ProductDetailUser,
   ProductImage,
 } from "@/utils/reduxInterface";
 
 const store_id = Cookies.get("storeId");
+const access_token = Cookies.get("access_token");
+const current_store_id = Cookies.get("current_store_id");
 
 const initialProductImage: ProductImage = {
   product_image: "",
@@ -29,6 +32,14 @@ const initialProductDetail: ProductDetailUser = {
 
 const initialState: getProductsState = {
   productDetailUser: initialProductDetail,
+  productAllUser: [],
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
+  sortField: "product_name",
+  sortOrder: "asc",
+  search: "",
+  category: "",
   loading: false,
   error: null,
 };
@@ -55,17 +66,74 @@ export const fetchProductDetailsByInventoryId = createAsyncThunk(
   }
 );
 
-const productsSlice = createSlice({
+export const fetchInventoriesUser = createAsyncThunk(
+  "inventories/fetchInventoriesUser",
+  async (
+    {
+      //storeId,
+      page = 1,
+      pageSize = 10,
+      search = "",
+      category = "",
+      sortField = "product_name",
+      sortOrder = "asc",
+    }: {
+      //storeId: number;
+      page?: number;
+      pageSize?: number;
+      search?: string;
+      category?: string;
+      sortField?: string;
+      sortOrder?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.get(
+        `/api/users/products/${current_store_id}?page=${page}&pageSize=${pageSize}&search=${search}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}`,
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+
+      return response.data.inventories; // Adjust to match your API response structure
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        return rejectWithValue(
+          error.response.data.message || "Failed to fetch inventories."
+        );
+      } else {
+        return rejectWithValue("An unexpected error occurred.");
+      }
+    }
+  }
+);
+
+const getProductsSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-    // Define other reducers here if needed
+    setSortField: (state, action) => {
+      state.sortField = action.payload;
+    },
+    setSortOrder: (state, action) => {
+      state.sortOrder = action.payload;
+    },
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload;
+    },
+    setCategory: (state, action) => {
+      state.category = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProductDetailsByInventoryId.pending, (state) => {
         state.loading = true;
-        state.error = null; 
+        state.error = null;
       })
       .addCase(
         fetchProductDetailsByInventoryId.fulfilled,
@@ -80,8 +148,41 @@ const productsSlice = createSlice({
           state.loading = false;
           state.error = action.payload || "Failed to fetch product details."; // Set the error message
         }
-      );
+      )
+      .addCase(fetchInventoriesUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchInventoriesUser.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            data: ProductAllUser[];
+            currentPage: number;
+            totalPages: number;
+            totalItems: number;
+          }>
+        ) => {
+          state.loading = false;
+          state.productAllUser = action.payload.data; // Update the fetched inventories
+          state.currentPage = action.payload.currentPage; // Update current page
+          state.totalPages = action.payload.totalPages; // Update total pages
+          state.totalItems = action.payload.totalItems; // Update total items
+        }
+      )
+      .addCase(fetchInventoriesUser.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch inventories."; // Set the error message
+      });
   },
 });
 
-export default productsSlice.reducer;
+export const {
+  setSortField,
+  setCurrentPage,
+  setSortOrder,
+  setSearch,
+  setCategory,
+} = getProductsSlice.actions
+export default getProductsSlice.reducer;

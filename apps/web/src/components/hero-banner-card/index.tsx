@@ -10,7 +10,7 @@ interface HeroBannerCardProps {
 const HeroBannerCard: React.FC<HeroBannerCardProps> = ({ title, description, imagePath }) => {
   return (
     <div
-      className="relative w-full h-[60vh] bg-gray-500" // Fallback grey background in case image fails
+      className="relative w-full h-[70vh] bg-gray-500" // Fallback grey background in case image fails
       style={{
         backgroundImage: `url(${imagePath})`,
         backgroundSize: 'cover',

@@ -190,8 +190,18 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
                       dispatch(resetMinMax());
                       if (value === "whole-store") {
                         dispatch(setInventoryId(null)); // Set inventory_id to null for "Whole Store"
+                        dispatch(setBogoProductId(0));
                       } else {
-                        dispatch(setInventoryId(parseInt(value))); // Set inventory_id to the selected product's ID
+                        const selectedInventory =
+                          inventoryWithoutDiscounts.find(
+                            (item) => item.inventory_id.toString() === value
+                          );
+                        if (selectedInventory) {
+                          dispatch(setInventoryId(parseInt(value))); // Set inventory_id
+                          dispatch(
+                            setBogoProductId(selectedInventory.product_id)
+                          ); 
+                        }
                       }
                     }}
                   >
@@ -287,16 +297,29 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
                 </div>
 
                 {/* bogo product id */}
-                <div>
+                {/* <div>
                   <Label htmlFor="product-name">Buy one get one Product</Label>
                   <Select
                     onValueChange={(value) =>
                       dispatch(setBogoProductId(parseInt(value)))
                     }
-                    disabled={type === "PERCENTAGE" || type === "NOMINAL"}
+                    disabled={
+                      type === "PERCENTAGE" ||
+                      type === "NOMINAL" ||
+                      type === "BOGO"
+                    }
                   >
                     <SelectTrigger id="product-name" className="mt-1">
-                      <SelectValue placeholder="Select a product" />
+                      <SelectValue
+                        placeholder="Select a product"
+                        defaultValue={
+                          bogo_product_id
+                            ? inventoryNames.find(
+                                (item) => item.product_id === bogo_product_id
+                              )?.product_name
+                            : "Select a product"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {inventoryNames.map((item) => (
@@ -309,7 +332,7 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Description */}
                 <div>

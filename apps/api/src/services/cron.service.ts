@@ -36,6 +36,7 @@ export async function initializeCron() {
           });
         }
       }
+      console.log("Finished running email blocker cron job.");
     } catch (error) {
       const err = error as Error;
       console.error("Error occurred during cron job:", err.message);

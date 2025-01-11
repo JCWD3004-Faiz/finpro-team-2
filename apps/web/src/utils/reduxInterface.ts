@@ -1,33 +1,37 @@
-import { StoreAdmin, Store, Order } from '@/utils/adminInterface';
-import { ItemDetails, UserVoucher } from './userInterface';
+import { StoreAdmin, Store, Order } from "@/utils/adminInterface";
+import { ItemDetails, UserVoucher } from "./userInterface";
 
 export interface SuperAdminState {
-    storeAdmins: StoreAdmin[];
-    loading: boolean;
-    error: string | null;
-    isSidebarOpen: boolean;
-    editId: number | null;
-    editStoreData: {
-      storeName: string;
-      locationName: string;
-      cityId: number;
-    };
-    editAdminData: {storeName: string; storeId: number}
-    locationSuggestions: { city_name: string; city_id: number }[];
-    storeSuggestions: {store_name: string; store_id: number, store_admin:string}[];
-    suggestionsPosition: { top: number; left: number; width:number };
-    allStores: Store[];
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    sortField: string;
-    sortFieldAdmin: string; 
-    sortFieldOrder: string;
-    orderStatus: string,
-    allOrders: Order[];
-    storeName: string,
-    storeNames: string[]
-  }
+  storeAdmins: StoreAdmin[];
+  loading: boolean;
+  error: string | null;
+  isSidebarOpen: boolean;
+  editId: number | null;
+  editStoreData: {
+    storeName: string;
+    locationName: string;
+    cityId: number;
+  };
+  editAdminData: { storeName: string; storeId: number };
+  locationSuggestions: { city_name: string; city_id: number }[];
+  storeSuggestions: {
+    store_name: string;
+    store_id: number;
+    store_admin: string;
+  }[];
+  suggestionsPosition: { top: number; left: number; width: number };
+  allStores: Store[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  sortField: string;
+  sortFieldAdmin: string;
+  sortFieldOrder: string;
+  orderStatus: string;
+  allOrders: Order[];
+  storeName: string;
+  storeNames: string[];
+}
 
 export interface FetchAllParams {
   page: number;
@@ -58,7 +62,7 @@ export const fieldEndpointMap: { [key: string]: string } = {
   price: "price",
 };
 
-export interface InventoryName{
+export interface InventoryName {
   inventory_id: number;
   product_id: number;
   product_name: string;
@@ -76,8 +80,8 @@ export interface Discount {
   bogo_product_name: string | null;
   description: string;
   is_active: boolean;
-  start_date: Date; 
-  end_date: Date;   
+  start_date: Date;
+  end_date: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -102,7 +106,7 @@ export interface DiscountDetail {
   is_deleted: boolean;
 }
 
-export interface GetDiscountState{
+export interface GetDiscountState {
   discounts: Discount[];
   inventoryNames: InventoryName[];
   inventoryWithoutDiscounts: InventoryName[];
@@ -145,7 +149,7 @@ export interface Product {
 }
 
 export interface ManageProductState {
-  products: Product[]; 
+  products: Product[];
   productDetail: ProductDetail;
   currentPage: number;
   totalPages: number;
@@ -157,12 +161,12 @@ export interface ManageProductState {
   search: string;
   category: string | null;
   formData: {
-    category_id: number,
-    product_name: string,
-    description: string,
-    price: number,
-    images: File[],
-  },
+    category_id: number;
+    product_name: string;
+    description: string;
+    price: number;
+    images: File[];
+  };
 }
 
 export interface AllCategory {
@@ -193,14 +197,14 @@ export interface ManageCategoryState {
 export interface UserPaymentState {
   orders: Order[];
   payments: Transaction[];
-  vouchers: UserVoucher[]
+  vouchers: UserVoucher[];
   loading: boolean;
   error: string | null;
   details: TransactionDetails | null;
   totalItems: number;
   currentPage: number;
   totalPages: number;
-  status: string
+  status: string;
 }
 
 export interface Transaction {
@@ -239,13 +243,33 @@ export interface ProductDetailUser {
   description: string;
   category_name: string;
   discounted_price: number;
-  price: number; 
+  price: number;
   user_stock: number;
   product_images: ProductImage[];
 }
 
+export interface ProductAllUser {
+  inventory_id: number;
+  product_id: number;
+  product_image: string;
+  product_name: string;
+  category_id: number;
+  category_name: string;
+  user_stock: number;
+  price: number;
+  discounted_price: number;
+}
+
 export interface getProductsState {
   productDetailUser: ProductDetailUser;
+  productAllUser: ProductAllUser[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  sortField: string;
+  sortOrder: string;
+  search: string;
+  category: string | null;
   loading: boolean;
   error: string | null;
 }

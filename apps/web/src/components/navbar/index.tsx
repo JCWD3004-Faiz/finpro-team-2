@@ -27,15 +27,12 @@ const Navbar: React.FC = () => {
     setCartOpen(!isCartOpen);
   };
 
-  const addItemToCart = () => {
-    setCartItems((prev) => [
-      ...prev,
-      { productId: "sample1", productName: "Sample Product", productPrice: 10000 },
-    ]);
-  };
-
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
+  };
+
+  const navigateTo = (path: string) => {
+    router.push(path);
   };
 
   return (
@@ -66,9 +63,24 @@ const Navbar: React.FC = () => {
           {/* Navigation Links */}
           <div className="sm:flex flex-grow justify-center sm:order-2 hidden">
             <ul className="flex space-x-8 list-none items-center">
-              <li className="text-black cursor-pointer">Home</li>
-              <li className="text-black cursor-pointer">Products</li>
-              <li className="text-black cursor-pointer">About</li>
+              <li
+                className="text-black cursor-pointer"
+                onClick={() => navigateTo("/")}
+              >
+                Home
+              </li>
+              <li
+                className="text-black cursor-pointer"
+                onClick={() => navigateTo("/products-page")}
+              >
+                Products
+              </li>
+              <li
+                className="text-black cursor-pointer"
+                onClick={() => navigateTo("/about-page")}
+              >
+                About
+              </li>
             </ul>
           </div>
 

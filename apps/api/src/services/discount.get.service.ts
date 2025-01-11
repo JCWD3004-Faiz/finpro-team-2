@@ -36,6 +36,8 @@ export class GetDiscountService {
 
       return discounts.map((discount) => ({
         discount_id: discount.discount_id,
+        inventory_id: discount.inventory_id,
+        bogo_product_id: discount.bogo_product_id,
         type: discount.type,
         value: discount.value,
         min_purchase: discount.min_purchase,
