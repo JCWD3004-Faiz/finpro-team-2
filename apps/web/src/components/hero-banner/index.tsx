@@ -38,7 +38,7 @@ const HeroBanner: React.FC = () => {
   ];
 
   return (
-    <div className="hero-banner w-full h-[60vh] overflow-hidden relative">
+    <div className="hero-banner w-full h-[70vh] overflow-hidden relative">
       <Swiper
         modules={[Keyboard, Autoplay, Pagination]}
         spaceBetween={0}

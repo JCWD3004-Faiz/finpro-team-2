@@ -10,6 +10,7 @@ import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
 import LocationHeader from "../components/location-header";
 import axios from "axios";
+import { useEffect } from "react";
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_AXIOS_BASE_URL;
 
@@ -24,6 +25,11 @@ export default function App({ Component, pageProps }: AppProps) {
   // Define paths where you want to show the LocationHeader
   const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
   const shouldShowLocationHeader = showLocationHeaderPaths.includes(router.pathname);
+
+  useEffect(() => {
+    // This will allow us to log the current pathname, useful for debugging routing
+    console.log("Current Path: ", router.pathname);
+  }, [router.pathname]);
 
   return (
     <Provider store={store}>
