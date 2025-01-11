@@ -222,12 +222,13 @@ export interface Transaction {
 }
 
 export interface TransactionDetails {
-  items: ItemDetails[];
-  payment_reference: string | null;
-  address: string;
-  city_name: string;
-  shipping_price: number;
-  cart_price: number;
+    items: ItemDetails[];
+    payment_reference: string | null;
+    transaction_id: string
+    address: string;
+    city_name: string;
+    shipping_price: number;
+    cart_price: number;
 }
 
 export interface ProductImage {

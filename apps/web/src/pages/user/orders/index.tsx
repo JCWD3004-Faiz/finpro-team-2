@@ -98,6 +98,13 @@ function OrderTracking() {
                       </p>
                     </Link>
                     )}
+                    {order.payment_status === "PENDING" && order.gateway_link !== null && (
+                    <Link href={order.gateway_link} passHref>
+                      <p className="text-gray-900 hover:underline block text-center mb-4">
+                        Midtrans payment in-progress. Click here to continue
+                      </p>
+                    </Link>
+                    )}
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm mb-2">

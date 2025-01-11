@@ -15,6 +15,7 @@ import useAuth from '@/hooks/useAuth';
 import { fetchOrderDetails, submitPayment, createVABankTransfer } from '@/redux/slices/checkoutSlice';
 import { useParams } from 'next/navigation';
 import LoadingVignette from '@/components/LoadingVignette';
+import Cookies from 'js-cookie';
 
 function PaymentForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,6 +29,8 @@ function PaymentForm() {
   const [popImage, setPopImage] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+
+  Cookies.set('payment_order_id', order_id.toString(), { expires: 7, path: '/checkout' });
 
   useEffect(() => {
     if (user_id && order_id) {
@@ -56,16 +59,12 @@ function PaymentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
     if (!paymentMethod || !date || (paymentMethod !== 'MIDTRANS' && !popImage)) {
       setErrorMessage('Please fill all the required fields');
       return;
     }
-  
     const dateString = date.toISOString();
-  
     if (paymentMethod === 'MANUAL_TRANSFER') {
-      // Handle manual transfer payment
       dispatch(submitPayment({ user_id, order_id, paymentMethod, date: dateString, popImage }))
         .unwrap()
         .then(() => {
@@ -75,9 +74,7 @@ function PaymentForm() {
           alert(error || paymentError || 'Failed to submit payment');
         });
     } else if (paymentMethod === 'MIDTRANS') {
-      // Handle MIDTRANS payment
       try {
-        // First, submit the payment to get the transaction_id
         const paymentResponse = await dispatch(submitPayment({
           user_id,
           order_id,
@@ -85,36 +82,16 @@ function PaymentForm() {
           date: dateString,
           popImage,
         })).unwrap();
-  
-        console.log('Payment Response:', paymentResponse); // Log the payment response to inspect its structure
-  
-        // Assuming the response structure is something like this:
-        // { payment: { transaction_id: "some-id", ...other data } }
         const transaction_id = paymentResponse.data.payment.transaction_id;
-  
-        if (!transaction_id) {
-          throw new Error('Transaction ID not found in payment response');
-        }
-  
-        // Now, create the VA Bank Transfer
+        if (!transaction_id) { throw new Error('Transaction ID not found in payment response')}
         const vaResponse = await dispatch(createVABankTransfer({
           user_id,
           transaction_id,
         })).unwrap();
-
-        console.log('VA Response:', vaResponse); // Log the payment response to inspect its structure
-
-  
         const redirect_url = vaResponse?.redirect_url;
-  
-        if (!redirect_url) {
-          throw new Error('Redirect URL not found in VA Bank Transfer response');
-        }
-  
-        // Show the alert and redirect
+        if (!redirect_url) { throw new Error('Redirect URL not found in VA Bank Transfer response')}
         alert('Redirecting to Midtrans...');
-        window.location.href = redirect_url; // Redirect the user to the Midtrans page
-  
+        window.location.href = redirect_url;
       } catch (error: any) {
         alert(error?.message || 'An error occurred during payment processing');
       }

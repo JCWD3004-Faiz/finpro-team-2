@@ -68,7 +68,7 @@ export default class MidtransService {
                     },
                 },
             };
-            await this.prisma.orders.update({ where: { order_id: order_id }, data: { order_status: "PROCESSING" }});
+            await this.prisma.orders.update({ where: { order_id: order_id }, data: { order_status: "AWAITING_CONFIRMATION" }});
             const response = await axios.post(this.apiURL, data, { headers });
             await this.prisma.payments.update({where: {transaction_id: transaction_id}, data: { gateway_link: response.data.redirect_url}})
             return response.data;
@@ -86,7 +86,8 @@ export default class MidtransService {
             if (!payment || payment.Order?.user_id !== user_id || payment.payment_method !== "MIDTRANS") {
                 return { error: "Payment not found or does not belong to this user." };
             }
-            const transactionStatus = await this.getTransactionStatus(transaction_id);    
+            const transactionStatus = await this.getTransactionStatus(transaction_id);
+            await this.prisma.orders.update({ where: { order_id: payment.order_id }, data: { order_status: "PROCESSING" }});
             const updatedStatus = await this.prisma.payments.update({
                 where: { transaction_id: transaction_id },
                 data: { payment_status: "COMPLETED", payment_reference: transactionStatus.transaction_id},
