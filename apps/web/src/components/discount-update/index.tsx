@@ -34,7 +34,7 @@ function UpdateDiscountComponent({ discount_id }: UpdateDiscountProps) {
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedStartDate = new Date(e.target.value); // Convert the string to a Date object
     if (!isNaN(updatedStartDate.getTime())) {
-      dispatch(setDiscountStartDate(updatedStartDate)); // Dispatch the Date object
+      dispatch(setDiscountStartDate(String(updatedStartDate))); // Dispatch the Date object
     } else {
       console.error("Invalid date selected");
     }
@@ -43,7 +43,7 @@ function UpdateDiscountComponent({ discount_id }: UpdateDiscountProps) {
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEndDate = new Date(e.target.value); // Convert the string to a Date object
     if (!isNaN(updatedEndDate.getTime())) {
-      dispatch(setDiscountEndDate(updatedEndDate)); // Dispatch the Date object
+      dispatch(setDiscountEndDate(String(updatedEndDate))); // Dispatch the Date object
     } else {
       console.error("Invalid date selected");
     }
