@@ -94,9 +94,9 @@ const Products: React.FC = () => {
   const handleProductClick = (productId: string) => {
     const selectedProduct = allProducts.find((product) => product.productId === productId);
     if (selectedProduct) {
-      router.push({
-        pathname: `/products-page/${products_id}`,
-      });
+      router.push(
+        `/products-page/product-details-page/${productId}`
+      );
     }
   };
 
