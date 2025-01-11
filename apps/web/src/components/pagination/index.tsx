@@ -22,7 +22,7 @@ function Pagination({
       >
         <MdNavigateBefore/>
       </button>
-      <span className="px-4 py-2 bg-gray-100 text-gray-700">
+      <span className="px-4 py-2 text-gray-700">
         Page {currentPage} of {totalPages}
       </span>
       <button
