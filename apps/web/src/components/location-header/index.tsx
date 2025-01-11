@@ -41,7 +41,7 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (user_id) {
-      dispatch(fetchAddresses(user_id));  // Fetch addresses if user is logged in
+      dispatch(fetchAddresses(user_id));
     } else if (!access_token) {
       getGeolocation()
         .then(({ lat, lon }) => {
@@ -56,7 +56,7 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (addresses.length > 0) {
-      setIsLoading(false);  // If addresses exist, stop loading
+      setIsLoading(false);
     }
   }, [addresses]);
 
@@ -65,9 +65,9 @@ const LocationHeader: React.FC = () => {
 
     if (user_id) {
       if (addresses.length > 0) {
-        dispatch(fetchClosestStoreById(user_id));  // Fetch closest store by user ID if addresses exist
+        dispatch(fetchClosestStoreById(user_id));
       } else {
-        setIsLoading(false);  // No addresses, fallback to default store
+        setIsLoading(false);
       }
     } else {
       getGeolocation()
@@ -83,11 +83,11 @@ const LocationHeader: React.FC = () => {
 
   useEffect(() => {
     if (closestStore) {
-      setIsLoading(false);  // If closest store is fetched, stop loading
+      setIsLoading(false);
     }
   }, [closestStore]);
 
-  const storeToDisplay = closestStore || defaultStore;  // If closest store is available, use it; otherwise, use default store.
+  const storeToDisplay = closestStore || defaultStore;
 
   useEffect(() => {
     Cookies.set('current_store_id', storeToDisplay.store_id.toString());

@@ -73,6 +73,7 @@ export class OrderService {
                     Cart: { select: { cart_price: true } },
                     Store: { select: { store_name: true } },
                     Address: { select: { address: true, city_name: true } },
+                    Payments: true,
                 },
             });
             if (!orders.length) return { message: "No orders found for this user." };
@@ -80,7 +81,9 @@ export class OrderService {
                 store_name: order.Store.store_name, address: order.Address.address,
                 city_name: order.Address.city_name, order_status: order.order_status,
                 cart_price: order.cart_price, shipping_method: order.shipping_method,
-                shipping_price: order.shipping_price, created_at: order.created_at
+                shipping_price: order.shipping_price, created_at: order.created_at,
+                payment_status: order.Payments ? order.Payments.payment_status : null,
+                gateway_link: order.Payments ? order.Payments.gateway_link : null,
             }))};
         } catch (error) {
             console.error("Error fetching orders:", error);

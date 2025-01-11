@@ -16,6 +16,7 @@ interface CheckoutState {
   paymentError: string | null;
   vaBankTransferData: any;
   vaBankTransferError: string | null;
+  paymentDetails: any
 }
 
 const initialState: CheckoutState = {
@@ -31,6 +32,7 @@ const initialState: CheckoutState = {
   paymentError: null,
   vaBankTransferData: null,
   vaBankTransferError: null,
+  paymentDetails: null,
 };
 
 const access_token = Cookies.get('access_token');
@@ -92,9 +94,8 @@ export const redeemShippingVoucher = createAsyncThunk(
       const response = await axios.post('/api/order/redeem-shipping', params, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
-      return response.data.data;  // Return the new shipping price and success message
+      return response.data.data;
     } catch (error) {
-      // Ensure that the error is always a string or a string message
       return rejectWithValue('Failed to apply shipping voucher discount');
     }
   }
@@ -145,9 +146,29 @@ export const createVABankTransfer = createAsyncThunk(
           headers: { Authorization: `Bearer ${access_token}` },
         }
       );
-      return response.data; // Return the successful response data
+      return response.data;
     } catch (error) {
       return rejectWithValue('Failed to create VA Bank Transfer');
+    }
+  }
+);
+
+export const updateMidtransPaymentStatus = createAsyncThunk(
+  'checkout/updateMidtransPaymentStatus',
+  async (params: { user_id: number; transaction_id: string }, { rejectWithValue }) => {
+    const { user_id, transaction_id } = params;
+    try {
+      const response = await axios.put(
+        '/api/midtrans/status/',
+        { user_id, transaction_id },
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+      console.log(response.data)
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Failed to update payment status');
     }
   }
 );
@@ -242,6 +263,18 @@ const checkoutSlice = createSlice({
     .addCase(createVABankTransfer.rejected, (state, action) => {
       state.loading = false;
       state.vaBankTransferError = action.payload as string || 'Failed to create VA Bank Transfer';
+    })
+    .addCase(updateMidtransPaymentStatus.pending, (state) => {
+      state.loading = true;
+      state.paymentError = null;
+    })
+    .addCase(updateMidtransPaymentStatus.fulfilled, (state, action) => {
+      state.loading = false;
+      state.paymentDetails = action.payload; 
+    })
+    .addCase(updateMidtransPaymentStatus.rejected, (state, action) => {
+      state.loading = false;
+      state.paymentError = action.payload as string || 'Failed to update payment status';
     })
   },
 });

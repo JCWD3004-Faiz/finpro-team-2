@@ -1,9 +1,102 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { CheckCircle, ShoppingBag, Timer } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { updateMidtransPaymentStatus } from '@/redux/slices/checkoutSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import useAuth from '@/hooks/useAuth';
+import { fetchTransactionDetails } from '@/redux/slices/userPaymentSlice';
+import Cookies from 'js-cookie';
 
 function PaymentSuccess() {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useAuth();
+  const user_id = Number(user?.id);
+  const [countdown, setCountdown] = useState(5);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const { paymentDetails } = useSelector((state: RootState) => state.checkout);
+  const { details } = useSelector((state: RootState) => state.userPayment);
+  const order_id = Number(Cookies.get("payment_order_id"));
+
+  useEffect(() => {
+    if (user_id && order_id) {
+      dispatch(fetchTransactionDetails({ user_id, order_id }));
+    }
+  }, [user_id, order_id, dispatch]);
+
+  useEffect(() => {
+    const transaction_id = String(details?.transaction_id);
+    if (user_id && transaction_id) {
+      dispatch(updateMidtransPaymentStatus({ user_id, transaction_id }));
+      
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setShouldRedirect(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [details, dispatch, user_id]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      Cookies.remove("payment_order_id", { path: '/checkout' })
+      router.push('/');
+    }
+  }, [shouldRedirect, router]);
+
   return (
-    <div>PaymentSuccess</div>
-  )
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-white mt-[5vh]">
+      <Card className="w-full max-w-lg p-8 space-y-6">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="rounded-full bg-green-100 p-3">
+            <CheckCircle className="w-12 h-12 text-green-600" />
+          </div>
+          
+          <h1 className="text-2xl font-bold text-foreground">Payment Successful!</h1>
+          
+          <p className="text-muted-foreground">
+            Thank you for your purchase. Your payment has been confirmed.
+          </p>
+
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <Timer className="w-4 h-4" />
+            <span>Redirecting in {countdown} seconds...</span>
+          </div>
+
+          <div className="w-full pt-4">
+            <Button className="w-full gap-2" onClick={() => setShouldRedirect(true)}>
+              <ShoppingBag className="w-4 h-4" />
+              Back to Home
+            </Button>
+          </div>
+        </div>
+        <div className="border-t pt-6">
+          <div className="space-y-2">
+            <h2 className="font-semibold">Payment Details</h2>
+            <div className="text-sm text-muted-foreground">
+              {paymentDetails?.transaction_id && <p>Transaction ID: {paymentDetails?.transaction_id}</p>}
+              {paymentDetails?.payment_reference && <p>Payment Reference: {paymentDetails?.payment_reference}</p>}
+              {paymentDetails?.payment_date && <p>Payment Date: {new Date(paymentDetails?.payment_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}</p>}
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
 }
 
-export default PaymentSuccess
+export default PaymentSuccess;

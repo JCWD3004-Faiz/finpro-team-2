@@ -220,6 +220,7 @@ export interface Transaction {
 export interface TransactionDetails {
     items: ItemDetails[];
     payment_reference: string | null;
+    transaction_id: string
     address: string;
     city_name: string;
     shipping_price: number;

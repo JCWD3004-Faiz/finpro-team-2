@@ -156,9 +156,11 @@ export class PaymentService {
                 product_name: item.Inventory.Product.product_name, original_price: item.Inventory.Product.price
             }));    
             return {
-                message: "Order found", payment_reference: order.Payments ? order.Payments.payment_reference : null,
-                address: order.Address.address, city_name: order.Address.city_name,
-                shipping_price: order.shipping_price, cart_price: order.cart_price, items,
+                message: "Order found", address: order.Address.address, city_name: order.Address.city_name, 
+                shipping_price: order.shipping_price, cart_price: order.cart_price, 
+                transaction_id: order.Payments ? order.Payments.transaction_id : null,
+                payment_reference: order.Payments ? order.Payments.payment_reference : null,
+                items,
             };
         } catch (error) {
             console.error("Error fetching order details:", error);
