@@ -13,8 +13,6 @@ function SingleProductPage() {
   const params = useParams();
   const productId = params?.product_id; // Get the productId from URL
 
-  console.log("product id: ", productId);
-
   const [selectedImage, setSelectedImage] = useState(productDetailUser.product_images[0].product_image || ''); // Default to main image
   const [quantity, setQuantity] = useState(1);
 
@@ -36,7 +34,8 @@ function SingleProductPage() {
   //   return <div>Product not found!</div>;
   // }
   useEffect(() => {
-    const inventoryId = Number(productId); // Replace with the inventory ID you want to fetch
+    if (productId){
+      const inventoryId = Number(productId); // Replace with the inventory ID you want to fetch
     dispatch(fetchProductDetailsByInventoryId(inventoryId))
       .unwrap()
       .then((data) => {
@@ -45,6 +44,8 @@ function SingleProductPage() {
       .catch((err) => {
         console.error("Error fetching product details:", err);
       });
+    }
+    
   }, [dispatch, productId]);
 
   console.log("Product details", productDetailUser);
