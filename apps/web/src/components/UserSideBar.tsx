@@ -99,7 +99,7 @@ export function UserSidebar() {
       <div className="md:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="fixed bottom-4 left-4 z-50 p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+          className="fixed bottom-4 left-4 z-40 p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
           aria-label="Toggle profile menu"
         >
           <Menu className="w-6 h-6" />

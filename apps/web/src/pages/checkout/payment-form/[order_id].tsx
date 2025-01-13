@@ -16,6 +16,10 @@ import { fetchOrderDetails, submitPayment, createVABankTransfer } from '@/redux/
 import { useParams } from 'next/navigation';
 import LoadingVignette from '@/components/LoadingVignette';
 import Cookies from 'js-cookie';
+import ErrorModal from "@/components/modal-error";
+import SuccessModal from "@/components/modal-success";
+import { showError, hideError } from "@/redux/slices/errorSlice";
+import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 
 function PaymentForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,8 +31,10 @@ function PaymentForm() {
   const [date, setDate] = useState<Date>();
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [popImage, setPopImage] = useState<File | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorText, setErrorText] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const { isErrorOpen, errorMessage } = useSelector((state: RootState) => state.error);
+  const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success); 
 
   Cookies.set('payment_order_id', order_id.toString(), { expires: 7, path: '/checkout' });
 
@@ -60,7 +66,7 @@ function PaymentForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!paymentMethod || !date || (paymentMethod !== 'MIDTRANS' && !popImage)) {
-      setErrorMessage('Please fill all the required fields');
+      setErrorText('Please fill all the required fields');
       return;
     }
     const dateString = date.toISOString();
@@ -68,10 +74,10 @@ function PaymentForm() {
       dispatch(submitPayment({ user_id, order_id, paymentMethod, date: dateString, popImage }))
         .unwrap()
         .then(() => {
-          alert('Payment submitted successfully!');
+        dispatch(showSuccess('Payment submitted successfully!'));  
         })
         .catch((error: any) => {
-          alert(error || paymentError || 'Failed to submit payment');
+          dispatch(showError(error || paymentError || 'Failed to submit payment'));
         });
     } else if (paymentMethod === 'MIDTRANS') {
       try {
@@ -93,7 +99,7 @@ function PaymentForm() {
         alert('Redirecting to Midtrans...');
         window.location.href = redirect_url;
       } catch (error: any) {
-        alert(error?.message || 'An error occurred during payment processing');
+        dispatch(showError(error?.message || 'An error occurred during payment processing'));
       }
     }
   };
@@ -101,6 +107,8 @@ function PaymentForm() {
   return (
     <div className="min-h-screen w-screen bg-white py-8 mt-[11vh]">
       {loading && <LoadingVignette />}
+      <ErrorModal isOpen={isErrorOpen} onClose={() => dispatch(hideError())} errorMessage={errorMessage}/>
+      <SuccessModal isOpen={isSuccessOpen} onClose={() => {dispatch(hideSuccess()); window.location.href = "/"}} successMessage={successMessage}/>
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">Payment Submission</h1>
         <div className="grid gap-8 md:grid-cols-2">
@@ -253,7 +261,7 @@ function PaymentForm() {
               <Button className="w-full" onClick={handleSubmit} disabled={loading}>
                 {loading ? 'Submitting...' : <><Upload className="mr-2 h-4 w-4" /> Submit Payment</>}
               </Button>
-              {errorMessage && <div className="text-red-600 text-sm">{errorMessage}</div>}
+              {errorText && <div className="text-red-600 text-sm">{errorText}</div>}
             </CardContent>
           </Card>
         </div>
