@@ -16,6 +16,7 @@ import ProductCardLatest from "@/components/product-card-latest";
 import Pagination from "@/components/pagination";
 
 const Products: React.FC = () => {
+
   const dispatch = useDispatch<AppDispatch>();
   const {
     loading,
@@ -30,15 +31,6 @@ const Products: React.FC = () => {
   const debouncedQuery = useDebounce(searchQuery, 500);
 
   const router = useRouter();
-
- /*  const filteredProducts = allProducts.filter((product) => {
-    const matchesCategory =
-      category === "all" || product.productId.startsWith(category);
-    const matchesSearch = product.productName
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }); */
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {

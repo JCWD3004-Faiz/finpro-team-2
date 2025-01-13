@@ -46,8 +46,8 @@ export class CartService {
                     newCartPrice = Math.max(newCartPrice - discount, 0);
                 }
             }    
-            await this.prisma.carts.update({ where: { cart_id: cart?.cart_id }, data: { cart_price: newCartPrice }});
-            return { message: "Cart price updated successfully" };
+            const updatedCartPrice = await this.prisma.carts.update({ where: { cart_id: cart?.cart_id }, data: { cart_price: newCartPrice }});
+            return updatedCartPrice;
         } catch (error) {
             console.error("Error updating cart price:", error);
             return { error: "Failed to update cart price" };
@@ -76,9 +76,9 @@ export class CartService {
             }
             
             const updatedCartItem = await this.prisma.cartItems.update({
-                where: { cart_item_id }, data: { quantity, product_price: newUpdatedPrice },
-            });    
-            return { message: "Item quantity and price updated successfully", cart_item: updatedCartItem };
+                where: { cart_item_id }, data: { quantity, product_price: updatedPrice },
+            });
+            return updatedCartItem ;
         } catch (error) {
             console.error("Error updating item quantity:", error);
             return { error: "Failed to update item quantity" };
@@ -91,12 +91,13 @@ export class CartService {
                 where: { user_id, is_active: true },
                 include: { CartItems: { include: { Inventory: { include: { Product: true }}}}}
             });
-            if (!cart) return { error: "Active cart not found" }
+            if (!cart) { return { cart_price: 0, cart_items: []}}
             return {
-                cart_price: cart.cart_price,
+                cart_id: cart.cart_id ,cart_price: cart.cart_price,
                 cart_items: cart.CartItems.map(item => ({
-                    cart_item_id: item.cart_item_id, quantity: item.quantity, product_price: item.product_price,
-                    product_name: item.Inventory.Product.product_name,
+                    cart_item_id: item.cart_item_id, store_id: item.Inventory.store_id, quantity: item.quantity, 
+                    product_price: item.product_price, original_price: item.Inventory.Product.price,
+                    product_name: item.Inventory.Product.product_name, 
                 }))
             };
         } catch (error) {
@@ -114,8 +115,8 @@ export class CartService {
                 where: { cart_item_id }, include: { Cart: true }
             });
             if (!cartItem) return { error: "Cart item not found" };
-            await this.prisma.cartItems.delete({ where: { cart_item_id } });
-            return { message: "Cart item removed successfully" };
+            const deletedItem = await this.prisma.cartItems.delete({ where: { cart_item_id } });
+            return deletedItem
         } catch (error) {
             return { error: "Failed to remove cart item" };
         }

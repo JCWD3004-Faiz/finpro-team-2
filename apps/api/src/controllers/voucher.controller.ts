@@ -48,21 +48,14 @@ export class VoucherController {
     async editVoucher(req: Request, res: Response){
         try {
             const voucher_id = parseInt(req.params.voucher_id)
-            console.log('voucher_id:', voucher_id); // Log voucher_id
-            
-
             const { voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description } = req.body;
-            console.log('Request body:', { voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description });
-
             await this.voucherService.editVoucher(voucher_id, voucher_type, discount_type, discount_amount, expire_period, min_purchase, max_discount, description);
             res.status(200).send({
                 message: "Voucher successfully edited",
                 status: res.statusCode,
             });
         } catch (error) {
-            console.log('Error in editVoucher controller:', error);
             console.error('Error in editVoucher controller:', error);  // Log the error in the controller
-
             sendErrorResponse(res, 400, `Failed to edit Voucher`);
         }
     }
@@ -110,13 +103,13 @@ export class VoucherController {
 
     async redeemProductVoucher(req: Request, res: Response){
         const { user_id, user_voucher_id, cart_item_id } = req.body;
-        const data = await this.voucherService.redeemProductVoucher(user_id, user_voucher_id, cart_item_id);
-        if (data && !data.error) {
+        const cartItem = await this.voucherService.redeemProductVoucher(user_id, user_voucher_id, cart_item_id);
+        if (cartItem) {
             const cartPrice = await this.cartService.updateCartPrice(user_id);
-            if (cartPrice && !cartPrice.error) {
+            if (cartPrice) {
                 res.status(200).send({
                 message: "Successfully applied product voucher discount",
-                status: res.statusCode, data: data,
+                status: res.statusCode, data: {cartItem, cartPrice}
             });
             } else {
                 res.status(400).send({
@@ -132,8 +125,8 @@ export class VoucherController {
 
     async redeemCartVoucher(req: Request, res: Response){
         try {
-            const { user_id, user_voucher_id, cart_item_id } = req.body;
-            const data = await this.voucherService.redeemCartVoucher(user_id, user_voucher_id, cart_item_id);
+            const { user_id, user_voucher_id, cart_id } = req.body;
+            const data = await this.voucherService.redeemCartVoucher(user_id, user_voucher_id, cart_id);
             res.status(200).send({
                 message: "Successfully applied cart voucher discount",
                 status: res.statusCode, data: data

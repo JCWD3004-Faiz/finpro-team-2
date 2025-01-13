@@ -1,9 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import { ShippingMethod } from "../models/all.models";
 import { OrderStatus } from "../models/admin.models";
+import { ProfileService } from "./profile.service";
 
 export class OrderService {
-    private prisma: PrismaClient = new PrismaClient();
+    private prisma: PrismaClient
+    private profileService: ProfileService; 
+
+    constructor() {
+        this.prisma = new PrismaClient();
+        this.profileService = new ProfileService();
+    }
 
     async getAllOrders(
         page: number = 1, pageSize: number = 10, sortFieldAdmin: "created_at" = "created_at", 
@@ -128,14 +135,33 @@ export class OrderService {
     async changeOrderAddress(user_id: number, order_id: number, address_id: number) {
         try {
             const order = await this.prisma.orders.findFirst({
-                where: { order_id: order_id, user_id: user_id},
+                where: { order_id: order_id, user_id: user_id },
             });
-
-            if (!order) { return { error: "Order not found or user does not own this order." }}
+    
+            if (!order) {
+                return { error: "Order not found or user does not own this order." };
+            }
+    
+            // Validate address distance
+            const {isValidAddress, message} = await this.profileService.validateAddressForStore(order.store_id, address_id);
+    
+            // If the address is invalid, return an error response
+            if (!isValidAddress) {
+                return { isValidAddress: false, error: message };
+            }
+    
+            // If the address is valid, proceed with updating the order
             const updatedOrder = await this.prisma.orders.update({
-                where: { order_id }, data: { address_id }, 
+                where: { order_id },
+                data: { address_id },
             });
-            return { message: "Order address updated successfully.", updatedOrder };
+    
+            return {
+                isValidAddress: true,
+                message: "Order address updated successfully.",
+                updatedOrder
+            };
+    
         } catch (error) {
             console.error("Error updating order address:", error);
             return { error: "Failed to update order address." };

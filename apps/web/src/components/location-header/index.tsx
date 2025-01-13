@@ -5,21 +5,21 @@ import { RootState, AppDispatch } from '@/redux/store';
 import useAuth from '@/hooks/useAuth';
 import { fetchAddresses } from '@/redux/slices/userProfileSlice';
 import Cookies from 'js-cookie';
-import { MdLocationOn, MdStore } from 'react-icons/md';
+import { MdLocationOff, MdLocationOn, MdStore } from 'react-icons/md';
 
 const LocationHeader: React.FC = () => {
   const access_token = Cookies.get('access_token');
   const user = useAuth();
   const user_id = Number(user?.id);
   const dispatch = useDispatch<AppDispatch>();
-  const { closestStore } = useSelector((state: RootState) => state.landing);
+  const { closestStore, error } = useSelector((state: RootState) => state.landing);
   const { addresses } = useSelector((state: RootState) => state.userProfile);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const defaultStore = {
     store_id: 28,
     store_name: "Default Store",
-    store_location: "Kabupaten Aceh Besar",
+    store_location: "Fetching location...",
   };
 
   const getGeolocation = () => {
@@ -93,18 +93,43 @@ const LocationHeader: React.FC = () => {
     Cookies.set('current_store_id', storeToDisplay.store_id.toString());
   }, [storeToDisplay]);
 
+  // Conditional error message
+  const distanceLimitError = error === "No stores found within 50 km.";
+
   return (
     <header className="fixed top-0 left-0 border-b border-black w-full h-[3vh] bg-white text-gray-800 z-50 flex items-center">
       <div className="w-full flex items-center absolute left-0 right-0 text-xs md:text-sm md:static">
-      <div className="flex items-center absolute left-0 md:pl-2 md:flex-row md:static">
-        <MdLocationOn />
-        <p>{storeToDisplay.store_location}</p>
+        <div className="flex items-center absolute left-0 md:pl-2 md:flex-row md:static">
+          {distanceLimitError ? (
+            <>
+              <MdLocationOff />
+              <p>{distanceLimitError ? "No stores found. Please adjust your location." : storeToDisplay.store_location}</p>
+            </>
+          ) : (
+            <>
+              {user_id && addresses.length > 0 ? (
+                <>
+                  <MdLocationOn />
+                  <p>{storeToDisplay.store_location}</p>
+                </>
+              ) : (
+                <>
+                  <MdLocationOff />
+                  {user_id ? (
+                    <p>Please set an address to start shopping</p>
+                  ) : (
+                    <p>Please log in to set an address</p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+        <div className="flex items-center absolute right-0 md:pl-4 md:flex-row md:static">
+          <MdStore />
+          <p>{storeToDisplay.store_name}</p>
+        </div>
       </div>
-      <div className="flex items-center absolute right-0 md:pl-4 md:flex-row md:static">
-        <MdStore />
-        <p>{storeToDisplay.store_name}</p>
-      </div>
-    </div>
     </header>
   );
 };
