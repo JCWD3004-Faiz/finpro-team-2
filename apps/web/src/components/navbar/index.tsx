@@ -1,19 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { FaCartShopping, FaBars } from "react-icons/fa6";
 import { MdAccountBox } from "react-icons/md";
-import { RiLoginBoxFill } from "react-icons/ri";
+import { RiLoginBoxFill, RiLogoutBoxFill } from "react-icons/ri";
 import ShoppingCart from "../shopping-cart";
 import ExtraBox from "../extra-box";
+import useAuth from "@/hooks/useAuth";
+import Cookies from "js-cookie";
 
 const Navbar: React.FC = () => {
-  const [isCartOpen, setCartOpen] = React.useState(false);
-  const [cartItems, setCartItems] = React.useState<
-    { productId: string; productName: string; productPrice: number }[]
-  >([]);
-  const [isMenuOpen, setMenuOpen] = React.useState(false);
-
+  const user = useAuth();
+  const [isCartOpen, setCartOpen] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const router = useRouter();
+
+  const user_id = Number(user?.id);
+
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    setAccessToken(token);
+  }, []);
 
   const handleLoginClick = () => {
     router.push("/auth/login-page");
@@ -21,6 +28,12 @@ const Navbar: React.FC = () => {
 
   const handleProfileClick = () => {
     router.push("/user/profile-editor");
+  };
+
+  const handleLogoutClick = () => {
+    Cookies.remove("access_token");
+    setAccessToken(undefined);
+    window.location.href = "/";
   };
 
   const toggleCart = () => {
@@ -39,20 +52,16 @@ const Navbar: React.FC = () => {
     <>
       <nav className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 h-[8vh] mt-[3vh] border-b border-black">
         <div className="flex items-center justify-between h-full px-4 w-full">
-          {/* Logo or Hamburger Icon */}
           <div className="flex items-center justify-between sm:w-auto w-full">
-            {/* Hamburger icon for small screens */}
             <div className="sm:hidden">
               <FaBars
                 className="text-black text-3xl cursor-pointer"
                 onClick={toggleMenu}
               />
             </div>
-            {/* "FRUGGER" logo visible on larger screens */}
             <div className="hidden sm:flex font-bold text-2xl text-black">
               FRUGMART
             </div>
-            {/* "FRUGGER" logo for smaller screens, centered */}
             <div className="sm:hidden flex w-full justify-center items-center">
               <div className="text-black font-bold text-2xl">
                 FRUGMART
@@ -60,7 +69,6 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Navigation Links */}
           <div className="sm:flex flex-grow justify-center sm:order-2 hidden">
             <ul className="flex space-x-8 list-none items-center">
               <li
@@ -84,32 +92,42 @@ const Navbar: React.FC = () => {
             </ul>
           </div>
 
-          {/* Icons */}
           <div className="flex items-center space-x-4 sm:order-3">
-            <FaCartShopping
-              className="text-black text-3xl cursor-pointer"
-              onClick={toggleCart}
-            />
-            <MdAccountBox
-              className="text-black text-3xl cursor-pointer"
-              onClick={handleProfileClick}
-            />
-            <RiLoginBoxFill
-              className="text-black text-3xl cursor-pointer"
-              onClick={handleLoginClick}
-            />
+            {accessToken ? (
+              <>
+                <FaCartShopping
+                  className="text-black text-3xl cursor-pointer"
+                  onClick={toggleCart}
+                  title="Cart"
+                />
+                <MdAccountBox
+                  className="text-black text-3xl cursor-pointer"
+                  onClick={handleProfileClick}
+                  title="Profile"
+                />
+                <RiLogoutBoxFill
+                  className="text-black text-3xl cursor-pointer"
+                  onClick={handleLogoutClick}
+                  title="Logout"
+                />
+              </>
+            ) : (
+              <RiLoginBoxFill
+                className="text-black text-3xl cursor-pointer"
+                onClick={handleLoginClick}
+                title="Login"
+              />
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Extra Box */}
       <ExtraBox isVisible={isMenuOpen} onClose={toggleMenu} />
 
-      {/* Shopping Cart */}
       <ShoppingCart
         isOpen={isCartOpen}
         onClose={() => setCartOpen(false)}
-        cartItems={cartItems}
+        user_id={user_id}
       />
     </>
   );

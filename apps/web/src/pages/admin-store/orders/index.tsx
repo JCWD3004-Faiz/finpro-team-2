@@ -131,13 +131,13 @@ function StoreOrders() {
               </thead>
               <tbody>
                 {(storeOrders && Array.isArray(storeOrders) && storeOrders.length > 0) ? 
-                (storeOrders.map((order: Order, index) => { const isPendingPayment = order.order_status === "PENDING_PAYMENT";
+                (storeOrders.map((order: Order, index) => { const isPendingPayment = order.order_status === "PENDING_PAYMENT" && "CANCELLED";
                   return (
                   <tr key={order.order_id} onClick={(e) => { if (isPendingPayment) {e.preventDefault() 
                   } else { handleRowClick(`/admin-store/orders/payment/${order.payment_id}`)}}}
                   className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} 
                   ${isPendingPayment ? "hover:bg-gray-100 cursor-default" : "hover:bg-gray-200 hover:cursor-pointer"} 
-                  border-b transition-colors`} title={isPendingPayment ? "Order is pending payment" : "Click to view payment details"}
+                  border-b transition-colors`} title={isPendingPayment ? "Payment unavailable" : "Click to view payment details"}
                   >
                     <td className="p-4">{order.username}</td>
                     <td className="p-4">{order.address}, {order.city_name}</td>

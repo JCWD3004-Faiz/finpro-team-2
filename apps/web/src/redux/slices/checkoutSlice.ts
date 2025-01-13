@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '@/utils/interceptor';
 import Cookies from 'js-cookie';
 import { UserVoucher, OrderDetails } from '@/utils/userInterface';
+import axiosHandler from "axios"
 
 interface CheckoutState {
   orderDetails: OrderDetails | null;
@@ -49,13 +50,21 @@ export const fetchOrderDetails = createAsyncThunk(
 
 export const updateAddress = createAsyncThunk(
   'checkout/updateAddress',
-  async (params: { user_id: number; order_id: number; address_id: string }) => {
-    const response = await axios.put(
-      '/api/order/address',
-      { user_id: params.user_id, order_id: params.order_id, address_id: params.address_id },
-      { headers: { Authorization: `Bearer ${access_token}` } }
-    );
-    return response.data.new_shipping_price
+  async (params: { user_id: number; order_id: number; address_id: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosHandler.put(
+        '/api/order/address',
+        { user_id: params.user_id, order_id: params.order_id, address_id: params.address_id },
+        { headers: { Authorization: `Bearer ${access_token}` } }
+      );      
+      return response.data.new_shipping_price; // Return the new shipping price if valid
+    } catch (err) {
+      if (axiosHandler.isAxiosError(err) && err.response) {
+        return rejectWithValue("Address is too far away from the store.");
+      } else {
+        return rejectWithValue("An unexpected error occurred");
+      }
+    }
   }
 );
 
@@ -204,10 +213,12 @@ const checkoutSlice = createSlice({
       state.loading = false;
       state.updateAddress = action.payload;
       state.newShippingPrice = action.payload;
+      state.error = null;  // Clear any previous errors
     })
     .addCase(updateAddress.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error.message || 'Failed to update address';
+      state.error = String(action.payload) || 'Failed to update address';
+      state.selectedAddress = ""
     })
     .addCase(updateShippingMethod.pending, (state) => {
       state.loading = true;

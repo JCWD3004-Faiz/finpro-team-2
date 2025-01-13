@@ -58,6 +58,19 @@ export class GetProductService {
             },
           },
         },
+        Discounts: {
+          where: {
+            is_deleted: false,
+            is_active: true,
+            start_date: { lte: new Date() },
+            end_date: { gte: new Date() },
+          },
+          select: {
+            type: true,
+            value: true,
+
+          }
+        }
       },
     });
     const totalItems = await this.prisma.inventories.count({
@@ -75,6 +88,8 @@ export class GetProductService {
         user_stock: inventory.user_stock,
         price: inventory.Product.price,
         discounted_price: inventory.discounted_price,
+        discount_type: inventory.Discounts?.[0]?.type || null,
+        discount_value: Number(inventory.Discounts?.[0]?.value) || null, 
       })),
       currentPage: page,
       totalPages: Math.ceil(totalItems / pageSize),

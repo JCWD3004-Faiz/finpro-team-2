@@ -13,7 +13,7 @@ export class CartController {
         const data = await this.cartService.addToCart(user_id, inventory_id);
         if (data && !data.error) {
             const cartPrice = await this.cartService.updateCartPrice(user_id);
-            if (cartPrice && !cartPrice.error) {
+            if (cartPrice) {
                 res.status(200).send({
                 message: "Successfully added to cart", status: res.statusCode,
             });
@@ -32,13 +32,13 @@ export class CartController {
 
     async changeItemQuantity(req: Request, res: Response): Promise<void> {
         const { user_id, cart_item_id, quantity } = req.body;
-        const data = await this.cartService.changeItemQuantity(user_id, cart_item_id, quantity);
-        if (data && !data.error) {
+        const cartItem = await this.cartService.changeItemQuantity(user_id, cart_item_id, quantity);
+        if (cartItem) {
             const cartPrice = await this.cartService.updateCartPrice(user_id);
-            if (cartPrice && !cartPrice.error) {
+            if (cartPrice) {
                 res.status(200).send({
                 message: "Successfully updated item quantity",
-                status: res.statusCode, cart_item: data.cart_item,
+                status: res.statusCode, data: {cartItem, cartPrice},
             });
             } else {
                 res.status(400).send({
@@ -54,15 +54,22 @@ export class CartController {
 
     async getCartItems(req: Request, res: Response): Promise<void> {
         const user_id = parseInt(req.params.user_id);
-        const data = await this.cartService.getCartItems(user_id);
-        if (data &&!data.error) {
+        const data = await this.cartService.getCartItems(user_id);        
+        if (data?.error === "Active cart not found") {
+            res.status(200).send({
+                message: "Your cart is empty",
+                status: res.statusCode,
+            });
+        } else if (data && !data.error) {
             res.status(200).send({
                 message: "Cart items retrieved successfully",
-                status: res.statusCode, cart_data: data,
+                status: res.statusCode,
+                cart_data: data,
             });
         } else {
             res.status(400).send({
-                message: "Failed to retrieve cart items", status: res.statusCode,
+                message: "Failed to retrieve cart items", 
+                status: res.statusCode,
             });
         }
     }
@@ -70,13 +77,13 @@ export class CartController {
     async removeCartItem(req: Request, res: Response): Promise<void> {
         const user_id = parseInt(req.params.user_id);
         const cart_item_id = parseInt(req.params.cart_item_id);
-        const data = await this.cartService.removeCartItem(user_id, cart_item_id);
-        if (data && !data.error) {
+        const cartItem = await this.cartService.removeCartItem(user_id, cart_item_id);
+        if (cartItem) {
             const cartPrice = await this.cartService.updateCartPrice(user_id);
-            if (cartPrice && !cartPrice.error){
+            if (cartPrice){
                 res.status(200).send({
                 message: "Successfully removed item from cart",
-                status: res.statusCode,
+                status: res.statusCode, data: {cartItem, cartPrice}
             });
             } else {
                 res.status(400).send({

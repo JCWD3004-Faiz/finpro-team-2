@@ -43,7 +43,7 @@ export async function initializeCron() {
     }
   });
 
-  cron.schedule("0 0 * * *", async () => {
+  cron.schedule("*/1 * * * *", async () => {
     console.log("Running inventory discount update cron job...");
 
     try {

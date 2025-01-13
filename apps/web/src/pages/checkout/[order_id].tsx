@@ -11,6 +11,10 @@ import { Store, Truck } from 'lucide-react';
 import { GrLocation } from 'react-icons/gr';
 import LoadingVignette from '@/components/LoadingVignette';
 import { fetchOrderDetails, setSelectedAddress, setSelectedShipping, updateAddress, updateShippingMethod, fetchShippingVouchers, redeemShippingVoucher } from '@/redux/slices/checkoutSlice';
+import ErrorModal from "@/components/modal-error";
+import SuccessModal from "@/components/modal-success";
+import { showError, hideError } from "@/redux/slices/errorSlice";
+import { showSuccess, hideSuccess } from "@/redux/slices/successSlice";
 
 function OrderOptions() {
   const router = useRouter();
@@ -24,6 +28,8 @@ function OrderOptions() {
   const [isVoucherSelectVisible, setIsVoucherSelectVisible] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
+  const { isErrorOpen, errorMessage } = useSelector((state: RootState) => state.error);
+  const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success); 
 
   const shippingMethods = [
     { label: 'JNE', value: 'jne' },
@@ -44,7 +50,10 @@ function OrderOptions() {
 
   useEffect(() => {
     if (selectedAddress) {
-      dispatch(updateAddress({ user_id, order_id, address_id: selectedAddress }));
+      dispatch(updateAddress({ user_id, order_id, address_id: selectedAddress })).unwrap()
+      .catch((error) => {
+        dispatch(showError(error));
+      });
     }
   }, [selectedAddress, dispatch]);
 
@@ -61,13 +70,15 @@ function OrderOptions() {
   const handleVoucherApply = () => {
     if (selectedVoucher) {
       dispatch(redeemShippingVoucher({ user_id, order_id, redeem_code:selectedVoucher}))
-      alert(`Voucher ${selectedVoucher} applied!`);
+      dispatch(showSuccess(`Voucher ${selectedVoucher} applied!`));
     }
   };
 
   return (
     <div className="min-h-screen w-screen bg-white py-8 mt-[11vh]">
       {loading && <LoadingVignette />}
+      <ErrorModal isOpen={isErrorOpen} onClose={() => dispatch(hideError())} errorMessage={errorMessage}/>
+      <SuccessModal isOpen={isSuccessOpen} onClose={() => {dispatch(hideSuccess())}} successMessage={successMessage}/>
       {mounted && (
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-8">
@@ -165,7 +176,7 @@ function OrderOptions() {
                 <div className="flex items-center">
                   <Button
                     size="lg"
-                    onClick={() => {                      setIsVoucherSelectVisible(!isVoucherSelectVisible);
+                    onClick={() => { setIsVoucherSelectVisible(!isVoucherSelectVisible);
                       if (isVoucherSelectVisible && selectedVoucher) {
                         handleVoucherApply();
                       }

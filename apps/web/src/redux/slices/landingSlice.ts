@@ -46,6 +46,12 @@ export const fetchClosestStoreById = createAsyncThunk(
   }
 )
 
+const defaultStore = {
+  store_id: 28,
+  store_name: "Default Store",
+  store_location: "Fetching location...",
+};
+
 // Create the slice
 const landingSlice = createSlice({
   name: 'location',
@@ -67,8 +73,14 @@ const landingSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchClosestStore.fulfilled, (state, action) => {
-        state.closestStore = action.payload;
-        state.error = null;
+        if (action.payload.store_id) {
+          state.closestStore = action.payload;
+          state.error = null;
+        } else {
+          // If no store is found, use the default store
+          state.closestStore = defaultStore;
+          state.error = "No stores found within 50 km.";
+        }
       })
       .addCase(fetchClosestStore.rejected, (state, action) => {
         state.error = action.payload as string;
@@ -77,8 +89,14 @@ const landingSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchClosestStoreById.fulfilled, (state, action) => {
-        state.closestStore = action.payload;
-        state.error = null;
+        if (action.payload.store_id) {
+          state.closestStore = action.payload;
+          state.error = null;
+        } else {
+          // Use the default store if no store is found
+          state.closestStore = defaultStore;
+          state.error = "No stores found within 50 km.";
+        }
       })
       .addCase(fetchClosestStoreById.rejected, (state, action) => {
         state.error = action.payload as string;

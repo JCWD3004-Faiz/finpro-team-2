@@ -190,7 +190,7 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
                       dispatch(resetMinMax());
                       if (value === "whole-store") {
                         dispatch(setInventoryId(null)); // Set inventory_id to null for "Whole Store"
-                        dispatch(setBogoProductId(0));
+                        dispatch(setBogoProductId(null));
                       } else {
                         const selectedInventory =
                           inventoryWithoutDiscounts.find(
@@ -198,9 +198,11 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
                           );
                         if (selectedInventory) {
                           dispatch(setInventoryId(parseInt(value))); // Set inventory_id
-                          dispatch(
-                            setBogoProductId(selectedInventory.product_id)
-                          ); 
+                          if (type === "BOGO") {
+                            dispatch(
+                              setBogoProductId(selectedInventory.product_id)
+                            );
+                          }
                         }
                       }
                     }}

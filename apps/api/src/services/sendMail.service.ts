@@ -163,6 +163,7 @@ export class SendEmailService {
 
   async sendVerifyEmail(data: { username: string; email: string }) {
     const validatedData = userPendingSchema.parse(data);
+    const user = await this.checkSSOLogin(validatedData.email);
     const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
     const verificationToken = generateVerifiationToken(data);
     const pendingUser = await this.prisma.pendingRegistrations.findUnique({

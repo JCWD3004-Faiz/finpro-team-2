@@ -16,6 +16,7 @@ import managePaymentReducer from "./slices/managePaymentSlice";
 import manageVoucherReducer from "./slices/manageVoucherSlice";
 import getDiscountsReducer from "./slices/getDiscountSlice";
 import getProductsReducer from "./slices/getProductsSlice";
+import getUserReducer from "./slices/getUserSlice";
 import createDiscountReducer from "./slices/createDiscountSlice";
 import updateDiscountReducer from "./slices/updateDiscountSlice";
 import storeSalesReducer from "./slices/storeSalesSlice";
@@ -39,6 +40,7 @@ const store = configureStore({
     manageVoucher: manageVoucherReducer,
     getDiscount: getDiscountsReducer,
     getProducts: getProductsReducer,
+    getUsers: getUserReducer,
     createDiscount: createDiscountReducer,
     updateDiscount: updateDiscountReducer,
     storeSales: storeSalesReducer,

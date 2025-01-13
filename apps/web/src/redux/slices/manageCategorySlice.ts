@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ManageCategoryState } from "@/utils/reduxInterface";
 import axios from "@/utils/interceptor";
-import { AxiosError } from "axios";
+import axiosHandler, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 
 const initialState: ManageCategoryState = {
@@ -81,7 +81,7 @@ export const updateCategory = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/products/categories/${category_id}`,
         { category_name },
         {
@@ -105,7 +105,7 @@ export const deleteCategory = createAsyncThunk(
   "manageCategory/deleteCategory",
   async ({ category_id }: { category_id: number }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/products/categories/delete/${category_id}`,
         {
           headers: { Authorization: `Bearer ${access_token}` },
@@ -128,7 +128,7 @@ export const createCategory = createAsyncThunk(
   "manageCategory/createCategory",
   async ({ category_name }: { category_name: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
+      const response = await axiosHandler.post(
         `/api/products/categories`,
         { category_name },
         {

@@ -10,7 +10,8 @@ import { useCheckAccess } from "../hooks/useCheckAccess";
 import AccessDenied from "../components/AccessDenied";
 import LocationHeader from "../components/location-header";
 import axios from "axios";
-import { useEffect } from "react";
+import { ToastContainer } from 'react-toastify'; 
+
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_AXIOS_BASE_URL;
 
@@ -21,15 +22,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const hideNavAdmin = router.pathname.startsWith("/admin");
   const hideNavAuth = router.pathname.startsWith("/auth");
-
-  // Define paths where you want to show the LocationHeader
-  const showLocationHeaderPaths = ["/", "/home"]; // Example paths to show the LocationHeader
-  const shouldShowLocationHeader = showLocationHeaderPaths.includes(router.pathname);
-
-  useEffect(() => {
-    // This will allow us to log the current pathname, useful for debugging routing
-    console.log("Current Path: ", router.pathname);
-  }, [router.pathname]);
 
   return (
     <Provider store={store}>
@@ -42,6 +34,7 @@ export default function App({ Component, pageProps }: AppProps) {
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
 
       {!hideNavAdmin && !hideNavAuth && <Footer />}
+      <ToastContainer position="bottom-right" autoClose={3000}/>
     </Provider>
   );
 }

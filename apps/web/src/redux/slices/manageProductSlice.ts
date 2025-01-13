@@ -6,7 +6,7 @@ import {
   fieldEndpointMap,
 } from "@/utils/reduxInterface";
 import axios from "@/utils/interceptor";
-import axioss, { AxiosError, isAxiosError } from "axios";
+import axiosHandler, { AxiosError, isAxiosError } from "axios";
 import Cookies from "js-cookie";
 import { WritableDraft } from "immer";
 
@@ -121,7 +121,7 @@ export const createProduct = createAsyncThunk(
         formData.append("images", image);
       });
 
-      const response = await axios.post(`/api/products`, formData, {
+      const response = await axiosHandler.post(`/api/products`, formData, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "multipart/form-data",
@@ -175,7 +175,7 @@ export const updateProductField = createAsyncThunk(
   ) => {
     try {
       const endpoint = fieldEndpointMap[field];
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/products/${endpoint}/${productId}`,
         { [field]: value },
         {
@@ -209,7 +209,7 @@ export const updateProductImage = createAsyncThunk(
       const formData = new FormData();
       formData.append("image", imageFile);
 
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/products/images/${imageId}`,
         formData,
         {
@@ -247,7 +247,7 @@ export const deleteProduct = createAsyncThunk(
       );
       return { message: response.data.message, productId };
     } catch (error) {
-      if (axioss.isAxiosError(error)) {
+      if (axiosHandler.isAxiosError(error)) {
         console.error("Error Object:", error.response);
         const errorMessage =
           error.response?.data?.detail || "Failed to delete product.";

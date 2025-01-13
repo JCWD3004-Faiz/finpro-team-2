@@ -16,6 +16,7 @@ import ProductCardLatest from "@/components/product-card-latest";
 import Pagination from "@/components/pagination";
 
 const Products: React.FC = () => {
+
   const dispatch = useDispatch<AppDispatch>();
   const {
     loading,
@@ -93,6 +94,8 @@ const Products: React.FC = () => {
             userStock={product.user_stock}
             price={String(product.price)}
             discountedPrice={String(product.discounted_price)}
+            discountType={product.discount_type}  
+            discountValue={product.discount_value}
             onClick={() => {
               router.push(
                 `/products-page/product-details-page/${product.inventory_id}`
