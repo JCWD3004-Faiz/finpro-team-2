@@ -30,28 +30,24 @@ function SingleProductPage() {
     }
   };
 
-  // if (!productDetailUser) {
-  //   return <div>Product not found!</div>;
-  // }
   useEffect(() => {
     if (productId){
       const inventoryId = Number(productId); // Replace with the inventory ID you want to fetch
-    dispatch(fetchProductDetailsByInventoryId(inventoryId))
-      .unwrap()
-      .then((data) => {
-        console.log("Fetched Product Details:", data);
-      })
-      .catch((err) => {
-        console.error("Error fetching product details:", err);
-      });
+      dispatch(fetchProductDetailsByInventoryId(inventoryId))
+        .unwrap()
+        .then((data) => {
+          console.log("Fetched Product Details:", data);
+        })
+        .catch((err) => {
+          console.error("Error fetching product details:", err);
+        });
     }
-    
   }, [dispatch, productId]);
 
   console.log("Product details", productDetailUser);
 
   return (
-    <div className="bg-white min-h-screen flex justify-center p-8">
+    <div className="bg-white min-h-screen flex justify-center p-8" style={{ marginTop: '11vh' }}>
       <div className="flex w-full max-w-6xl gap-10">
         {/* Left side */}
         <div className="flex flex-col items-center w-1/2">
