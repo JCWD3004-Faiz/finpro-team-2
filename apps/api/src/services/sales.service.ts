@@ -58,11 +58,12 @@ export class SalesService {
     const selectedCategoryId = categoryId || 1;
 
     const filters: any = {
+      order_status: { in: ["PROCESSING", "SENT", "ORDER_CONFIRMED"] },
       created_at: {
         gte: new Date(`${year}-01-01T00:00:00Z`),
         lte: new Date(`${year}-12-31T23:59:59Z`),
       },
-      order_status: { in: ["PROCESSING", "SENT", "ORDER_CONFIRMED"] },
+      
     };
 
     if (storeId) {
@@ -164,11 +165,12 @@ export class SalesService {
 
     // Define base filters
     const filters: any = {
+      order_status: { in: ["PROCESSING", "SENT", "ORDER_CONFIRMED"] },
       created_at: {
         gte: new Date(`${year}-01-01T00:00:00Z`),
         lte: new Date(`${year}-12-31T23:59:59Z`),
       },
-      order_status: { in: ["PROCESSING", "SENT", "ORDER_CONFIRMED"] },
+      
     };
 
     if (storeId) {

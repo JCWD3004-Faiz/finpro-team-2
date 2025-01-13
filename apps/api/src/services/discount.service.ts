@@ -77,6 +77,8 @@ export class DiscountService {
       const checkDiscount = await this.prisma.discounts.findFirst({
         where: {
           inventory_id: validatedData.inventory_id,
+          is_deleted: false,
+          is_active: true,
         },
       });
 

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "@/utils/interceptor";
-import { AxiosError } from "axios";
+import axiosHandler, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { DiscountDetail } from "@/utils/reduxInterface";
 
@@ -48,7 +48,7 @@ export const toggleIsActive = createAsyncThunk(
   ) => {
     try {
       const updatedStatus = !currentStatus; 
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/store-admin/discounts/value/${discount_id}`,
         { is_active: updatedStatus },
         {
@@ -98,7 +98,7 @@ export const saveUpdatedValue = createAsyncThunk(
             : "For nominal discounts, the value must be greater than 0."
         );
       }
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/store-admin/discounts/value/${discount_id}`,
         { value },
         {
@@ -133,7 +133,7 @@ export const saveUpdatedStartDate = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/store-admin/discounts/start/${discount_id}`,
         { [field]: date },
         {
@@ -168,7 +168,7 @@ export const saveUpdatedImage = createAsyncThunk(
       const formData = new FormData();
       formData.append("image", image);
 
-      const response = await axios.patch(
+      const response = await axiosHandler.patch(
         `/api/store-admin/discounts/image/${discount_id}`,
         formData,
         {

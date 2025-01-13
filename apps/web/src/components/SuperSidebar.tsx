@@ -1,6 +1,6 @@
 import React from 'react';
 import Cookies from "js-cookie";
-import { FaChartLine, FaBars, FaTimes, FaStore, FaTh, FaUsers, FaShoppingBag, FaSignOutAlt, FaClipboardList, FaTicketAlt } from 'react-icons/fa';
+import { FaChartLine, FaUser, FaBars, FaTimes, FaStore, FaTh, FaUsers, FaShoppingBag, FaSignOutAlt, FaClipboardList, FaTicketAlt } from 'react-icons/fa';
 
 interface SuperSidebarProps {
   isSidebarOpen: boolean;
@@ -72,6 +72,12 @@ function SuperSidebar ({ isSidebarOpen, toggleSidebar }: SuperSidebarProps) {
             <a href="/admin-super/reports" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
               <FaChartLine className="mr-3" />
               Reports
+            </a>
+          </li>
+          <li>
+            <a href="/admin-super/users" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
+              <FaUser className="mr-3" />
+              Users
             </a>
           </li>
         </ul>

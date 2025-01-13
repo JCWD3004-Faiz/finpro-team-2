@@ -257,6 +257,8 @@ export interface ProductAllUser {
   user_stock: number;
   price: number;
   discounted_price: number;
+  discount_type: string | null;
+  discount_value: number | null;
 }
 
 export interface getProductsState {
@@ -269,6 +271,28 @@ export interface getProductsState {
   sortOrder: string;
   search: string;
   category: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface AllUser {
+  user_id: number;
+  username: string;
+  email: string;
+  role: string;
+  referral_code: string;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface getAllUserState {
+  allUser: AllUser[];
+  search: string | null;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  role: string | null;
   loading: boolean;
   error: string | null;
 }

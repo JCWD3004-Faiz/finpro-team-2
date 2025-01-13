@@ -176,7 +176,7 @@ export class InventoryService {
     }
   }
 
-  async getInventoryForDiscountByStoreId(store_id: number) {
+  /* async getInventoryForDiscountByStoreId(store_id: number) {
     const store = await this.prisma.stores.findUnique({
       where: { store_id },
     });
@@ -199,6 +199,64 @@ export class InventoryService {
           inventory_id: {
             in: discountedInventoryIds,
           },
+        },
+      },
+      select: {
+        inventory_id: true,
+        product_id: true,
+        Product: {
+          select: {
+            product_name: true,
+          },
+        },
+      },
+    });
+
+    const sortedInventories = inventories
+      .map((inventory) => ({
+        inventory_id: inventory.inventory_id,
+        product_id: inventory.product_id,
+        product_name: inventory.Product?.product_name || "N/A",
+      }))
+      .sort((a, b) => a.product_name.localeCompare(b.product_name));
+
+    return sortedInventories;
+  } */
+
+  async getInventoryForDiscountByStoreId(store_id: number) {
+    const store = await this.prisma.stores.findUnique({
+      where: { store_id },
+    });
+
+    if (!store) {
+      throw new Error("Store not found");
+    }
+
+    // Get discounted inventory IDs where the discount is not deleted
+    const discountedInventoryIds = (
+      await this.prisma.discounts.findMany({
+        where: {
+          OR: [
+            { is_deleted: true }, // Include deleted discounts
+            { inventory_id: null }, // Include inventories not associated with discounts
+          ],
+        },
+        select: { inventory_id: true },
+      })
+    )
+      .map((discount) => discount.inventory_id)
+      .filter((id): id is number => id !== null);
+
+    // Fetch inventories based on the adjusted condition
+    const inventories = await this.prisma.inventories.findMany({
+      where: {
+        store_id,
+        OR: [
+          { inventory_id: { notIn: discountedInventoryIds } }, // Not yet in discounts
+          { inventory_id: { in: discountedInventoryIds } }, // In discounts with is_deleted = true
+        ],
+        Product: {
+          is_deleted: false,
         },
       },
       select: {
@@ -268,14 +326,17 @@ export class InventoryService {
     const whereCondition: any = {
       store_id,
       Product: {
-        product_name: {
-          contains: search,
-          mode: "insensitive",
-        },
+        product_name: search
+          ? {
+              contains: search,
+              mode: "insensitive",
+            }
+          : undefined, // Only apply search condition if search is not empty
+        is_deleted: false, // Always include is_deleted filter
       },
     };
     const inventories = await this.prisma.inventories.findMany({
-      where: search ? whereCondition : { store_id },
+      where: whereCondition,
       skip,
       take,
       orderBy:
@@ -302,7 +363,18 @@ export class InventoryService {
       },
     });
     const totalItems = await this.prisma.inventories.count({
-      where: { store_id },
+      where: {
+        store_id,
+        Product: {
+          is_deleted: false, // Ensure is_deleted filter is applied in total count
+          product_name: search
+            ? {
+                contains: search,
+                mode: "insensitive",
+              }
+            : undefined,
+        },
+      },
     });
     return {
       data: inventories,

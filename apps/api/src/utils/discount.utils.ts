@@ -77,6 +77,34 @@ export async function updateInventoriesDiscountedPrice(
   }
 }
 
+export async function checkAndApplyBogo(
+  inventory_id: number,
+  product_price: number
+) {
+  const inventoryPrice = await prisma.inventories.findUnique({
+    where: { inventory_id },
+    include: {
+      Product: {
+        select: {
+          price: true,
+        },
+      },
+    },
+  });
+
+  const inventoryDiscount = await prisma.discounts.findFirst({
+    where: { inventory_id },
+  });
+
+  if (inventoryPrice) {
+    if (inventoryDiscount?.type === "BOGO") {
+      const newPrice = product_price - Number(inventoryPrice.Product.price);
+      return newPrice;
+    }
+  }
+  return product_price;
+}
+
 export async function wholeStoreCartDiscount(
   cartPrice: number,
   store_id: number

@@ -154,8 +154,6 @@ function AllReports() {
     dispatch(fetchSalesByProductData(params));
   }, [dispatch, year, store_id, product_id]);
 
-  console.log("product data: ", product_id);
-
   useEffect(() => {
     const params: { year: number; store_id?: number; category_id?: number } = {
       year,

@@ -179,4 +179,11 @@ router.get(
   stockController.getStockJournalByStoreId.bind(stockController),
 )
 
+router.get(
+  "/users",
+  authenticateJwt.authenticateJwt.bind(authenticateJwt),
+  authenticateJwt.authorizeRole("SUPER_ADMIN").bind(authenticateJwt),
+  superAdminController.getAllUsers.bind(superAdminController),
+)
+
 export default router;
