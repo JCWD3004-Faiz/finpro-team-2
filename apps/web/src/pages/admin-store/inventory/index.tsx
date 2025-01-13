@@ -18,6 +18,7 @@ import {
 import { fetchStoreByStoreId } from "@/redux/slices/storeAdminSlice";
 import Cookies from "js-cookie";
 import Pagination from "@/components/pagination";
+import LoadingVignette from "@/components/LoadingVignette";
 
 function StoreInventory() {
   const storeId = Cookies.get("storeId");
@@ -90,6 +91,7 @@ function StoreInventory() {
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
       />
+      {loading && <LoadingVignette />}
       <div
         className={`ml-0 ${isSidebarOpen ? "md:ml-64" : ""} md:ml-64 p-6 relative`}
       >

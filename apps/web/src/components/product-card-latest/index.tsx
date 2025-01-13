@@ -9,6 +9,8 @@ interface ProductCardProps {
   userStock: number;
   price: string;
   discountedPrice: string;
+  discountType: string | null;
+  discountValue: number | null;
   onClick: () => void;
 }
 
@@ -19,16 +21,15 @@ export default function ProductCardLatest({
   userStock,
   price,
   discountedPrice,
+  discountType,
+  discountValue,
   onClick,
 }: ProductCardProps) {
-  const discount =
-    ((parseInt(price) - parseInt(discountedPrice)) / parseInt(price)) * 100;
-
   return (
     <div
       onClick={onClick}
       className="bg-white shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-      style={{ width: "280px" }} // Fixed width for the card
+      style={{ width: "280px",  height: "500px"  }} // Fixed width for the card
     >
       <div
         className="aspect-square bg-gray-100 flex items-center justify-center text-gray-500"
@@ -55,19 +56,37 @@ export default function ProductCardLatest({
           {productName}
         </h3>
 
-        <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-lg font-bold text-gray-900">
-            {formatCurrency(parseInt(discountedPrice))}
-          </span>
-          {discount > 0 && (
+        <div className="flex items-baseline gap-2 mb-2 h-14">
+          {discountedPrice && discountedPrice !== price ? (
             <>
-              <span className="text-sm text-gray-500 line-through">
-                {formatCurrency(parseInt(price))}
-              </span>
-              <span className="text-sm font-medium text-green-600">
-                {Math.round(discount)}% OFF
-              </span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900">
+                  {formatCurrency(parseInt(discountedPrice))}
+                </span>
+                <span className="text-sm text-gray-500 line-through">
+                  {formatCurrency(parseInt(price))}
+                </span>
+              </div>
             </>
+          ) : (
+            <span className="text-lg font-bold text-gray-900">
+              {formatCurrency(parseInt(price))}
+            </span>
+          )}
+          {discountType === "PERCENTAGE" && discountValue && (
+            <span className="text-sm font-medium text-green-600">
+              {Math.round(discountValue)}% OFF
+            </span>
+          )}
+          {discountType === "NOMINAL" && discountValue && (
+            <span className="text-sm font-medium text-green-600">
+              {formatCurrency(discountValue)} OFF
+            </span>
+          )}
+          {discountType === "BOGO" && (
+            <span className="text-sm font-medium text-green-600">
+              Buy One Get One Free
+            </span>
           )}
         </div>
 

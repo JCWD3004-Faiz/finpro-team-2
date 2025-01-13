@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,11 @@ import SuccessModal from "@/components/modal-success";
 import ErrorModal from "@/components/modal-error";
 import { hideSuccess, showSuccess } from "@/redux/slices/successSlice";
 import { hideError, showError } from "@/redux/slices/errorSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 
 export default function ForgotPasswordPage() {
+  const dispatch = useDispatch<AppDispatch>();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -40,6 +41,15 @@ export default function ForgotPasswordPage() {
         email: email,
       });
     } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage =
+          typeof error.response.data?.detail === "string"
+            ? error.response.data.detail
+            : "An error occurred.";
+        dispatch(showError(errorMessage));
+      } else {
+        dispatch(showError("An unexpected error occurred."));
+      }
     } finally {
       setIsLoading(false);
       setSubmitted(true);
@@ -50,6 +60,13 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       {isLoading && <LoadingVignette />}
+      <ErrorModal
+        isOpen={isErrorOpen}
+        onClose={() => {
+          dispatch(hideError());
+        }}
+        errorMessage={errorMessage}
+      />
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl font-bold text-center">
@@ -90,4 +107,7 @@ export default function ForgotPasswordPage() {
       </Card>
     </div>
   );
+}
+function dispatch(arg0: { payload: string; type: "error/showError" }) {
+  throw new Error("Function not implemented.");
 }
