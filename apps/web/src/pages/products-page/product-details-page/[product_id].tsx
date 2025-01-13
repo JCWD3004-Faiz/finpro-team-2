@@ -3,12 +3,23 @@ import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchProductDetailsByInventoryId } from "@/redux/slices/getProductsSlice";
+import { addToCart } from "@/redux/slices/cartSlice";
+import useAuth from "@/hooks/useAuth";
+import { toast } from 'react-toastify';
+import Cookies from "js-cookie";
 
 function SingleProductPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error, productDetailUser } = useSelector(
     (state: RootState) => state.getProducts
   );
+
+  const user = useAuth();
+  const user_id = Number(user?.id);
+  const isVerified = user?.is_verified
+  const { addresses } = useSelector((state: RootState) => state.userProfile);
+  const current_store_id = Number(Cookies.get("current_store_id"));
+  const { cartItems } = useSelector((state: RootState) => state.cart);
 
   const params = useParams();
   const productId = params?.product_id; // Get the productId from URL
@@ -44,10 +55,41 @@ function SingleProductPage() {
     }
   }, [dispatch, productId]);
 
-  console.log("Product details", productDetailUser);
+  const handleAddToCart = async () => {
+    if (user_id) {
+      if (addresses.length === 0) {
+        toast.info("You must set an address before shopping.");
+        return;
+      } 
+      if (current_store_id === 28) {
+        toast.error("Invalid store. Please change your address.");
+        return
+      }
+      if (cartItems.length > 0 && cartItems[0].store_id !== current_store_id){
+        toast.error("You cannot purchase from a different store");
+        return;
+      }
+      if (isVerified === false) {
+        toast.error("Please verify your email");
+        return;
+      }
+      try {
+        // const resultAction = await dispatch(addToCart({ user_id, inventory_id: Number(productId) }));  
+        // if (addToCart.rejected.match(resultAction)) {
+        //   toast.error(String(resultAction.payload));
+        //   return;
+        // }
+        toast.success("Item added to cart!");
+      } catch (error) {
+        console.error("Error adding item to cart:", error);
+      }
+    } else {
+      toast.info("Sign in to start shopping!");
+    }
+  };
 
   return (
-    <div className="bg-white min-h-screen flex justify-center p-8" style={{ marginTop: '11vh' }}>
+    <div className="bg-white min-h-screen flex justify-center p-8 text-gray-900" style={{ marginTop: '11vh' }}>
       <div className="flex w-full max-w-6xl gap-10">
         {/* Left side */}
         <div className="flex flex-col items-center w-1/2">
@@ -70,27 +112,15 @@ function SingleProductPage() {
         <div className="w-1/2">
           <h1 className="text-6xl font-bold">{productDetailUser.product_name}</h1>
           <p className="text-xl text-gray-800 mt-4">IDR {productDetailUser.discounted_price.toLocaleString()}</p>
-          <div className="border-b border-gray-300 my-4"></div>
+          <div className="border-b border-gray-300 my-4">Stock: {productDetailUser.user_stock}</div>
           <p className="text-sm text-gray-600">{productDetailUser.description}</p>
 
-          {/* Quantity controls */}
-          <div className="flex items-center mt-6">
-            <button
-              onClick={handleDecrease}
-              className="w-10 h-10 border border-black flex justify-center items-center text-lg font-semibold"
-            >
-              -
-            </button>
-            <span className="mx-4 text-xl">{quantity}</span>
-            <button
-              onClick={handleIncrease}
-              className="w-10 h-10 border border-black flex justify-center items-center text-lg font-semibold"
-            >
-              +
-            </button>
-          </div>
-
-          <button className="mt-6 w-full py-3 bg-black text-white font-bold text-xl">Add to Cart</button>
+        <button onClick={(e) => { e.stopPropagation(); handleAddToCart()}}
+        className={`w-full py-3 mt-6 transition-colors duration-200 text-xl ${productDetailUser.user_stock === 0
+        ? 'bg-gray-400 cursor-not-allowed' : 'bg-black text-white font-bold hover:bg-neutral-600'}`}
+        disabled={productDetailUser.user_stock === 0}>
+          {productDetailUser.user_stock === 0 ? "Out of Stock" : "Add to Cart"}
+        </button>
         </div>
       </div>
     </div>
