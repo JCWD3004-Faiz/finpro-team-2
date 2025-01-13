@@ -1,48 +1,46 @@
-import React from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/free-mode";
-import { FreeMode } from "swiper/modules";
-import MoreCard from "../components/more-card";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { fetchInventoriesUser } from "@/redux/slices/getProductsSlice";
+import ProductCardLatest from "../components/product-card-latest";
 import FruggerMarquee from "../components/frugger-marquee"; // Import FruggerMarquee component
+import { Swiper, SwiperSlide } from "swiper/react"; // Import Swiper components
+import "swiper/css"; // Import Swiper styles
+import "swiper/css/free-mode"; // Import FreeMode styles
+import { FreeMode } from "swiper/modules";
 
 const HeroBanner = dynamic(() => import('../components/hero-banner'), { ssr: false });
 
 const Home: React.FC = () => {
-  const vegetablesAndFruits = [
-    { productId: 'vf1', productName: 'Apple', productDescription: 'Fresh, crisp apples.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf2', productName: 'Banana', productDescription: 'Ripe bananas from organic farms.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf3', productName: 'Tomato', productDescription: 'Red, juicy tomatoes.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf4', productName: 'Cucumber', productDescription: 'Fresh cucumbers for salads.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf5', productName: 'Carrot', productDescription: 'Crunchy and sweet carrots.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf6', productName: 'Broccoli', productDescription: 'Fresh green broccoli.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'vf7', productName: 'Spinach', productDescription: 'Organic spinach leaves.', productImage: 'https://via.placeholder.com/150' },
-  ];
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, productAllUser } = useSelector((state: RootState) => state.getProducts);
 
-  const poultry = [
-    { productId: 'p1', productName: 'Chicken Breast', productDescription: 'Lean and tender chicken breast.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p2', productName: 'Chicken Thighs', productDescription: 'Juicy and flavorful chicken thighs.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p3', productName: 'Duck Breast', productDescription: 'Premium quality duck breast.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p4', productName: 'Turkey', productDescription: 'Farm-fresh turkey meat.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p5', productName: 'Quail', productDescription: 'Small, tender quail meat.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p6', productName: 'Goose Breast', productDescription: 'Delicious and tender goose breast.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'p7', productName: 'Chicken Wings', productDescription: 'Perfect for grilling.', productImage: 'https://via.placeholder.com/150' },
-  ];
+  useEffect(() => {
+    // Fetch all products
+    const pageSize = 10000; // Use a sufficiently large number to fetch all products
+    const sortField = "product_name";
+    const sortOrder = "asc";
 
-  const dairy = [
-    { productId: 'd1', productName: 'Cottage Cheese', productDescription: 'Fresh, delicate Cottage Cheese', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd2', productName: 'Hazelnut Milk', productDescription: 'Freshly squeezed from our natural grown hazelnuts.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd3', productName: 'Whole Milk', productDescription: 'For your baking needs.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd4', productName: 'Yoghurt', productDescription: 'Freshly made daily.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd5', productName: 'Cheddar Cheese', productDescription: 'Aged cheddar cheese.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd6', productName: 'Almond Milk', productDescription: 'Nutritious almond milk.', productImage: 'https://via.placeholder.com/150' },
-    { productId: 'd7', productName: 'Butter', productDescription: 'Creamy, fresh butter.', productImage: 'https://via.placeholder.com/150' },
-  ];
+    dispatch(
+      fetchInventoriesUser({
+        page: 1, // Fetching all data doesn't need pagination, but provide the first page
+        pageSize,
+        sortField,
+        sortOrder,
+      })
+    );
+  }, [dispatch]);
 
-  const handleMoreClick = () => {
-    console.log("Showing more products...");
-  };
+  // Group products by category
+  const groupedProducts = productAllUser.reduce((groups, product) => {
+    const { category_name } = product;
+    if (!groups[category_name]) {
+      groups[category_name] = [];
+    }
+    groups[category_name].push(product);
+    return groups;
+  }, {} as Record<string, typeof productAllUser>);
 
   return (
     <div className="flex flex-col mt-[11vh]">
@@ -54,79 +52,49 @@ const Home: React.FC = () => {
       {/* FruggerMarquee component placed below hero banner */}
       <FruggerMarquee />
 
-      {/* Vegetables & Fruits Section */}
-      <div className="mx-8 my-8">
-        <h2 className="text-6xl font-semibold mb-6">Vegetables & Fruits</h2>
-        <Swiper spaceBetween={20} slidesPerView={4} keyboard={true} freeMode={true} modules={[FreeMode]}>
-          {vegetablesAndFruits.map((product) => (
-            <SwiperSlide key={product.productId}>
-              <div className="product-card w-[20vw] h-[55vh] bg-white shadow-lg border border-black overflow-hidden relative">
-                <img 
-                  src={product.productImage} 
-                  alt={product.productName} 
-                  className="w-full h-2/3 object-cover" 
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-bold">{product.productName}</h3>
-                  <p className="text-sm text-gray-600">{product.productDescription}</p>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-          <SwiperSlide>
-            <MoreCard onClickMore={handleMoreClick} />
-          </SwiperSlide>
-        </Swiper>
-      </div>
+      {/* Grouped Products by Category */}
+      <div className="w-full mt-[3vh] mb-[3vh] p-4">
+        {loading ? (
+          <div>Loading...</div> // You can replace this with a loading component if needed
+        ) : (
+          Object.keys(groupedProducts).map((category) => (
+            <div key={category} className="mb-12">
+              {/* Category Title */}
+              <h2 className="text-5xl font-bold mb-6">{category}</h2>
 
-      {/* Poultry Section */}
-      <div className="mx-8 my-8">
-        <h2 className="text-6xl font-semibold mb-6">Poultry</h2>
-        <Swiper spaceBetween={20} slidesPerView={4} keyboard={true} freeMode={true} modules={[FreeMode]}>
-          {poultry.map((product) => (
-            <SwiperSlide key={product.productId}>
-              <div className="product-card w-[20vw] h-[55vh] bg-white shadow-lg border border-black overflow-hidden relative">
-                <img 
-                  src={product.productImage} 
-                  alt={product.productName} 
-                  className="w-full h-2/3 object-cover" 
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-bold">{product.productName}</h3>
-                  <p className="text-sm text-gray-600">{product.productDescription}</p>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-          <SwiperSlide>
-            <MoreCard onClickMore={handleMoreClick} />
-          </SwiperSlide>
-        </Swiper>
-      </div>
-
-      {/* Dairy Section */}
-      <div className="mx-8 my-8">
-        <h2 className="text-6xl font-semibold mb-6">Dairy</h2>
-        <Swiper spaceBetween={20} slidesPerView={4} keyboard={true} freeMode={true} modules={[FreeMode]}>
-          {dairy.map((product) => (
-            <SwiperSlide key={product.productId}>
-              <div className="product-card w-[20vw] h-[55vh] bg-white shadow-lg border border-black overflow-hidden relative">
-                <img 
-                  src={product.productImage} 
-                  alt={product.productName} 
-                  className="w-full h-2/3 object-cover" 
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-bold">{product.productName}</h3>
-                  <p className="text-sm text-gray-600">{product.productDescription}</p>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-          <SwiperSlide>
-            <MoreCard onClickMore={handleMoreClick} />
-          </SwiperSlide>
-        </Swiper>
+              {/* Swiper for the current category */}
+              <Swiper
+                spaceBetween={20}
+                slidesPerView={"auto"}
+                freeMode={true}
+                modules={[FreeMode]}
+                className="category-swiper"
+              >
+                {groupedProducts[category].map((product) => (
+                  <SwiperSlide
+                    key={product.inventory_id}
+                    style={{ width: "280px" }} // Fixed width for each slide
+                  >
+                    <ProductCardLatest
+                      inventoryId={product.inventory_id}
+                      productId={product.product_id}
+                      productImage={product.product_image}
+                      productName={product.product_name}
+                      categoryName={product.category_name}
+                      userStock={product.user_stock}
+                      price={String(product.price)}
+                      discountedPrice={String(product.discounted_price)}
+                      onClick={() => {
+                        // Navigate to the product details page when clicked
+                        window.location.href = `/products-page/product-details-page/${product.inventory_id}`;
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ const Products: React.FC = () => {
     currentPage,
     totalPages,
   } = useSelector((state: RootState) => state.getProducts);
+
   const [category, setCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedQuery = useDebounce(searchQuery, 500);
@@ -47,22 +48,11 @@ const Products: React.FC = () => {
   };
 
   const handleProductClick = (productId: number) => {
-    /* const selectedProduct = allProducts.find(
-      (product) => product.productId === productId
-    ); 
-    if (selectedProduct) {
-      
-    }
-      */
     router.push(`/products-page/product-details-page/${productId}`);
   };
 
   useEffect(() => {
-    // Replace with your store_id
-    const page = 1; // You can modify pagination values
     const pageSize = 12;
-    const search = ""; // Add a search term if needed
-    const category = ""; // Add a category if needed
     const sortField = "product_name";
     const sortOrder = "asc";
 
@@ -71,19 +61,19 @@ const Products: React.FC = () => {
         page: currentPage,
         pageSize,
         search: debouncedQuery,
-        category,
+        category: category === "all" ? "" : category,
         sortField,
         sortOrder,
       })
     )
       .unwrap()
       .then((data) => {
-        console.log("Fetched Inventories:", data); // Log the fetched data
+        console.log("Fetched Inventories:", data);
       })
       .catch((err) => {
-        console.error("Error fetching inventories:", err); // Log any errors
+        console.error("Error fetching inventories:", err);
       });
-  }, [dispatch, debouncedQuery, currentPage]);
+  }, [dispatch, debouncedQuery, currentPage, category]);
 
   return (
     <div className="bg-white text-gray-800 min-h-screen flex flex-col items-center">
