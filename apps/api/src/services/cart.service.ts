@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { VoucherService } from "./voucher.service";
 import axios from "axios";
-import { wholeStoreCartDiscount } from "../utils/discount.utils";
+import { wholeStoreCartDiscount, checkAndApplyBogo } from "../utils/discount.utils";
 
 export class CartService {
     private prisma: PrismaClient;
@@ -70,6 +70,11 @@ export class CartService {
                 const discount = (updatedPrice * discountAmount) / 100;
                 updatedPrice = Math.max(updatedPrice - discount, 0);
             }
+            let newUpdatedPrice = updatedPrice;
+            if(quantity > 1){
+                newUpdatedPrice = await checkAndApplyBogo(cartItem.inventory_id, updatedPrice);
+            }
+            
             const updatedCartItem = await this.prisma.cartItems.update({
                 where: { cart_item_id }, data: { quantity, product_price: updatedPrice },
             });

@@ -32,15 +32,6 @@ const Products: React.FC = () => {
 
   const router = useRouter();
 
-  // const filteredProducts = allProducts.filter((product) => {
-  //   const matchesCategory =
-  //     category === "all" || product.productId.startsWith(category);
-  //   const matchesSearch = product.productName
-  //     .toLowerCase()
-  //     .includes(searchQuery.toLowerCase());
-  //   return matchesCategory && matchesSearch;
-  // });
-
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       dispatch(setCurrentPage(page));
@@ -113,6 +104,8 @@ const Products: React.FC = () => {
             userStock={product.user_stock}
             price={String(product.price)}
             discountedPrice={String(product.discounted_price)}
+            discountType={product.discount_type}  
+            discountValue={product.discount_value}
             onClick={() => {
               router.push(
                 `/products-page/product-details-page/${product.inventory_id}`

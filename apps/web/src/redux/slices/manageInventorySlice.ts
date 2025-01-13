@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "@/utils/interceptor"
-import { AxiosError } from "axios";
+import axiosHandler, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { Inventory, Store } from "@/utils/adminInterface";
 
@@ -99,6 +99,9 @@ export const createStockJournal = createAsyncThunk(
     ) => {
       const access_token = Cookies.get("access_token");
       try {
+        if(changeCategory === "SOLD" && stockChange > 0){
+          return rejectWithValue("Sold Stock change can't be a positive value");
+        }
         const payload = {
           inventories: inventoryIds.map((id) => ({
             inventoryId: id,
@@ -106,7 +109,7 @@ export const createStockJournal = createAsyncThunk(
             changeCategory,
           })),
         };
-        const response = await axios.post(
+        const response = await axiosHandler.post(
           `/api/inventory/stock-journal/${storeId}`,
           payload,
           {

@@ -76,21 +76,36 @@ function ManageInventory() {
     dispatch(toggleSelectedItem(inventory));
   };
 
-  const handleConfirm = (inventories: {
+  const handleConfirm = (inputInventories: {
     inventoryIds: number[];
     stockChange: number;
     changeCategory: string;
   }) => {
-    if (inventories.stockChange === 0) {
+    if (inputInventories.stockChange === 0) {
       dispatch(showError("Stock change cannot be 0."));
       return;
     }
+
+    const hasUnsoldItems = inputInventories.inventoryIds.some((id) => {
+      const inventory = inventories.find(
+        (item) => item.inventory_id === id
+      );
+      return inventory?.items_sold === 0;
+    });
+
+    if (hasUnsoldItems && inputInventories.changeCategory === "SOLD") {
+      dispatch(
+        showError("Cannot set category to 'SOLD' for items with no sales.")
+      );
+      return;
+    }
+    
     dispatch(
       createStockJournal({
         storeId: store_id,
-        inventoryIds: inventories.inventoryIds,
-        stockChange: inventories.stockChange,
-        changeCategory: inventories.changeCategory,
+        inventoryIds: inputInventories.inventoryIds,
+        stockChange: inputInventories.stockChange,
+        changeCategory: inputInventories.changeCategory,
       })
     )
       .unwrap()

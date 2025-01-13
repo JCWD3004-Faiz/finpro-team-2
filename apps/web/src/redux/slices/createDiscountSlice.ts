@@ -154,7 +154,7 @@ const createDiscountSlice = createSlice({
     setMaxDiscount: (state, action: PayloadAction<number>) => {
       state.max_discount = action.payload;
     },
-    setBogoProductId: (state, action: PayloadAction<number>) => {
+    setBogoProductId: (state, action: PayloadAction<number | null>) => {
       state.bogo_product_id = action.payload;
     },
     setDescription: (state, action: PayloadAction<string>) => {

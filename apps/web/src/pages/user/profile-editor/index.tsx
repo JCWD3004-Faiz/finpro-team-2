@@ -426,6 +426,29 @@ const ProfileEditor: React.FC = () => {
                 </CardContent>
               </Card>
 
+              {/* update password */}
+              <Card
+                style={{
+                  boxShadow:
+                    "0 -1px 6px rgba(0, 0, 0, 0.1), 0 4px 3px rgba(0, 0, 0, 0.08)",
+                }}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Mail className="w-5 h-5" />
+                    Reset Password
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    onClick={() => (window.location.href = "/auth/passwordReset")}
+                    className="w-full sm:w-auto"
+                  >
+                    Reset
+                  </Button>
+                </CardContent>
+              </Card>
+
               {/* email verify card */}
               {!is_verified && (
                 <div

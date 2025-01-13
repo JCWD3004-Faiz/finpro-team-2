@@ -41,7 +41,7 @@ const Login: React.FC = () => {
         password: formData.password,
       });
 
-      const { access_token, refreshToken } = response.data.data;
+      const { access_token, refreshToken } = response?.data?.data;
       const decodedToken: any = jwtDecode(access_token);
       const { role } = decodedToken;
 

@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
 import { SuperAdminService } from "../services/super.admin.service";
+import { GetUserService } from "../services/user.get.service";
 import { User } from "../models/admin.models";
 import { sendErrorResponse } from "../utils/response.utils";
 
 
 export class SuperAdminController {
   private superAdminService: SuperAdminService;
+  private getUserService: GetUserService;
 
   constructor() {
     this.superAdminService = new SuperAdminService();
+    this.getUserService = new GetUserService();
   }
 
   async registerAdmin(req: Request, res: Response) {
@@ -188,5 +191,38 @@ export class SuperAdminController {
       });
     }
   }
+
+  async getAllUsers(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const search = (req.query.search as string) || "";
+      const role = (req.query.role as "SUPER_ADMIN" | "STORE_ADMIN" | "USER" | "") || "";
+  
+      // Call the service method to fetch users
+      const data = await this.getUserService.getAllUsers(page, pageSize, search, role);
+  
+      if (data) {
+        res.status(200).send({
+          data: data,
+          status: res.statusCode,
+        });
+      } else {
+        res.status(404).send({
+          message: "Users not found",
+          status: res.statusCode,
+          details: res.statusMessage,
+        });
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error("Error fetching users:", error);
+      res.status(500).send({
+        message: "An error occurred while fetching users",
+        error: err.message,
+      });
+    }
+  }
+  
 
 }
