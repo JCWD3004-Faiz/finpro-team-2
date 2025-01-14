@@ -87,7 +87,7 @@ const Register: React.FC = () => {
         onClose={() => dispatch(hideError())}
         errorMessage={errorMessage}
       />
-      <div className="bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center">
+      <div className="bg-white p-8 w-screen md:w-3/6 h-screen shadow-md flex flex-col justify-center">
         {/* Header */}
         <h1 className="text-5xl font-bold text-right mb-6">REGISTER</h1>
 
@@ -96,7 +96,7 @@ const Register: React.FC = () => {
           onSubmit={handleSubmit}
           className="flex flex-col items-end" // Align form elements to the right
         >
-          <div className="mb-4 w-96">
+          <div className="mb-4 w-full md:max-w-96">
             {" "}
             {/* Limit input width */}
             <label
@@ -117,7 +117,7 @@ const Register: React.FC = () => {
             />
           </div>
 
-          <div className="mb-6 w-96">
+          <div className="mb-6 w-full md:max-w-96">
             {" "}
             {/* Limit input width */}
             <label
@@ -139,7 +139,7 @@ const Register: React.FC = () => {
           </div>
 
           {/* Button */}
-          <div className="flex flex-col w-96 items-end">
+          <div className="flex flex-col w-full md:max-w-96 items-end">
             {" "}
             {/* Limit button width and align to the right */}
             <button

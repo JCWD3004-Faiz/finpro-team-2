@@ -70,7 +70,7 @@ const Products: React.FC = () => {
     )
       .unwrap()
       .then((data) => {
-        console.log("Fetched Inventories:", data);
+        //console.log("Fetched Inventories:", data);
       })
       .catch((err) => {
         console.error("Error fetching inventories:", err);
