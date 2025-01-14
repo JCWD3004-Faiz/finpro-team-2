@@ -9,9 +9,7 @@ import {
   ProductImage,
 } from "@/utils/reduxInterface";
 
-const store_id = Cookies.get("storeId");
 const access_token = Cookies.get("access_token");
-const current_store_id = Cookies.get("current_store_id");
 
 const initialProductImage: ProductImage = {
   product_image: "",
@@ -77,6 +75,7 @@ export const fetchInventoriesUser = createAsyncThunk(
       category = "",
       sortField = "product_name",
       sortOrder = "asc",
+      store_id = 28
     }: {
       //storeId: number;
       page?: number;
@@ -85,22 +84,23 @@ export const fetchInventoriesUser = createAsyncThunk(
       category?: string;
       sortField?: string;
       sortOrder?: string;
+      store_id?: number
     },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.get(
-        `/api/users/products/${current_store_id}?page=${page}&pageSize=${pageSize}&search=${search}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}`,
+        `/api/users/products/${store_id || 28}?page=${page}&pageSize=${pageSize}&search=${search}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}`,
         {
           headers: { Authorization: `Bearer ${access_token}` },
         }
       );
 
-      return response.data.inventories; // Adjust to match your API response structure
+      return response?.data?.inventories; // Adjust to match your API response structure
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
         return rejectWithValue(
-          error.response.data.message || "Failed to fetch inventories."
+          error?.response?.data?.message || "Failed to fetch inventories."
         );
       } else {
         return rejectWithValue("An unexpected error occurred.");

@@ -1,3 +1,5 @@
+import { DiscountTypeEnum } from "./all.models";
+
 export interface CreateDiscount {
   inventory_id?: number;
   store_id: number;
@@ -41,4 +43,17 @@ export interface UpdateDiscount{
   description?: string;
   start_date?: string; 
   end_date?: string; 
+}
+
+export interface Voucher {
+  discount_amount: number;
+  discount_type: DiscountTypeEnum;
+  max_discount?: number;
+  min_purchase?: number;
+}
+
+export interface PriceDetails {
+  originalPrice: number;
+  minPurchase?: number;
+  maxDiscount?: number;
 }

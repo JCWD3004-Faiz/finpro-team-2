@@ -5,6 +5,7 @@ import { addToCart } from "@/redux/slices/cartSlice";
 import useAuth from "@/hooks/useAuth";
 import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
+import { fetchCartItems } from "@/redux/slices/cartSlice";
 
 
 interface ProductCardProps {
@@ -68,6 +69,7 @@ export default function ProductCardLatest({
           return;
         }
         toast.success("Item added to cart!");
+        dispatch(fetchCartItems(user_id));
       } catch (error) {
         console.error("Error adding item to cart:", error);
       }

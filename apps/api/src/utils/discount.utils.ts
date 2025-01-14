@@ -1,4 +1,6 @@
 import { PrismaClient, Discounts } from "@prisma/client";
+import { PriceDetails, Voucher } from "../models/discount.models";
+import { DiscountTypeEnum } from "../models/all.models";
 
 const prisma = new PrismaClient();
 
@@ -91,11 +93,9 @@ export async function checkAndApplyBogo(
       },
     },
   });
-
   const inventoryDiscount = await prisma.discounts.findFirst({
-    where: { inventory_id },
+    where: { inventory_id: inventory_id },
   });
-
   if (inventoryPrice) {
     if (inventoryDiscount?.type === "BOGO") {
       const newPrice = product_price - Number(inventoryPrice.Product.price);
@@ -151,4 +151,35 @@ export async function wholeStoreCartDiscount(
   }
 
   return parseFloat(discountedCartPrice.toFixed(2));
+}
+
+export function calculateVoucher(
+  discountAmount: number,
+  discountType: "PERCENTAGE" | "NOMINAL",
+  originalPrice: number,
+  minPurchase: number = 0,
+  maxDiscount: number = 0
+): number {
+  let newPrice = originalPrice;
+
+  // Ensure the price meets the minimum purchase requirement
+  if (originalPrice < minPurchase) {
+    throw new Error("Price does not meet the minimum purchase requirement");
+  }
+
+  // Apply the discount based on the type of discount
+  if (discountType === "PERCENTAGE") {
+    let calculatedDiscount = (originalPrice * discountAmount) / 100;
+    if (maxDiscount > 0 && calculatedDiscount > maxDiscount) {
+      calculatedDiscount = maxDiscount; // Use max discount if exceeded
+    }
+    newPrice = Math.max(originalPrice - calculatedDiscount, 0);
+  } else if (discountType === "NOMINAL") {
+    if (discountAmount > originalPrice) {
+      throw new Error("Discount exceeds price");
+    }
+    newPrice = Math.max(originalPrice - discountAmount, 0);
+  }
+
+  return newPrice;
 }

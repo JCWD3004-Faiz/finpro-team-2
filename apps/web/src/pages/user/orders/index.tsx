@@ -14,6 +14,7 @@ import ConfirmationModal from '@/components/modal-confirm';
 import { showConfirmation, hideConfirmation } from '@/redux/slices/confirmSlice';
 import { LuTruck } from 'react-icons/lu';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 function OrderTracking() {
   const dispatch = useDispatch<AppDispatch>();
@@ -99,11 +100,15 @@ function OrderTracking() {
                     </Link>
                     )}
                     {order.payment_status === "PENDING" && order.gateway_link !== null && (
-                    <Link href={order.gateway_link} passHref>
-                      <p className="text-gray-900 hover:underline block text-center mb-4">
-                        Midtrans payment in-progress. Click here to continue
-                      </p>
-                    </Link>
+                      <Link href={order.gateway_link} passHref>
+                        <p onClick={() => {
+                          Cookies.set('payment_order_id', order.order_id.toString(), { expires: 7, path: '/checkout' });
+                        }}>
+                          <p className="text-gray-900 hover:underline block text-center mb-4">
+                            Midtrans payment in-progress. Click here to continue
+                          </p>
+                        </p>
+                      </Link>
                     )}
                     <div className="space-y-4">
                       <div className="space-y-2">

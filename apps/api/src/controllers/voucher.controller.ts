@@ -87,20 +87,6 @@ export class VoucherController {
         }
     }
 
-    async selectVoucher(req: Request, res: Response){
-        try {
-            const user_id = parseInt(req.params.user_id)
-            const redeem_code = req.body.redeem_code
-            const data = await this.voucherService.selectVoucher(user_id, redeem_code);
-            res.status(200).send({
-                message: "Voucher successfully selected",
-                status: res.statusCode, data: data
-            });
-        } catch (error) {
-            sendErrorResponse(res, 400, `Failed to select Voucher`);
-        }
-    }
-
     async redeemProductVoucher(req: Request, res: Response){
         const { user_id, user_voucher_id, cart_item_id } = req.body;
         const cartItem = await this.voucherService.redeemProductVoucher(user_id, user_voucher_id, cart_item_id);

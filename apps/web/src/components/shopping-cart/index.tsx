@@ -48,7 +48,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     undefined
   );
   const [isDiscountApplied, setIsDiscountApplied] = useState(false);
-  const [isItemClickable, setIsItemClickable] = useState(false); // Track if items should be clickable
+  const [isItemClickable, setIsItemClickable] = useState(false);
   const { allUserDiscounts } = useSelector(
     (state: RootState) => state.userDiscounts
   );
