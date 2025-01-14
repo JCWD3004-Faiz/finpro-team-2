@@ -81,8 +81,8 @@ const Login: React.FC = () => {
   };
 
   const handleForgotPassClick = () => {
-    window.location.href = "/auth/passwordReset"
-  }
+    window.location.href = "/auth/passwordReset";
+  };
 
   const handleGoogleClick = () => {
     const googleLoginUrl = `${axios.defaults.baseURL}/auth/google`;
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-end text-gray-800 bg-black">
+    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center md:justify-end text-gray-800 bg-black md:pl-4">
       {loading && <LoadingVignette />}
       <SuccessModal
         isOpen={isSuccessOpen}
@@ -106,28 +106,22 @@ const Login: React.FC = () => {
         }}
         errorMessage={errorMessage}
       />
-      <div
-        className={`bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center transform transition-transform duration-500 ${
-          isRegisterClicked ? "translate-x-negative" : ""
-        }`}
-      >
-        {/* Header */}
-        <h1
-          className={`text-5xl font-bold mb-6 transform transition-transform duration-500 opacity-transition ${
-            isRegisterClicked ? "translate-x-positive" : ""
-          } ${isLoginFaded ? "opacity-0" : "opacity-100"}`}
-        >
-          LOGIN
+      <div className="hidden md:flex flex-col justify-center items-center h-screen gap-6 px-5">
+        <h1 className="text-white text-4xl lg:text-5xl font-bold text-end">
+          Welcome to FRUGMART
         </h1>
+        <h2 className="text-white text-3xl text-end w-full font-semibold">
+          Smart Choices <br /> Bigger Savings!
+        </h2>
+      </div>
+
+      <div className="bg-white p-8 w-screen md:w-3/6 h-screen shadow-md flex flex-col justify-center">
+        {/* Header */}
+        <h1 className="text-5xl font-bold mb-6">LOGIN</h1>
 
         {/* Login Form */}
-        <form
-          onSubmit={handleSubmit}
-          className={`flex flex-col transform transition-transform duration-500 ${
-            isRegisterClicked ? "translate-x-positive" : ""
-          }`}
-        >
-          <div className="mb-4 w-96">
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <div className="mb-4 w-full md:max-w-96">
             <label
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
@@ -146,7 +140,7 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <div className="mb-6 w-96">
+          <div className="mb-6 w-full md:max-w-96">
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
@@ -165,7 +159,7 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-col w-96">
+          <div className="flex flex-col w-full md:max-w-96">
             <button
               type="submit"
               className="bg-black text-white px-4 py-2 w-full rounded shadow hover:bg-black focus:outline-none focus:ring-2 focus:ring-blue-300"
