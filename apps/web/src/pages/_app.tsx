@@ -22,18 +22,19 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const hideNavAdmin = router.pathname.startsWith("/admin");
   const hideNavAuth = router.pathname.startsWith("/auth");
+  const hideNavPayment = router.pathname.startsWith("/checkout/payment");
 
   return (
     <Provider store={store}>
       {/* Conditionally render LocationHeader */}
-      {!hideNavAdmin && !hideNavAuth && <LocationHeader />}
+      {!hideNavAdmin && !hideNavAuth && !hideNavPayment && <LocationHeader />}
 
       {/* Pass cart state and handlers to Navbar */}
-      {!hideNavAdmin && !hideNavAuth && <Navbar />}
+      {!hideNavAdmin && !hideNavAuth && !hideNavPayment && <Navbar />}
 
       {accessDenied ? <AccessDenied /> : <Component {...pageProps} />}
 
-      {!hideNavAdmin && !hideNavAuth && <Footer />}
+      {!hideNavAdmin && !hideNavAuth && !hideNavPayment && <Footer />}
       <ToastContainer position="bottom-right" autoClose={3000}/>
     </Provider>
   );

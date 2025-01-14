@@ -19,7 +19,7 @@ export class DiscountController {
   async createDiscount(req: Request, res: Response) {
     try {
       const store_id = parseInt(req.params.store_id);
-      if (isNaN(store_id)) {
+      if (!store_id) {
         throw new Error("Invalid store_id provided.");
       }
       const imageFile: string = (req as any).file?.path || "";

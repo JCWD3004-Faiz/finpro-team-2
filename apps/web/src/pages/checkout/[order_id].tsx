@@ -214,7 +214,7 @@ function OrderOptions() {
             </CardContent>
           </Card>
           <div className="flex justify-end">
-            <Button size="lg" disabled={!selectedAddress || !selectedShipping} onClick={() => { router.push(`/checkout/payment-form/${order_id}`) }}>
+            <Button size="lg" disabled={!selectedAddress || !selectedShipping} onClick={() => { router.push(`/checkout/form/${order_id}`) }}>
               Continue to Payment
             </Button>
           </div>

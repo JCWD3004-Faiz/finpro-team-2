@@ -28,7 +28,7 @@ const initialState: CartState = {
   error: null,
   cartVouchers: [],
   orderId: 0,
-  cartId: 0
+  cartId: 0,
 };
 
 const access_token = Cookies.get("access_token");
@@ -78,7 +78,7 @@ export const changeItemQuantity = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
-      return response.data.data; // assuming the response has updated cart data
+      return response.data.data;
     } catch (err) {
       return rejectWithValue("Failed to update item quantity");
     }
@@ -110,7 +110,7 @@ export const checkoutCart = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
-      return response.data.data;  // Assuming the checkout data is in response.data.data
+      return response.data.data;
     } catch (err) {
       return rejectWithValue("Failed to checkout cart");
     }
@@ -130,9 +130,8 @@ export const addToCart = createAsyncThunk(
         },
       });
 
-      return response.data;  // Assuming the response contains cart item and cart price
+      return response.data;
     } catch (err) {
-      // Capture the error response correctly
       if (axiosHandler.isAxiosError(err) && err.response) {
         return rejectWithValue("This product is already in the cart");
       } else {

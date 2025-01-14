@@ -9,10 +9,12 @@ import { Swiper, SwiperSlide } from "swiper/react"; // Import Swiper components
 import "swiper/css"; // Import Swiper styles
 import "swiper/css/free-mode"; // Import FreeMode styles
 import { FreeMode } from "swiper/modules";
+import Cookies from "js-cookie";
 
 const HeroBanner = dynamic(() => import('../components/hero-banner'), { ssr: false });
 
 const Home: React.FC = () => {
+  const current_store_id = Cookies.get("current_store_id");
   const dispatch = useDispatch<AppDispatch>();
   const { loading, productAllUser } = useSelector((state: RootState) => state.getProducts);
 
@@ -28,9 +30,10 @@ const Home: React.FC = () => {
         pageSize,
         sortField,
         sortOrder,
+        store_id: Number(current_store_id)
       })
     );
-  }, [dispatch]);
+  }, [dispatch, current_store_id]);
 
   // Group products by category
   const groupedProducts = productAllUser.reduce((groups, product) => {

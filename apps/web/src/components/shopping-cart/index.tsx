@@ -25,7 +25,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose, user_id })
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(undefined);
   const [isDiscountApplied, setIsDiscountApplied] = useState(false);
-  const [isItemClickable, setIsItemClickable] = useState(false);  // Track if items should be clickable
+  const [isItemClickable, setIsItemClickable] = useState(false);
 
   useEffect(() => {
     if (isOpen) {

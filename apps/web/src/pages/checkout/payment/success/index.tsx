@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle, ShoppingBag, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { updateMidtransPaymentStatus } from '@/redux/slices/checkoutSlice';
+import { successMidtransPaymentStatus } from '@/redux/slices/checkoutSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/redux/store';
 import useAuth from '@/hooks/useAuth';
@@ -15,7 +15,7 @@ function PaymentSuccess() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useAuth();
   const user_id = Number(user?.id);
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(10);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const { paymentDetails } = useSelector((state: RootState) => state.checkout);
   const { details } = useSelector((state: RootState) => state.userPayment);
@@ -30,7 +30,7 @@ function PaymentSuccess() {
   useEffect(() => {
     const transaction_id = String(details?.transaction_id);
     if (user_id && transaction_id) {
-      dispatch(updateMidtransPaymentStatus({ user_id, transaction_id }));
+      dispatch(successMidtransPaymentStatus({ user_id, transaction_id }));
       
       const timer = setInterval(() => {
         setCountdown((prev) => {
@@ -55,7 +55,7 @@ function PaymentSuccess() {
   }, [shouldRedirect, router]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-white mt-[5vh]">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-white">
       <Card className="w-full max-w-lg p-8 space-y-6">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="rounded-full bg-green-100 p-3">

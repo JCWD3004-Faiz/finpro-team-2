@@ -34,7 +34,7 @@ const initialState: CreateDiscountState = {
 };
 
 const access_token = Cookies.get("access_token");
-const storeId = Cookies.get("storeId");
+const storeId = Number(Cookies.get("storeId"));
 
 export const createDiscount = createAsyncThunk(
   "createDiscount/createDiscount",
@@ -105,9 +105,8 @@ export const createDiscount = createAsyncThunk(
       formData.append("start_date", start_date);
       formData.append("end_date", end_date);
       if (image) formData.append("image", image);
-
       const response = await axios.post(
-        `/api/store-admin/discounts/${storeId}`,
+        `/api/store-admin/discounts/${Number(storeId)}`,
         formData,
         {
           headers: {

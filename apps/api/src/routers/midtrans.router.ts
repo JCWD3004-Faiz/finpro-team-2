@@ -15,11 +15,18 @@ router.post('/',
     midtransController.createVABankTransfer.bind(midtransController)
 )
 
-router.put('/status/',
+router.put('/success/',
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
     authenticateJwt.authorizeUserId().bind(authenticateJwt),
-    midtransController.updateMidtransPaymentStatus.bind(midtransController)
+    midtransController.successMidtransPaymentStatus.bind(midtransController)
+)
+
+router.put('/failed/',
+    authenticateJwt.authenticateJwt.bind(authenticateJwt),
+    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
+    authenticateJwt.authorizeUserId().bind(authenticateJwt),
+    midtransController.failedMidtransPaymentStatus.bind(midtransController)
 )
 
 router.get('/status/:transaction_id',

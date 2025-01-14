@@ -7,6 +7,7 @@ import { addToCart } from "@/redux/slices/cartSlice";
 import useAuth from "@/hooks/useAuth";
 import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
+import { fetchCartItems } from '@/redux/slices/cartSlice';
 
 function SingleProductPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,12 +75,13 @@ function SingleProductPage() {
         return;
       }
       try {
-        // const resultAction = await dispatch(addToCart({ user_id, inventory_id: Number(productId) }));  
-        // if (addToCart.rejected.match(resultAction)) {
-        //   toast.error(String(resultAction.payload));
-        //   return;
-        // }
+        const resultAction = await dispatch(addToCart({ user_id, inventory_id: Number(productId) }));  
+        if (addToCart.rejected.match(resultAction)) {
+          toast.error(String(resultAction.payload));
+          return;
+        }
         toast.success("Item added to cart!");
+        dispatch(fetchCartItems(user_id));
       } catch (error) {
         console.error("Error adding item to cart:", error);
       }

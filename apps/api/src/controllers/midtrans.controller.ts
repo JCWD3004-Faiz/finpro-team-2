@@ -19,10 +19,21 @@ export default class MidtransController {
         }
     }
 
-    public async updateMidtransPaymentStatus(req: Request, res: Response) {
+    public async successMidtransPaymentStatus(req: Request, res: Response) {
         const { user_id, transaction_id } = req.body;
         try {
-            const response = await this.midtransService.updateMidtransPaymentStatus(user_id, transaction_id)
+            const response = await this.midtransService.successMidtransPaymentStatus(user_id, transaction_id)
+            res.status(200).json(response);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });            
+        }
+    }
+
+    public async failedMidtransPaymentStatus(req: Request, res: Response) {
+        const { user_id, transaction_id } = req.body;
+        try {
+            const response = await this.midtransService.failedMidtransPaymentStatus(user_id, transaction_id)
             res.status(200).json(response);
         } catch (error) {
             console.error(error);

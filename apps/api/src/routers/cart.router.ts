@@ -46,13 +46,6 @@ router.post("/checkout/:user_id",
     cartController.checkoutCart.bind(cartController)
 );
 
-router.post("/voucher/:user_id",
-    authenticateJwt.authenticateJwt.bind(authenticateJwt),
-    authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
-    authenticateJwt.authorizeUserId().bind(authenticateJwt),
-    voucherController.selectVoucher.bind(voucherController)
-);
-
 router.post("/redeem-product/",
     authenticateJwt.authenticateJwt.bind(authenticateJwt),
     authenticateJwt.authorizeRole("USER").bind(authenticateJwt),
