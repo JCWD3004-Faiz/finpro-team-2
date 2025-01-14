@@ -118,7 +118,7 @@ export async function wholeStoreCartDiscount(
       is_deleted: false,
       inventory_id: null,
     },
-    orderBy: { value: "asc" },
+    orderBy: { start_date: "desc" },
   });
 
   //check if there is any discount, if none, return original price

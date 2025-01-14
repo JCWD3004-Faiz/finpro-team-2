@@ -32,6 +32,9 @@ export class GetDiscountService {
             },
           },
         },
+        orderBy: {
+          start_date: "desc",
+        }
       });
 
       return discounts.map((discount) => ({

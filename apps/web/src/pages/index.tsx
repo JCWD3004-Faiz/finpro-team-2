@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchInventoriesUser } from "@/redux/slices/getProductsSlice";
+import { fetchDiscountsByStoreId } from "@/redux/slices/userDiscountSlice";
 import ProductCardLatest from "../components/product-card-latest";
 import FruggerMarquee from "../components/frugger-marquee"; // Import FruggerMarquee component
 import { Swiper, SwiperSlide } from "swiper/react"; // Import Swiper components
@@ -15,12 +16,17 @@ const HeroBanner = dynamic(() => import('../components/hero-banner'), { ssr: fal
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, productAllUser } = useSelector((state: RootState) => state.getProducts);
+  const { allUserDiscounts } = useSelector((state: RootState) => state.userDiscounts);
 
   useEffect(() => {
     // Fetch all products
     const pageSize = 10000; // Use a sufficiently large number to fetch all products
     const sortField = "product_name";
     const sortOrder = "asc";
+
+    dispatch(
+      fetchDiscountsByStoreId()
+    )
 
     dispatch(
       fetchInventoriesUser({
@@ -84,6 +90,8 @@ const Home: React.FC = () => {
                       userStock={product.user_stock}
                       price={String(product.price)}
                       discountedPrice={String(product.discounted_price)}
+                      discountType={product.discount_type}
+                      discountValue={product.discount_value}
                       onClick={() => {
                         // Navigate to the product details page when clicked
                         window.location.href = `/products-page/product-details-page/${product.inventory_id}`;

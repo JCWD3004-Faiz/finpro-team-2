@@ -41,7 +41,7 @@ function TestingProductDetail() {
     )
       .unwrap()
       .then((data) => {
-        console.log("Fetched Inventories:", data); // Log the fetched data
+        //console.log("Fetched Inventories:", data); // Log the fetched data
       })
       .catch((err) => {
         console.error("Error fetching inventories:", err); // Log any errors
