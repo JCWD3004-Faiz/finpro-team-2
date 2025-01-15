@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 const HeroBanner = dynamic(() => import('../components/hero-banner'), { ssr: false });
 
 const Home: React.FC = () => {
-  const current_store_id = Cookies.get("current_store_id");
+  const current_store_id = Number(Cookies.get("current_store_id"));
   const dispatch = useDispatch<AppDispatch>();
   const { loading, productAllUser } = useSelector((state: RootState) => state.getProducts);
   const { allUserDiscounts } = useSelector((state: RootState) => state.userDiscounts);
@@ -27,7 +27,7 @@ const Home: React.FC = () => {
     const sortOrder = "asc";
 
     dispatch(
-      fetchDiscountsByStoreId()
+      fetchDiscountsByStoreId(current_store_id)
     )
 
     dispatch(
@@ -36,7 +36,7 @@ const Home: React.FC = () => {
         pageSize,
         sortField,
         sortOrder,
-        store_id: Number(current_store_id)
+        store_id: current_store_id
       })
     );
   }, [dispatch, current_store_id]);
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       <FruggerMarquee />
 
       {/* Grouped Products by Category */}
-      <div className="w-full mt-[3vh] mb-[3vh] p-4">
+      <div className="w-full mt-[3vh] mb-[3vh] p-4 bg-white text-gray-900">
         {loading ? (
           <div>Loading...</div> // You can replace this with a loading component if needed
         ) : (
@@ -82,6 +82,7 @@ const Home: React.FC = () => {
                 {groupedProducts[category].map((product) => (
                   <SwiperSlide
                     key={product.inventory_id}
+                    className="m-1"
                     style={{ width: "280px" }} // Fixed width for each slide
                   >
                     <ProductCardLatest

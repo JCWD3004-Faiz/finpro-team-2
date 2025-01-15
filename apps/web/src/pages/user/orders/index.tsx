@@ -93,11 +93,11 @@ function OrderTracking() {
                       <OrderStatus status={order.order_status} />
                     </div>
                     {order.order_status === 'PENDING_PAYMENT' && (
-                    <Link href={`/checkout/${order.order_id}`} passHref>
+                    <div onClick={() => window.location.href=`/checkout/${order.order_id}`} >
                       <p className="text-gray-900 hover:underline block text-center mb-4">
                         Payment pending. Click here to complete your checkout
                       </p>
-                    </Link>
+                    </div>
                     )}
                     {order.payment_status === "PENDING" && order.gateway_link !== null && (
                       <Link href={order.gateway_link} passHref>

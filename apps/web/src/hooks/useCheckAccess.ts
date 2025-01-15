@@ -11,8 +11,8 @@ export const useCheckAccess = () => {
   const is_verified = user?.is_verified
 
   const checkAccess = () => {
-    if ((role === "SUPER_ADMIN" && router.pathname.startsWith("/admin-store")) ||
-        (role === "STORE_ADMIN" && router.pathname.startsWith("/admin-super"))) {
+    if ((role === "SUPER_ADMIN" && !router.pathname.startsWith("/admin-super")) ||
+        (role === "STORE_ADMIN" && !router.pathname.startsWith("/admin-store"))) {
       return true;
     }
     if ((role === "STORE_ADMIN" && is_verified === false) && (router.pathname.startsWith("/admin-store/"))) {
@@ -21,7 +21,7 @@ export const useCheckAccess = () => {
     if ((role === "USER" || !role) && (router.pathname.startsWith("/admin"))) {
       return true;
     }
-    if (!role && router.pathname.startsWith("/user")) {
+    if (!user && router.pathname.startsWith("/user")) {
       return true;
     }
     return false;

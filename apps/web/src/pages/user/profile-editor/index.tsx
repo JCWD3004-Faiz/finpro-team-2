@@ -244,7 +244,7 @@ const ProfileEditor: React.FC = () => {
 
           {/* main profile update */}
           <div className="min-h-screen bg-white rounded-lg">
-            <div className="max-w-4xl space-y-6 sm:space-y-8">
+            <div className="max-w-4xl space-y-6 sm:space-y-8 md:w-screen bg-white">
               <div>
                 <h1 className="text-2xl text-gray-800 font-semibold">
                   My Profile
@@ -254,7 +254,7 @@ const ProfileEditor: React.FC = () => {
                 </p>
               </div>
 
-              {/* update profile picture */}
+              <div className="space-y-6"> 
               <Card
                 style={{
                   boxShadow:
@@ -283,7 +283,7 @@ const ProfileEditor: React.FC = () => {
                         <User className="w-8 h-8 sm:w-12 sm:h-12" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col sm:flex-row w-full items-center gap-4">
+                    <div className="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
                       <Input
                         type="file"
                         accept="image/*"
@@ -461,6 +461,7 @@ const ProfileEditor: React.FC = () => {
                   <EmailVerificationCard email={email || ""} />
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>

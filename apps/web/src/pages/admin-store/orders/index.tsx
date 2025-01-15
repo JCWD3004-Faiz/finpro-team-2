@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from "@/redux/store";
 import StoreSidebar from "@/components/StoreSidebar";
-import { fetchStoreByStoreId, fetchStoreOrders, setCurrentPage, setSortField, setOrderStatus } from '@/redux/slices/storeAdminSlice';
-import { setSortOrder } from '@/redux/slices/manageInventorySlice';
+import { fetchStoreByStoreId, fetchStoreOrders, setCurrentPage, setSortField, setOrderStatus, setSortOrder } from '@/redux/slices/storeAdminSlice';
 import Cookies from 'js-cookie';
 import SearchField from '@/components/searchField';
 import useDebounce from '@/hooks/useDebounce';
@@ -19,8 +18,7 @@ function StoreOrders() {
   const store_id = Cookies.get("storeId");
   const storeId = Number(store_id);
   const dispatch = useDispatch<AppDispatch>();
-  const { isSidebarOpen, storeName, storeOrders, loading, orderStatus, currentPage, sortField, totalPages } = useSelector((state: RootState) => state.storeAdmin);
-  const { sortOrder } = useSelector((state: RootState) => state.manageInventory);
+  const { isSidebarOpen, storeName, storeOrders, loading, orderStatus, currentPage, sortField, totalPages, sortOrder } = useSelector((state: RootState) => state.storeAdmin);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
 
@@ -48,12 +46,12 @@ function StoreOrders() {
 
   const handleSort = (field: string) => {
     const updatedSortOrder =
-      sortField === field && sortOrder === "asc" ? "desc" : "asc";
+      sortField === field && sortOrder === "desc" ? "asc" : "desc";
     if (sortField === field) {
       dispatch(setSortOrder(updatedSortOrder));
     } else {
       dispatch(setSortField(field));
-      dispatch(setSortOrder("asc"));
+      dispatch(setSortOrder("desc"));
     }
     dispatch(fetchStoreOrders({ storeId, page: 1, sortField: field, sortOrder: updatedSortOrder, orderStatus }));
   };

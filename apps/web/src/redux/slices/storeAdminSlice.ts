@@ -15,6 +15,7 @@ const initialState: StoreAdminState = {
   totalPages: 1,
   totalItems: 0,
   sortField: "created_at",
+  sortOrder: "desc",
   orderStatus: "",
 };
 
@@ -72,7 +73,7 @@ export const fetchAdminById = createAsyncThunk(
 
 export const fetchStoreOrders = createAsyncThunk('storeAdmin/fetchStoreOrders',
   async ({
-    storeId, page = 1, sortField = "created_at", sortOrder = "asc", search = "", orderStatus} : {
+    storeId, page = 1, sortField = "created_at", sortOrder = "desc", search = "", orderStatus} : {
     storeId: number; page?: number; sortField?: string; sortOrder?: string; search?: string; orderStatus: string;
   }, { rejectWithValue }) => {
     if (typeof window === "undefined") {
@@ -120,6 +121,7 @@ const storeAdminSlice = createSlice({
       state.isSidebarOpen = !state.isSidebarOpen;
     },
     setSortField(state, action) { state.sortField = action.payload},
+    setSortOrder(state, action) { state.sortOrder = action.payload},
     setCurrentPage(state, action) {state.currentPage = action.payload;},
     setOrderStatus(state, action) { state.orderStatus = action.payload;}
   },
@@ -145,5 +147,5 @@ const storeAdminSlice = createSlice({
   },
 });
 
-export const { resetState, toggleSidebar, setCurrentPage, setSortField, setOrderStatus } = storeAdminSlice.actions;
+export const { resetState, toggleSidebar, setCurrentPage, setSortField, setOrderStatus, setSortOrder } = storeAdminSlice.actions;
 export default storeAdminSlice.reducer;

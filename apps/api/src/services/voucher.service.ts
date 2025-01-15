@@ -196,6 +196,12 @@ export class VoucherService {
 
   async sendCartVoucher(user_id: number, cart_price: number) {
     try {
+      const confirmedOrders = await this.prisma.orders.count({
+        where: { user_id, order_status: "ORDER_CONFIRMED" },
+      });
+      if (confirmedOrders % 3 !== 0) {
+        return { error: "User is not eligible for a voucher yet." };
+      }
       const vouchers = await this.prisma.vouchers.findMany({
         where: { min_purchase: { lte: cart_price }, is_deleted: false },
         orderBy: { min_purchase: "desc" },
@@ -226,9 +232,9 @@ export class VoucherService {
   async sendShippingVoucher(user_id: number) {
     try {
       const confirmedOrders = await this.prisma.orders.count({
-        where: { user_id, order_status: "AWAITING_CONFIRMATION" },
+        where: { user_id, order_status: "ORDER_CONFIRMED" },
       });
-      if (confirmedOrders % 3 !== 0) {
+      if (confirmedOrders % 5 !== 0) {
         return { error: "User is not eligible for a shipping voucher yet." };
       }
       const shippingVoucher = await this.prisma.vouchers.findFirst({
@@ -286,13 +292,18 @@ export class VoucherService {
       const minPurchase = Number(userVoucher.Voucher.min_purchase) || 0
       const maxDiscount = Number(userVoucher.Voucher.max_discount) || 0
 
-      const newPrice = calculateVoucher(
-        discountAmount,
-        userVoucher.Voucher.discount_type,
-        productPrice,
-        minPurchase,
-        maxDiscount
-      );
+      let newPrice;
+      try {
+        newPrice = calculateVoucher(
+          discountAmount,
+          userVoucher.Voucher.discount_type,
+          productPrice,
+          minPurchase,
+          maxDiscount
+        );
+      } catch (voucherError:any) {
+        return {error: voucherError.message}
+      }
   
       await this.prisma.cartItems.update({
         where: { cart_item_id: cart_item_id },
@@ -344,13 +355,18 @@ async redeemCartVoucher(
     const minPurchase = Number(userVoucher.Voucher.min_purchase) || 0
     const maxDiscount = Number(userVoucher.Voucher.max_discount) || 0
 
-    const newCartPrice = calculateVoucher(
-      discountAmount,
-      userVoucher.Voucher.discount_type,
-      cartPrice,
-      minPurchase,
-      maxDiscount
-    );
+    let newCartPrice;
+    try {
+      newCartPrice = calculateVoucher(
+        discountAmount,
+        userVoucher.Voucher.discount_type,
+        cartPrice,
+        minPurchase,
+        maxDiscount
+      );
+    } catch (voucherError:any) {
+      return {error: voucherError.message}
+    }
 
     await this.prisma.carts.update({
       where: { cart_id: cart.cart_id },
@@ -411,13 +427,18 @@ async redeemShippingVoucher(
       const minPurchase = Number(userVoucher.Voucher.min_purchase) || 0
       const maxDiscount = Number(userVoucher.Voucher.max_discount) || 0
   
-      const newShippingPrice = calculateVoucher(
-        discountAmount,
-        userVoucher.Voucher.discount_type,
-        shippingPrice,
-        minPurchase,
-        maxDiscount
-      );
+      let newShippingPrice;
+      try {
+        newShippingPrice = calculateVoucher(
+          discountAmount,
+          userVoucher.Voucher.discount_type,
+          shippingPrice,
+          minPurchase,
+          maxDiscount
+        );
+      } catch (voucherError:any) {
+        return {error: voucherError.message}
+      }
   
       await this.prisma.orders.update({
         where: { order_id: order_id },

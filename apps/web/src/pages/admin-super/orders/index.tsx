@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from "@/redux/store";
 import SuperSidebar from "@/components/SuperSidebar";
 import { fetchAllOrders, setCurrentPage, setSortField, setOrderStatus, fetchStoreNames, setStoreName } from '@/redux/slices/superAdminSlice';
-import { setSortOrder } from '@/redux/slices/manageInventorySlice';
+import { setSortOrder } from '@/redux/slices/storeAdminSlice';
 import SearchField from '@/components/searchField';
 import useDebounce from '@/hooks/useDebounce';
 import { FaSort } from 'react-icons/fa';
@@ -17,7 +17,7 @@ function AllOrders() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { isSidebarOpen, storeNames, storeName, allOrders, loading, orderStatus, currentPage, sortFieldOrder, totalPages } = useSelector((state: RootState) => state.superAdmin);
-  const { sortOrder } = useSelector((state: RootState) => state.manageInventory);
+  const { sortOrder } = useSelector((state: RootState) => state.storeAdmin);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
 
