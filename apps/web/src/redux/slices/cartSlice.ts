@@ -288,7 +288,6 @@ const cartSlice = createSlice({
       })
       .addCase(redeemCartVoucher.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("new cart price",action.payload.newCartPrice);
         state.cartPrice = action.payload.newCartPrice;
       })
       .addCase(redeemCartVoucher.rejected, (state, action) => {

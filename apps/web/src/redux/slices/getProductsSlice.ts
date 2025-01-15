@@ -23,6 +23,8 @@ const initialProductDetail: ProductDetailUser = {
   description: "",
   category_name: "",
   discounted_price: 0,
+  discount_type: null,
+  discount_value: null,
   price: 0,
   user_stock: 0,
   product_images: [initialProductImage],

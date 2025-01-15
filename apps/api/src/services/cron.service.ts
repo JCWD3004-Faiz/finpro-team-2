@@ -55,7 +55,6 @@ export async function initializeCron() {
 
       // Iterate over each store and run the updateInventoriesDiscountedPrice function
       for (const store of stores) {
-        //console.log(`Updating discounts for store_id: ${store.store_id}`);
         await updateInventoriesDiscountedPrice(store.store_id);
       }
 

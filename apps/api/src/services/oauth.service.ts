@@ -26,7 +26,6 @@ export class OauthService {
         },
         async (accessToken, refreshToken, profile, done) => {
           try {
-            console.log("Google Profile:", profile);
             const user = {
               id: profile.id,
               displayName: profile.displayName,
