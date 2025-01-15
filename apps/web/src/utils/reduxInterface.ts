@@ -53,6 +53,7 @@ export interface StoreAdminState {
   totalPages: number;
   totalItems: number;
   sortField: string;
+  sortOrder: string
   orderStatus: string;
 }
 

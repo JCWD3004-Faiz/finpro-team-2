@@ -208,7 +208,7 @@ export class OrderService {
         address: order.Address.address,
         city_name: order.Address.city_name,
         order_status: order.order_status,
-        cart_price: order.Cart.cart_price,
+        cart_price: order.cart_price,
         shipping_method: order.shipping_method,
         shipping_price: order.shipping_price,
         created_at: order.created_at,

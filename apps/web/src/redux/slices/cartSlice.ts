@@ -154,6 +154,11 @@ export const redeemProductVoucher = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
+
+      if (response.data?.data?.cartItem?.error) {
+        return rejectWithValue(response.data.data.cartItem.error);
+      }
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue("Failed to apply product voucher discount");
@@ -174,6 +179,11 @@ export const redeemCartVoucher = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
+      
+      if (response.data?.data?.error) {
+        return rejectWithValue(response.data.data.error);
+      }
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue("Failed to apply cart voucher discount");

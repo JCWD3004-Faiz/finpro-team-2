@@ -53,7 +53,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     (state: RootState) => state.userDiscounts
   );
 
-  const current_store_id = Cookies.get("current_store_id");
+  const current_store_id = Number(Cookies.get("current_store_id"));
 
   useEffect(() => {
     if (isOpen) {
@@ -63,13 +63,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   }, [isOpen, user_id]);
 
   useEffect(() => {
-    dispatch(fetchDiscountsByStoreId());
+    dispatch(fetchDiscountsByStoreId(current_store_id));
   }, [dispatch, current_store_id]);
 
   const discountsWithNullInventory = allUserDiscounts.filter(
     (discount) => discount.inventory_id === null
   );
-
 
   const handleRemoveItem = (cart_item_id: number) => {
     dispatch(removeCartItem({ user_id, cart_item_id }));
@@ -172,8 +171,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 <div className="flex-1 overflow-auto">
                   {cartItems
                     .filter((item) => item)
-                    .map((item) => (
+                    .map((item, index) => (
                       <div
+                        key={item.cart_item_id || index}
                         className={cn(
                           "flex flex-col p-4 border shadow-sm mb-4",
                           isItemClickable &&

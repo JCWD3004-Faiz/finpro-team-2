@@ -10,16 +10,23 @@ import HeroBannerCard from "../hero-banner-card"; // Import the card component
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchDiscountsByStoreId } from "@/redux/slices/userDiscountSlice";
+import Cookies from "js-cookie";
 
 const HeroBanner: React.FC = () => {
+  const current_store_id = Number(Cookies.get("current_store_id"));
+  const access_token = Cookies.get("access_token");
   const dispatch = useDispatch<AppDispatch>();
   const { allUserDiscounts } = useSelector(
     (state: RootState) => state.userDiscounts
   );
+  const { closestStore } = useSelector((state: RootState) => state.landing);
+
+  console.log("all discounts", allUserDiscounts)
+  
 
   useEffect(() => {
-    dispatch(fetchDiscountsByStoreId());
-  }, [dispatch]);
+    dispatch(fetchDiscountsByStoreId(current_store_id));
+  }, [dispatch, current_store_id]);
 
   return (
     <div className="hero-banner w-full h-[70vh] overflow-hidden relative">

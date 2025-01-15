@@ -11,14 +11,13 @@ const initialState: UserDiscountState = {
 };
 
 const access_token = Cookies.get("access_token");
-const current_store_id = Cookies.get("current_store_id");
 
 export const fetchDiscountsByStoreId = createAsyncThunk(
   "discounts/fetchDiscountsByStoreId",
-  async (_, { rejectWithValue }) => {
+  async (store_id: number, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `/api/users/discounts/${current_store_id || 28}`,
+        `/api/users/discounts/${store_id || 28}`,
         {
           headers: { Authorization: `Bearer ${access_token}` }, // Include the access token
         }
