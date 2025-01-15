@@ -404,7 +404,7 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
               </div>
               <div className="pt-4">
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Adding Product..." : "Add Product"}
+                  {loading ? "Adding Discount..." : "Add Discount"}
                 </Button>
               </div>
             </Card>

@@ -117,7 +117,6 @@ export class OrderController {
             });
           }
           const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
-          console.log("Shipping Price:", shippingPrice);
           if (shippingPrice !== undefined && shippingPrice !== null) {
             return res.status(200).send({
               message: data.message,

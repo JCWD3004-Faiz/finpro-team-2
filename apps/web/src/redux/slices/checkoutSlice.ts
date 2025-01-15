@@ -174,7 +174,6 @@ export const successMidtransPaymentStatus = createAsyncThunk(
           headers: { Authorization: `Bearer ${access_token}` },
         }
       );
-      console.log(response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue('Failed to update payment status');
@@ -194,7 +193,6 @@ export const failedMidtransPaymentStatus = createAsyncThunk(
           headers: { Authorization: `Bearer ${access_token}` },
         }
       );
-      console.log(response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue('Failed to update payment status');

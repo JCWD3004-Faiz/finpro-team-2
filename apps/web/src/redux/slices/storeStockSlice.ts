@@ -92,6 +92,9 @@ const storeStockSlice = createSlice({
     setStoreId(state, action: PayloadAction<number>) {
       state.storeId = action.payload;
     },
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -122,6 +125,6 @@ const storeStockSlice = createSlice({
   },
 });
 
-export const { setSearch, setSortOrder, setStoreId } = storeStockSlice.actions;
+export const { setSearch, setSortOrder, setStoreId, setCurrentPage } = storeStockSlice.actions;
 
 export default storeStockSlice.reducer;

@@ -32,7 +32,6 @@ function CategoryCreate() {
         setCategoryName("");
       })
       .catch((error) => {
-        console.log("component error: ", error);
         const errorMessage = error.response?.data?.error || "Failed to create category";
         dispatch(showError(errorMessage));
       });

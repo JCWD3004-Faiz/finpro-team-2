@@ -205,7 +205,6 @@ const manageInventorySlice = createSlice({
       .addCase(createStockJournal.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log(action.payload); // You can handle success feedback here
       })
       .addCase(createStockJournal.rejected, (state, action) => {
         state.loading = false;

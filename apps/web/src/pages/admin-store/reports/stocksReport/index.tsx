@@ -3,12 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { fetchStocksStore } from "@/redux/slices/storeStockSlice";
+import {
+  fetchStocksStore,
+  setCurrentPage,
+} from "@/redux/slices/storeStockSlice";
 import StoreSidebar from "@/components/StoreSidebar";
 import LoadingVignette from "@/components/LoadingVignette";
 import { Button } from "@/components/ui/button";
 import SearchField from "@/components/searchField";
 import useDebounce from "@/hooks/useDebounce";
+import Pagination from "@/components/pagination";
 
 function StoreStocksReports() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,13 +22,15 @@ function StoreStocksReports() {
   const { stocksData, currentPage, totalPages, storeId, loading, error } =
     useSelector((state: RootState) => state.storeStocks);
 
-  useEffect(() => {
-    dispatch(
-      fetchStocksStore({ page: currentPage, search: debouncedQuery })
-    );
-  }, [dispatch, currentPage, debouncedQuery]);
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      dispatch(setCurrentPage(page));
+    }
+  };
 
-  console.log("stocks data: ", stocksData);
+  useEffect(() => {
+    dispatch(fetchStocksStore({ page: currentPage, search: debouncedQuery }));
+  }, [dispatch, currentPage, debouncedQuery]);
 
   const toggleSidebar = () => {
     dispatch({ type: "storeAdmin/toggleSidebar" });
@@ -36,16 +42,17 @@ function StoreStocksReports() {
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
       />
+      {loading && <LoadingVignette />}
       <div className={`ml-0 ${isSidebarOpen ? "md:ml-64" : ""} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
           Stocks Report
         </h1>
         <SearchField
-              className=""
-              placeholder="Search products..."
-              searchTerm={searchQuery}
-              onSearchChange={setSearchQuery}
-            />
+          className=""
+          placeholder="Search products..."
+          searchTerm={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
         <div className="overflow-x-auto mt-2">
           <table className="min-w-full bg-white shadow-2xl rounded-lg overflow-hidden">
             <thead>
@@ -77,7 +84,13 @@ function StoreStocksReports() {
                   <td className="p-4  text-gray-700 font-medium">
                     {stock.change_type}
                   </td>
-                  <td className="p-4  text-gray-700 font-medium">
+                  <td
+                    className={`p-4 text-gray-700 font-medium text-center ${
+                      stock.change_quantity < 0
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
                     {stock.change_quantity}
                   </td>
                   <td className="p-4  text-gray-700 font-medium">
@@ -97,6 +110,11 @@ function StoreStocksReports() {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

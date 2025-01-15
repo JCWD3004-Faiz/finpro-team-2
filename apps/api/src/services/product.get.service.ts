@@ -38,7 +38,10 @@ export class GetProductService {
     };
 
     const inventories = await this.prisma.inventories.findMany({
-      where: search || category ? whereCondition : { store_id, Product: { is_deleted: false } },
+      where:
+        search || category
+          ? whereCondition
+          : { store_id, Product: { is_deleted: false } },
       skip,
       take,
       orderBy:
@@ -68,13 +71,12 @@ export class GetProductService {
           select: {
             type: true,
             value: true,
-
-          }
-        }
+          },
+        },
       },
     });
     const totalItems = await this.prisma.inventories.count({
-      where: { store_id, Product: {is_deleted: false} },
+      where: { store_id, Product: { is_deleted: false } },
     });
     return {
       data: inventories.map((inventory) => ({
@@ -89,7 +91,7 @@ export class GetProductService {
         price: inventory.Product.price,
         discounted_price: inventory.discounted_price,
         discount_type: inventory.Discounts?.[0]?.type || null,
-        discount_value: Number(inventory.Discounts?.[0]?.value) || null, 
+        discount_value: Number(inventory.Discounts?.[0]?.value) || null,
       })),
       currentPage: page,
       totalPages: Math.ceil(totalItems / pageSize),
@@ -126,7 +128,7 @@ export class GetProductService {
     };
 
     const products = await this.prisma.products.findMany({
-      where: search || category ? whereCondition : {is_deleted: false},
+      where: search || category ? whereCondition : { is_deleted: false },
       skip,
       take,
       orderBy:
@@ -140,7 +142,7 @@ export class GetProductService {
       },
     });
     const totalItems = await this.prisma.products.count({
-      where: {is_deleted: false},
+      where: { is_deleted: false },
     });
     return {
       data: products.map((product) => ({
@@ -177,6 +179,18 @@ export class GetProductService {
             },
           },
         },
+        Discounts: {
+          where: {
+            is_deleted: false,
+            is_active: true,
+            start_date: { lte: new Date() },
+            end_date: { gte: new Date() },
+          },
+          select: {
+            type: true,
+            value: true,
+          },
+        },
       },
     });
     if (!inventory) {
@@ -189,6 +203,8 @@ export class GetProductService {
       description: inventory?.Product.description,
       category_name: inventory?.Product.Category.category_name,
       discounted_price: inventory.discounted_price,
+      discount_type: inventory.Discounts?.[0]?.type || null,
+      discount_value: Number(inventory.Discounts?.[0]?.value) || null,
       price: inventory?.Product.price,
       user_stock: inventory?.user_stock,
       product_images: inventory?.Product.ProductImages.map((image) => ({
@@ -233,23 +249,23 @@ export class GetProductService {
     };
   }
 
-  async getAllProductNameId(){
+  async getAllProductNameId() {
     const products = await this.prisma.products.findMany({
       select: {
         product_id: true,
         product_name: true,
-      }
-    })
+      },
+    });
     return products;
   }
 
-  async getAllStoreNameId(){
+  async getAllStoreNameId() {
     const stores = await this.prisma.stores.findMany({
       select: {
         store_id: true,
         store_name: true,
-      }
-    })
+      },
+    });
     return stores;
   }
 }

@@ -45,7 +45,6 @@ export async function sendEmailRegistration(email: string): Promise<void> {
       };
   
       await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully');
     } catch (error) {
       console.error('Error sending email:', error);
     }
@@ -77,7 +76,6 @@ export async function sendEmailPasswordReset(email: string): Promise<void> {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
   } catch (error) {
     console.error('Error sending email:', error);
   }
@@ -110,7 +108,6 @@ export async function sendEmailVerification(email: string): Promise<void> {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
   } catch (error) {
     console.error('Error sending email:', error);
   }
