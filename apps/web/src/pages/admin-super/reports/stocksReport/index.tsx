@@ -3,12 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { fetchStocksSuper } from "@/redux/slices/superStockSlice";
+import {
+  fetchStocksSuper,
+  setCurrentPage,
+} from "@/redux/slices/superStockSlice";
 import SuperSidebar from "@/components/SuperSidebar";
 import LoadingVignette from "@/components/LoadingVignette";
 import { Button } from "@/components/ui/button";
 import SearchField from "@/components/searchField";
 import useDebounce from "@/hooks/useDebounce";
+import Pagination from "@/components/pagination";
 
 function AllStocksReports() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,13 +22,21 @@ function AllStocksReports() {
   const { stocksData, currentPage, totalPages, storeId, loading, error } =
     useSelector((state: RootState) => state.superStock);
 
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      dispatch(setCurrentPage(page));
+    }
+  };
+
   useEffect(() => {
     dispatch(
-      fetchStocksSuper({ page: currentPage, storeId: storeId, search: debouncedQuery })
+      fetchStocksSuper({
+        page: currentPage,
+        storeId: storeId,
+        search: debouncedQuery,
+      })
     );
   }, [dispatch, currentPage, debouncedQuery]);
-
-  console.log("stocks data: ", stocksData);
 
   const toggleSidebar = () => {
     dispatch({ type: "superAdmin/toggleSidebar" });
@@ -41,11 +53,11 @@ function AllStocksReports() {
           Stocks Report
         </h1>
         <SearchField
-              className=""
-              placeholder="Search products..."
-              searchTerm={searchQuery}
-              onSearchChange={setSearchQuery}
-            />
+          className=""
+          placeholder="Search products..."
+          searchTerm={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
         <div className="overflow-x-auto mt-2">
           <table className="min-w-full bg-white shadow-2xl rounded-lg overflow-hidden">
             <thead>
@@ -77,7 +89,13 @@ function AllStocksReports() {
                   <td className="p-4  text-gray-700 font-medium">
                     {stock.change_type}
                   </td>
-                  <td className="p-4  text-gray-700 font-medium">
+                  <td
+                    className={`p-4 text-gray-700 font-medium text-center ${
+                      stock.change_quantity < 0
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
                     {stock.change_quantity}
                   </td>
                   <td className="p-4  text-gray-700 font-medium">
@@ -97,6 +115,11 @@ function AllStocksReports() {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

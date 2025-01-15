@@ -266,6 +266,8 @@ export interface ProductDetailUser {
   description: string;
   category_name: string;
   discounted_price: number;
+  discount_type: string | null;
+  discount_value: number | null
   price: number;
   user_stock: number;
   product_images: ProductImage[];

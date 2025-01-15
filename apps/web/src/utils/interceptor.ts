@@ -1,8 +1,12 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const axiosInstance = axios.create({
+
+/* const axiosInstance = axios.create({
   baseURL: "http://localhost:8000/",
+}); */
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_AXIOS_BASE_URL, // Use the environment variable
 });
 
 axiosInstance.interceptors.response.use(

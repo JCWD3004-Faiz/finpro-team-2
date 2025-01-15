@@ -70,7 +70,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     (discount) => discount.inventory_id === null
   );
 
-  console.log("cart discount: ", discountsWithNullInventory);
 
   const handleRemoveItem = (cart_item_id: number) => {
     dispatch(removeCartItem({ user_id, cart_item_id }));

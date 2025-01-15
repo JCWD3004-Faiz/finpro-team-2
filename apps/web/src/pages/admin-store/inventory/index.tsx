@@ -83,7 +83,6 @@ function StoreInventory() {
       dispatch(fetchStoreByStoreId(parseInt(storeId)));
     }
   }, [dispatch, storeId]);
-  console.log(inventories);
 
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">

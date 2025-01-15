@@ -78,8 +78,6 @@ function Users() {
     );
   }, [currentPage, debouncedQuery, dispatch, selectedRole]);
 
-  console.log("all users: ", allUser);
-
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">
       <SuperSidebar

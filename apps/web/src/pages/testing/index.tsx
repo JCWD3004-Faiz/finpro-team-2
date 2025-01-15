@@ -14,7 +14,6 @@ function TestingProductDetail() {
     dispatch(fetchProductDetailsByInventoryId(inventoryId))
       .unwrap()
       .then((data) => {
-        console.log("Fetched Product Details:", data);
       })
       .catch((err) => {
         console.error("Error fetching product details:", err);
@@ -41,7 +40,6 @@ function TestingProductDetail() {
     )
       .unwrap()
       .then((data) => {
-        //console.log("Fetched Inventories:", data); // Log the fetched data
       })
       .catch((err) => {
         console.error("Error fetching inventories:", err); // Log any errors
