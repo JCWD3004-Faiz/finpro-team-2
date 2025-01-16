@@ -50,7 +50,7 @@ import { Button } from "../ui/button";
 import { AxiosError } from "axios";
 
 interface DiscountCreateProps {
-  store_id: string;
+  store_id: number;
 }
 
 function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
@@ -144,8 +144,8 @@ function DiscountCreateComponent({ store_id }: DiscountCreateProps) {
 
   useEffect(() => {
     if (store_id) {
-      dispatch(fetchInventoryNamesAdmin(parseInt(store_id)));
-      dispatch(fetchInventoryWithoutDiscountsAdmin(parseInt(store_id)));
+      dispatch(fetchInventoryNamesAdmin(store_id));
+      dispatch(fetchInventoryWithoutDiscountsAdmin(store_id));
     }
   }, [dispatch, store_id]);
 

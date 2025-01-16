@@ -13,7 +13,7 @@ import Cookies from "js-cookie";
 import DiscountCreateComponent from "@/components/discount-create";
 
 function CreateDiscount() {
-  const storeId = Cookies.get("storeId");
+  const storeId = Number(Cookies.get("storeId"));
   const dispatch = useDispatch<AppDispatch>();
   const { isSidebarOpen } = useSelector((state: RootState) => state.superAdmin);
   const { isSuccessOpen, successMessage } = useSelector(
@@ -26,6 +26,8 @@ function CreateDiscount() {
   const toggleSidebar = () => {
     dispatch({ type: "storeAdmin/toggleSidebar" });
   };
+
+  console.log("storeId", storeId);
 
   return (
     <div className="bg-slate-100 w-screen min-h-screen text-gray-800">

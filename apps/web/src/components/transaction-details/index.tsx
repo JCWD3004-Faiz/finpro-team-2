@@ -60,7 +60,7 @@ export function TransactionDetails({ items, payment_reference, address, city_nam
           <p>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(total))}</p>
         </div>
         {totalDiscount !== 0 && (
-            <div className="flex justify-between items-center pr-4">
+            <div className="flex justify-between items-center pr-4 text-green-700">
               <p>Discount Amount</p>
               <p>- {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0}).format(Number(totalDiscount))}</p>
             </div>

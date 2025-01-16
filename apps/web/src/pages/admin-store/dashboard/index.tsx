@@ -32,7 +32,7 @@ function StoreDashboard() {
 
   const handleButtonClick = (url: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    router.push(url);
+    window.location.href=url;
   };
 
   return (
@@ -76,7 +76,7 @@ function StoreDashboard() {
                   <h2 className="text-2xl font-semibold text-teal-600">Discounts</h2>
                 </div>
                 <p className="text-gray-700 my-3 text-center">Manage your store discounts here.</p>
-                <button onClick={(e) => handleButtonClick('/admin-store/discounts', e)}
+                <button onClick={(e) => handleButtonClick('/admin-store/discounts/create-discount', e)}
                   className="mt-3 bg-white text-teal-600 font-semibold border-2 border-teal-600 py-3 px-8 rounded-full hover:bg-teal-600 hover:text-white transition-colors transform"
                 >
                   Create Discount
