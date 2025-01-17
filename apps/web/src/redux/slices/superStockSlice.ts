@@ -91,6 +91,9 @@ const superStockSlice = createSlice({
       setStoreId(state, action: PayloadAction<number>) {
         state.storeId = action.payload;
       },
+      setCurrentPage(state, action) {
+        state.currentPage = action.payload;
+      },
     },
     extraReducers: (builder) => {
       builder
@@ -115,6 +118,6 @@ const superStockSlice = createSlice({
     },
   });
   
-  export const { setSearch, setSortOrder, setStoreId } = superStockSlice.actions;
+  export const { setSearch, setSortOrder, setStoreId, setCurrentPage } = superStockSlice.actions;
   
   export default superStockSlice.reducer;

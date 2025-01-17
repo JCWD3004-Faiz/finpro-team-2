@@ -104,53 +104,75 @@ export class OrderController {
         }
     }
 
-    async changeOrderAddress(req: Request, res: Response): Promise<void> {
+    async changeOrderAddress(req: Request, res: Response): Promise<any> {
         const { user_id, order_id, address_id } = req.body;
-        const data = await this.orderService.changeOrderAddress(user_id, order_id, address_id);
-    
-        // Check if there's an error or if isValidAddress is false
-        if (data.error || data.isValidAddress === false) {
-            res.status(400).send({
-                message: data.error || "Failed to update destination address. The address is too far from the store.",
-                status: res.statusCode,
-                isValidAddress: data.isValidAddress,
+      
+        try {
+          const data = await this.orderService.changeOrderAddress(user_id, order_id, address_id);
+          if (data.error || data.isValidAddress === false) {
+            return res.status(400).send({
+              message: data.error || "Failed to update destination address.",
+              status: res.statusCode,
+              isValidAddress: data.isValidAddress,
             });
-            return;
+          }
+          const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
+          if (shippingPrice !== undefined && shippingPrice !== null) {
+            return res.status(200).send({
+              message: data.message,
+              status: res.statusCode,
+              new_shipping_price: shippingPrice,
+              isValidAddress: data.isValidAddress,
+            });
+          } else {
+            return res.status(400).send({
+              message: "Failed to calculate shipping price",
+              status: res.statusCode,
+            });
+          }
+        } catch (error) {
+          console.error("Error in changeOrderAddress controller:", error);
+          return res.status(500).send({
+            message: "Internal server error",
+            status: res.statusCode,
+          });
         }
-    
-        const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
-        if (shippingPrice) {
-            res.status(200).send({
-                message: data.message, // Success message from service
-                status: res.statusCode,
-                new_shipping_price: shippingPrice,
-                isValidAddress: true, // Address is valid, so we send true
-            });
-        } else {
-            res.status(400).send({
-                message: "Failed to update destination address", 
-                status: res.statusCode,
-                isValidAddress: false, // If something goes wrong, mark as invalid
-            });
-        }
-    }
+      }
 
-    async changeOrderMethod(req: Request, res: Response): Promise<void> {
+    async changeOrderMethod(req: Request, res: Response): Promise<any> {
         const { user_id, order_id, shipping_method } = req.body;
-        const data = await this.orderService.changeOrderMethod(user_id, order_id, shipping_method);
-        const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
-        if (data && !data.error && shippingPrice) {
-            res.status(200).send({
-                message: "Successfully updated shipping method",
-                status: res.statusCode,
-                new_shipping_price: shippingPrice
+      
+        try {
+          const data = await this.orderService.changeOrderMethod(user_id, order_id, shipping_method);
+          if (data.error) {
+            return res.status(400).send({
+              message: "Failed to update shipping method",
+              status: res.statusCode,
             });
-        } else {
-            res.status(400).send({
-                message: "Failed to update shipping method", status: res.statusCode,
+          }
+          const shippingPrice = await this.cartService.calculateShippingPrice(order_id);
+          if (shippingPrice !== undefined && shippingPrice !== null) {
+            return res.status(200).send({
+              message: "Successfully updated shipping method",
+              status: res.statusCode,
+              new_shipping_price: shippingPrice,
             });
+          }
+          return res.status(400).send({
+            message: "Failed to calculate shipping price after updating method",
+            status: res.statusCode,
+          });
+          
+        } catch (error) {
+          console.error("Error in changeOrderMethod:", error);
+          if (!res.headersSent) {
+            return res.status(500).send({
+              message: "Internal server error",
+              status: res.statusCode,
+            });
+          }
         }
-    }
+      }
 
     async processOrder(req: Request, res: Response) {
         const store_id = parseInt(req.params.store_id);

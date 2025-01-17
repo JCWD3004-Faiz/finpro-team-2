@@ -82,13 +82,17 @@ const Login: React.FC = () => {
     }, 1000); // Match the animation duration
   };
 
+  const handleForgotPassClick = () => {
+    window.location.href = "/auth/passwordReset";
+  };
+
   const handleGoogleClick = () => {
     const googleLoginUrl = `${axios.defaults.baseURL}/auth/google`;
     window.location.href = googleLoginUrl;
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-end text-gray-800 bg-black">
+    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center md:justify-end text-gray-800 bg-black md:pl-4">
       {loading && <LoadingVignette />}
       <SuccessModal
         isOpen={isSuccessOpen}

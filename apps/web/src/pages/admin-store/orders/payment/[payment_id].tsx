@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,7 +27,8 @@ function PaymentManagement() {
   const { isSidebarOpen } = useSelector((state: RootState) => state.storeAdmin);
   const { isErrorOpen, errorMessage } = useSelector((state: RootState) => state.error);
   const { isSuccessOpen, successMessage } = useSelector((state: RootState) => state.success);
-  const { payment, cartItems, loading, error, newStatus, processing, editingStatus } = useSelector((state: RootState) => state.managePayment);
+  const { payment, cartItems, loading, newStatus, processing, editingStatus } = useSelector((state: RootState) => state.managePayment);
+  const [isProcessed, setIsProcessed] = useState(false);
 
   const storeId = Cookies.get("storeId");
   const store_id = Number(storeId);
@@ -51,6 +52,7 @@ function PaymentManagement() {
   const handleSaveStatus = () => {
     if (newStatus !== payment?.payment_status) {
       dispatch(savePaymentStatus({ store_id, payment_id, newStatus }));
+      window.location.reload();
     }
   };
 
@@ -58,6 +60,7 @@ function PaymentManagement() {
     try {
       await dispatch(processOrder({ store_id, order_id: payment.Order.order_id })).unwrap();
       dispatch(showSuccess('Order processed successfully!'));
+      setIsProcessed(true);
     } catch (error) {
       dispatch(showError('Failed to process the order'));
     }
@@ -81,7 +84,6 @@ function PaymentManagement() {
         <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
           Manage Payment
         </h1>
-        {error && <p className="text-red-600">{error}</p>}
         {!loading && payment && (
           <div>
             <Card className="mb-6">
@@ -163,9 +165,9 @@ function PaymentManagement() {
                   <span className="text-sm text-green-600">
                     ✓ Payment has been confirmed
                   </span>
-                  <Button className="gap-2" onClick={handleProcessOrder} disabled={processing}>
+                  <Button className="gap-2" onClick={handleProcessOrder} disabled={processing || isProcessed}>
                     <IoSend className="text-xl"/>
-                    {processing ? 'Processing...' : 'Process Order'}
+                    {isProcessed ? 'Order Processed' : (processing ? 'Processing...' : 'Process Order')}
                   </Button>
                 </div>
               )}

@@ -75,7 +75,7 @@ function DiscountManagment() {
         </h1>
         <Button
           size="default"
-          onClick={() => router.push("/admin-store/discounts/create-discount")}
+          onClick={() => window.location.href="/admin-store/discounts/create-discount"}
         >
           <MdDiscount />
           Create a Discount

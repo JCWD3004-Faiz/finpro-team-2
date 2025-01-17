@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchInventoriesUser } from "@/redux/slices/getProductsSlice";
+import { fetchDiscountsByStoreId } from "@/redux/slices/userDiscountSlice";
 import ProductCardLatest from "../components/product-card-latest";
 import FruggerMarquee from "../components/frugger-marquee"; // Import FruggerMarquee component
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,12 +11,15 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/scrollbar";
 import { FreeMode, Scrollbar, Keyboard } from "swiper/modules";
+import Cookies from "js-cookie";
 
 const HeroBanner = dynamic(() => import("../components/hero-banner"), { ssr: false });
 
 const Home: React.FC = () => {
+  const current_store_id = Number(Cookies.get("current_store_id"));
   const dispatch = useDispatch<AppDispatch>();
   const { loading, productAllUser } = useSelector((state: RootState) => state.getProducts);
+  const { allUserDiscounts } = useSelector((state: RootState) => state.userDiscounts);
 
   useEffect(() => {
     // Fetch all products
@@ -24,14 +28,19 @@ const Home: React.FC = () => {
     const sortOrder = "asc";
 
     dispatch(
+      fetchDiscountsByStoreId(current_store_id)
+    )
+
+    dispatch(
       fetchInventoriesUser({
         page: 1, // Fetching all data doesn't need pagination, but provide the first page
         pageSize,
         sortField,
         sortOrder,
+        store_id: current_store_id
       })
     );
-  }, [dispatch]);
+  }, [dispatch, current_store_id]);
 
   // Group products by category
   const groupedProducts = productAllUser.reduce((groups, product) => {
@@ -57,7 +66,7 @@ const Home: React.FC = () => {
       <FruggerMarquee />
 
       {/* Grouped Products by Category */}
-      <div className="w-full mt-[3vh] mb-[3vh] p-4">
+      <div className="w-full mt-[3vh] mb-[3vh] p-4 bg-white text-gray-900">
         {loading ? (
           <div>Loading...</div> // You can replace this with a loading component if needed
         ) : (
@@ -89,6 +98,7 @@ const Home: React.FC = () => {
                 {groupedProducts[category].map((product) => (
                   <SwiperSlide
                     key={product.inventory_id}
+                    className="m-1"
                     style={{ width: "280px" }} // Fixed width for each slide
                   >
                     <ProductCardLatest

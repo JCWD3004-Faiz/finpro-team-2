@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, MapPin, Ticket, Package, History, Settings, Menu, CheckCircle2, XCircle } from "lucide-react";
+import { User, MapPin, Ticket, Package, History, Menu, CheckCircle2, XCircle, UserCircle2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +11,7 @@ import useAuth from "@/hooks/useAuth";
 import { Badge } from "./ui/badge";
 
 const navigationItems = [
-  { label: "Edit Profile", icon: Settings, href: "/user/profile-editor" },
+  { label: "My Profile", icon: UserCircle2, href: "/user/profile-editor" },
   { label: "Addresses", icon: MapPin, href: "/user/addresses" },
   { label: "Vouchers", icon: Ticket, href: "/user/vouchers" },
   { label: "Ongoing Orders", icon: Package, href: "/user/orders" },

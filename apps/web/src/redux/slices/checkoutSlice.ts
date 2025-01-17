@@ -162,25 +162,45 @@ export const createVABankTransfer = createAsyncThunk(
   }
 );
 
-export const updateMidtransPaymentStatus = createAsyncThunk(
-  'checkout/updateMidtransPaymentStatus',
+export const successMidtransPaymentStatus = createAsyncThunk(
+  'checkout/successMidtransPaymentStatus',
   async (params: { user_id: number; transaction_id: string }, { rejectWithValue }) => {
     const { user_id, transaction_id } = params;
     try {
       const response = await axios.put(
-        '/api/midtrans/status/',
+        '/api/midtrans/success/',
         { user_id, transaction_id },
         {
           headers: { Authorization: `Bearer ${access_token}` },
         }
       );
-      console.log(response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue('Failed to update payment status');
     }
   }
 );
+
+export const failedMidtransPaymentStatus = createAsyncThunk(
+  'checkout/failedMidtransPaymentStatus',
+  async (params: { user_id: number; transaction_id: string }, { rejectWithValue }) => {
+    const { user_id, transaction_id } = params;
+    try {
+      const response = await axios.put(
+        '/api/midtrans/failed/',
+        { user_id, transaction_id },
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Failed to update payment status');
+    }
+  }
+);
+
+
 
 const checkoutSlice = createSlice({
   name: 'checkout',
@@ -275,15 +295,27 @@ const checkoutSlice = createSlice({
       state.loading = false;
       state.vaBankTransferError = action.payload as string || 'Failed to create VA Bank Transfer';
     })
-    .addCase(updateMidtransPaymentStatus.pending, (state) => {
+    .addCase(successMidtransPaymentStatus.pending, (state) => {
       state.loading = true;
       state.paymentError = null;
     })
-    .addCase(updateMidtransPaymentStatus.fulfilled, (state, action) => {
+    .addCase(successMidtransPaymentStatus.fulfilled, (state, action) => {
       state.loading = false;
       state.paymentDetails = action.payload; 
     })
-    .addCase(updateMidtransPaymentStatus.rejected, (state, action) => {
+    .addCase(successMidtransPaymentStatus.rejected, (state, action) => {
+      state.loading = false;
+      state.paymentError = action.payload as string || 'Failed to update payment status';
+    })
+    .addCase(failedMidtransPaymentStatus.pending, (state) => {
+      state.loading = true;
+      state.paymentError = null;
+    })
+    .addCase(failedMidtransPaymentStatus.fulfilled, (state, action) => {
+      state.loading = false;
+      state.paymentDetails = action.payload; 
+    })
+    .addCase(failedMidtransPaymentStatus.rejected, (state, action) => {
       state.loading = false;
       state.paymentError = action.payload as string || 'Failed to update payment status';
     })

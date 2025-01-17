@@ -19,6 +19,7 @@ interface CartState {
   cartVouchers: CartVouchers[]
   orderId: number
   cartId: number
+  isDiscountApplied: boolean; // Add this line
 }
 
 const initialState: CartState = {
@@ -28,7 +29,8 @@ const initialState: CartState = {
   error: null,
   cartVouchers: [],
   orderId: 0,
-  cartId: 0
+  cartId: 0,
+  isDiscountApplied: false, // Initialize it as false
 };
 
 const access_token = Cookies.get("access_token");
@@ -78,7 +80,7 @@ export const changeItemQuantity = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
-      return response.data.data; // assuming the response has updated cart data
+      return response.data.data;
     } catch (err) {
       return rejectWithValue("Failed to update item quantity");
     }
@@ -110,7 +112,7 @@ export const checkoutCart = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
-      return response.data.data;  // Assuming the checkout data is in response.data.data
+      return response.data.data;
     } catch (err) {
       return rejectWithValue("Failed to checkout cart");
     }
@@ -130,9 +132,8 @@ export const addToCart = createAsyncThunk(
         },
       });
 
-      return response.data;  // Assuming the response contains cart item and cart price
+      return response.data;
     } catch (err) {
-      // Capture the error response correctly
       if (axiosHandler.isAxiosError(err) && err.response) {
         return rejectWithValue("This product is already in the cart");
       } else {
@@ -155,6 +156,11 @@ export const redeemProductVoucher = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
+
+      if (response.data?.data?.cartItem?.error) {
+        return rejectWithValue(response.data.data.cartItem.error);
+      }
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue("Failed to apply product voucher discount");
@@ -175,6 +181,11 @@ export const redeemCartVoucher = createAsyncThunk(
           Authorization: `Bearer ${access_token}`,
         },
       });
+      
+      if (response.data?.data?.error) {
+        return rejectWithValue(response.data.data.error);
+      }
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue("Failed to apply cart voucher discount");
@@ -185,7 +196,11 @@ export const redeemCartVoucher = createAsyncThunk(
 const cartSlice = createSlice({
   name: "cart",
   initialState,
-  reducers: {},
+  reducers: {
+    setDiscountApplied: (state, action) => {
+      state.isDiscountApplied = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCartItems.pending, (state) => {
@@ -247,6 +262,7 @@ const cartSlice = createSlice({
       .addCase(checkoutCart.fulfilled, (state, action) => {
         state.loading = false;
         state.orderId = action.payload.order.order_id
+        state.isDiscountApplied = false
       })
       .addCase(checkoutCart.rejected, (state, action) => {
         state.loading = false;
@@ -278,6 +294,7 @@ const cartSlice = createSlice({
             ? { ...item, quantity: updatedItem.quantity, product_price: updatedItem.product_price} : item
         );
         state.cartPrice = action.payload.cartPrice.cart_price
+        state.isDiscountApplied = true
       })
       .addCase(redeemProductVoucher.rejected, (state, action) => {
         state.loading = false;
@@ -289,8 +306,8 @@ const cartSlice = createSlice({
       })
       .addCase(redeemCartVoucher.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("new cart price",action.payload.newCartPrice);
         state.cartPrice = action.payload.newCartPrice;
+        state.isDiscountApplied = true
       })
       .addCase(redeemCartVoucher.rejected, (state, action) => {
         state.loading = false;
@@ -299,6 +316,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const {} = cartSlice.actions;
+export const { setDiscountApplied  } = cartSlice.actions;
 
 export default cartSlice.reducer;

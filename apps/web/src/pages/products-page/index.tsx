@@ -14,7 +14,12 @@ import {
 } from "@/redux/slices/getProductsSlice";
 import useDebounce from "@/hooks/useDebounce";
 
+import ProductCardLatest from "@/components/product-card-latest";
+import Pagination from "@/components/pagination";
+import Cookies from "js-cookie";
+
 const Products: React.FC = () => {
+  const current_store_id = Cookies.get("current_store_id");
   const dispatch = useDispatch<AppDispatch>();
   const {
     loading,
@@ -48,16 +53,16 @@ const Products: React.FC = () => {
         category: category === "all" ? "" : category,
         sortField,
         sortOrder,
+        store_id: Number(current_store_id)
       })
     )
       .unwrap()
       .then((data) => {
-        console.log("Fetched Inventories:", data);
       })
       .catch((err) => {
         console.error("Error fetching inventories:", err);
       });
-  }, [dispatch, debouncedQuery, currentPage, category]);
+  }, [dispatch, debouncedQuery, currentPage, category, current_store_id]);
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {

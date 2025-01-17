@@ -36,7 +36,6 @@ function CreateVoucher() {
       description,
     };
     try {
-        console.log("submitted voucher data: ",newVoucherData)
       await dispatch(createVoucher(newVoucherData)).unwrap();
       dispatch(showSuccess("Voucher successfully created"));
     } catch (error: any) {

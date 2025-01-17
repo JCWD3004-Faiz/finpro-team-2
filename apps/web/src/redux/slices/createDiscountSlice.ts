@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "@/utils/interceptor";
-import axioss, { AxiosError, isAxiosError } from "axios";
+import axiosHandler, { AxiosError, isAxiosError } from "axios";
 import Cookies from "js-cookie";
 
 interface CreateDiscountState {
@@ -34,7 +34,7 @@ const initialState: CreateDiscountState = {
 };
 
 const access_token = Cookies.get("access_token");
-const storeId = Cookies.get("storeId");
+const storeId = Number(Cookies.get("storeId"));
 
 export const createDiscount = createAsyncThunk(
   "createDiscount/createDiscount",
@@ -105,9 +105,8 @@ export const createDiscount = createAsyncThunk(
       formData.append("start_date", start_date);
       formData.append("end_date", end_date);
       if (image) formData.append("image", image);
-
-      const response = await axios.post(
-        `/api/store-admin/discounts/${storeId}`,
+      const response = await axiosHandler.post(
+        `/api/store-admin/discounts/${Number(storeId)}`,
         formData,
         {
           headers: {
@@ -119,7 +118,7 @@ export const createDiscount = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      if (axioss.isAxiosError(error)) {
+      if (axiosHandler.isAxiosError(error)) {
         console.error("Error Object:", error.response);
         const errorMessage =
           error.response?.data?.detail || "Failed to create discount.";

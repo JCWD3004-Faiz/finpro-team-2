@@ -74,12 +74,6 @@ function SuperSidebar ({ isSidebarOpen, toggleSidebar }: SuperSidebarProps) {
               Reports
             </a>
           </li>
-          <li>
-            <a href="/admin-super/users" className="flex items-center px-4 py-2 hover:bg-gray-700 rounded">
-              <FaUser className="mr-3" />
-              Users
-            </a>
-          </li>
         </ul>
       </div>
 

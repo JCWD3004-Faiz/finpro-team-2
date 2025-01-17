@@ -53,6 +53,7 @@ export interface StoreAdminState {
   totalPages: number;
   totalItems: number;
   sortField: string;
+  sortOrder: string
   orderStatus: string;
 }
 
@@ -119,6 +120,29 @@ export interface GetDiscountState {
   sortField: string;
   sortOrder: string;
   search: string;
+}
+
+export interface AllUserDiscounts {
+  discount_id: number;
+  inventory_id?: number;
+  bogo_product_id?: number;
+  type: string;
+  value?: string;
+  min_purchase?: number;
+  max_discount?: number;
+  description: string;
+  is_active: boolean;
+  image?: string;
+  start_date: string;
+  end_date: string;
+  product_name?: string;
+  bogo_product_name?: string;
+}
+
+export interface UserDiscountState {
+  allUserDiscounts: AllUserDiscounts[];
+  loading: boolean;
+  error: string | null;
 }
 
 export interface ProductDetail {
@@ -222,13 +246,13 @@ export interface Transaction {
 }
 
 export interface TransactionDetails {
-    items: ItemDetails[];
-    payment_reference: string | null;
-    transaction_id: string
-    address: string;
-    city_name: string;
-    shipping_price: number;
-    cart_price: number;
+  items: ItemDetails[];
+  payment_reference: string | null;
+  transaction_id: string;
+  address: string;
+  city_name: string;
+  shipping_price: number;
+  cart_price: number;
 }
 
 export interface ProductImage {
@@ -243,6 +267,8 @@ export interface ProductDetailUser {
   description: string;
   category_name: string;
   discounted_price: number;
+  discount_type: string | null;
+  discount_value: number | null
   price: number;
   user_stock: number;
   product_images: ProductImage[];

@@ -64,7 +64,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                   View Details
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md max-h-[90vh] overflow-auto bg-white text-gray-800">
+              <DialogContent className="w-full max-h-[90vh] overflow-auto bg-white text-gray-800">
                 {details && (
                   <TransactionDetails
                     items={details.items}

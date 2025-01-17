@@ -25,7 +25,7 @@ const GoogleCallback: React.FC = () => {
 
           // Redirect to the home page
           setTimeout(() => {
-            router.push("/");
+            window.location.href = "/";
           }, 2000);
         } else {
           // Handle missing tokens
@@ -41,7 +41,7 @@ const GoogleCallback: React.FC = () => {
 
   return (
     <div className="w-screen h-screen bg-white">
-      <div className="container mx-auto text-center mt-10 ">
+      <div className="container mx-auto text-center pt-10">
         <h1 className="text-2xl font-bold text-gray-800">
           Processing Google Login...
         </h1>

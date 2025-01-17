@@ -78,7 +78,7 @@ export default class MidtransService {
         }
     }
 
-    public async updateMidtransPaymentStatus(user_id: number, transaction_id: string) {
+    public async successMidtransPaymentStatus(user_id: number, transaction_id: string) {
         try {
             const payment = await this.prisma.payments.findUnique({
                 where: { transaction_id: transaction_id }, include: { Order: { include: { User: true }}}
@@ -91,6 +91,26 @@ export default class MidtransService {
             const updatedStatus = await this.prisma.payments.update({
                 where: { transaction_id: transaction_id },
                 data: { payment_status: "COMPLETED", payment_reference: transactionStatus.transaction_id},
+            });    
+            return updatedStatus;
+        } catch (error) {
+            console.error("Error updating payment status: ", error);
+            throw error;
+        }
+    }
+
+    public async failedMidtransPaymentStatus(user_id: number, transaction_id: string) {
+        try {
+            const payment = await this.prisma.payments.findUnique({
+                where: { transaction_id: transaction_id }, include: { Order: { include: { User: true }}}
+            });    
+            if (!payment || payment.Order?.user_id !== user_id || payment.payment_method !== "MIDTRANS") {
+                return { error: "Payment not found or does not belong to this user." };
+            }
+            await this.prisma.orders.update({ where: { order_id: payment.order_id }, data: { order_status: "CANCELLED" }});
+            const updatedStatus = await this.prisma.payments.update({
+                where: { transaction_id: transaction_id },
+                data: { payment_status: "FAILED" },
             });    
             return updatedStatus;
         } catch (error) {
