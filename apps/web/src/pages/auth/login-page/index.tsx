@@ -17,8 +17,7 @@ const Login: React.FC = () => {
     username: "",
     password: "",
   });
-  const [isRegisterClicked, setIsRegisterClicked] = useState(false); // State to trigger register click
-  const [isLoginFaded, setIsLoginFaded] = useState(false); // State for fading effect
+  const [isRegisterClicked, setIsRegisterClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const { isSuccessOpen, successMessage } = useSelector(
     (state: RootState) => state.success
@@ -46,8 +45,8 @@ const Login: React.FC = () => {
       const { role } = decodedToken;
 
       if (access_token) {
-        Cookies.set("access_token", access_token, { expires: 1 }); // expires in 1 day
-        Cookies.set("refreshToken", refreshToken, { expires: 7 }); // expires in 7 days
+        Cookies.set("access_token", access_token, { expires: 1 });
+        Cookies.set("refreshToken", refreshToken, { expires: 7 });
       }
 
       let redirectUrl = "/";
@@ -77,12 +76,11 @@ const Login: React.FC = () => {
   };
 
   const handleRegisterClick = () => {
-    window.location.href = "/auth/register";
+    setIsRegisterClicked(true); // Start the animation
+    setTimeout(() => {
+      window.location.href = "/auth/register"; // Navigate after animation
+    }, 1000); // Match the animation duration
   };
-
-  const handleForgotPassClick = () => {
-    window.location.href = "/auth/passwordReset"
-  }
 
   const handleGoogleClick = () => {
     const googleLoginUrl = `${axios.defaults.baseURL}/auth/google`;
@@ -107,101 +105,92 @@ const Login: React.FC = () => {
         errorMessage={errorMessage}
       />
       <div
-        className={`bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center transform transition-transform duration-500 ${
-          isRegisterClicked ? "translate-x-negative" : ""
+        className={`bg-white p-8 w-3/6 h-screen shadow-md flex flex-col justify-center transition-transform duration-500 ${
+          isRegisterClicked ? "slide-left" : ""
         }`}
       >
-        {/* Header */}
-        <h1
-          className={`text-5xl font-bold mb-6 transform transition-transform duration-500 opacity-transition ${
-            isRegisterClicked ? "translate-x-positive" : ""
-          } ${isLoginFaded ? "opacity-0" : "opacity-100"}`}
+        <div
+          className={`contents-wrapper ${
+            isRegisterClicked ? "fade-out" : ""
+          } transition-opacity duration-500`}
         >
-          LOGIN
-        </h1>
-
-        {/* Login Form */}
-        <form
-          onSubmit={handleSubmit}
-          className={`flex flex-col transform transition-transform duration-500 ${
-            isRegisterClicked ? "translate-x-positive" : ""
-          }`}
-        >
-          <div className="mb-4 w-96">
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="email"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
-              required
-            />
-          </div>
-
-          <div className="mb-6 w-96">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
-              required
-            />
-          </div>
-
-          <div className="flex flex-col w-96">
-            <button
-              type="submit"
-              className="bg-black text-white px-4 py-2 w-full rounded shadow hover:bg-black focus:outline-none focus:ring-2 focus:ring-blue-300"
-            >
-              Login
-            </button>
-            <button
-              type="button"
-              className="my-4 px-4 py-2 w-full rounded shadow border border-gray-300 hover:bg-gray-100"
-              onClick={handleRegisterClick}
-            >
-              Register
-            </button>
-            <button
-              type="button"
-              className="my-4 px-4 py-2 w-full rounded shadow border border-gray-300 hover:bg-gray-100"
-              onClick={handleGoogleClick}
-            >
-              <div className="flex justify-center items-center gap-2">
-                <div>Login with Google</div>
-                <div>
-                  <FaGoogle />
+          <h1 className="text-5xl font-bold mb-6">LOGIN</h1>
+          <form onSubmit={handleSubmit} className="flex flex-col">
+            <div className="mb-4 w-96">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="email"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                className="mt-1 block w-full px-4 py-2 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
+                required
+              />
+            </div>
+            <div className="mb-6 w-96">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="mt-1 block w-full px-4 py-2 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
+                required
+              />
+            </div>
+            <div className="flex flex-col w-96">
+              <button
+                type="submit"
+                className="bg-black text-white px-4 py-2 w-full rounded shadow hover:bg-black focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                className="my-4 px-4 py-2 w-full rounded shadow border border-gray-300 hover:bg-gray-100"
+                onClick={handleRegisterClick}
+              >
+                Register
+              </button>
+              <button
+                type="button"
+                className="my-4 px-4 py-2 w-full rounded shadow border border-gray-300 hover:bg-gray-100"
+                onClick={handleGoogleClick}
+              >
+                <div className="flex justify-center items-center gap-2">
+                  <div>Login with Google</div>
+                  <div>
+                    <FaGoogle />
+                  </div>
                 </div>
-              </div>
-            </button>
-            <p
-              className="mt-4 text-sm text-gray-500 cursor-pointer hover:underline"
-              onClick={() => (window.location.href = "/auth/passwordReset")}
-            >
-              Forgot password?
-            </p>
-          </div>
-        </form>
+              </button>
+              <p
+                className="mt-4 text-sm text-gray-500 cursor-pointer hover:underline"
+                onClick={() => (window.location.href = "/auth/passwordReset")}
+              >
+                Forgot password?
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
+

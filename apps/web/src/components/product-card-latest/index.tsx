@@ -79,7 +79,7 @@ export default function ProductCardLatest({
   return (
     <div
       onClick={onClick}
-      className="bg-white shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      className="bg-white shadow-md border border-black overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       style={{ width: "280px",  height: "500px"  }} // Fixed width for the card
     >
       <div

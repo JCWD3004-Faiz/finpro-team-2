@@ -123,3 +123,68 @@ body {
   display: inline-block;
   animation: marquee 70s linear infinite;
 }
+
+.transition-all {
+  transition: all 0.5s ease-in-out;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.group:hover {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.swiper-scrollbar {
+  width: 100%; /* Full width of the Swiper container */
+  height: 8px; /* Adjust height for visibility */
+  background-color: #e0e0e0; /* Track color */
+  border-radius: 4px; /* Rounded edges for track */
+  margin-top: 10px; /* Spacing from Swiper content */
+}
+
+.swiper-scrollbar-drag {
+  background-color: #000; /* Handle color */
+  border-radius: 4px; /* Rounded edges for handle */
+}
+
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: black;
+  color: white;
+}
+
+/* Slide animation for the white section */
+@keyframes slide-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.slide-left {
+  animation: slide-left 1s forwards;
+}
+
+/* Fade animation for the contents */
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fade-out 0.5s forwards;
+}
+
+
+

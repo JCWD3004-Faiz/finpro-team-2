@@ -16,7 +16,7 @@ function SingleProductPage() {
 
   const user = useAuth();
   const user_id = Number(user?.id);
-  const isVerified = user?.is_verified
+  const isVerified = user?.is_verified;
   const { addresses } = useSelector((state: RootState) => state.userProfile);
   const current_store_id = Number(Cookies.get("current_store_id"));
   const { cartItems } = useSelector((state: RootState) => state.cart);
@@ -89,19 +89,23 @@ function SingleProductPage() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex justify-center p-8 text-gray-900" style={{ marginTop: '11vh' }}>
-      <div className="flex w-full max-w-6xl gap-10">
+    <div className="bg-white min-h-screen flex justify-center p-4 sm:p-8 text-gray-900" style={{ marginTop: '15vh' }}>
+      <div className="flex flex-col sm:flex-row w-full max-w-6xl gap-6 sm:gap-10">
         {/* Left side */}
-        <div className="flex flex-col items-center w-1/2">
-          <img src={productDetailUser.product_images[0].product_image} alt={productDetailUser.product_name} className="w-full h-[60vh] object-cover" />
+        <div className="flex flex-col items-center w-full sm:w-1/2">
+          <img
+            src={selectedImage || productDetailUser.product_images[0].product_image}
+            alt={productDetailUser.product_name}
+            className="w-full h-[60vh] sm:h-[50vh] object-cover mb-4 sm:mb-0"
+          />
           
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 mt-4 overflow-x-auto sm:overflow-visible">
             {productDetailUser.product_images.map((image, index) => (
               <img
                 key={index}
                 src={image.product_image}
                 alt={`Thumbnail ${index}`}
-                className="w-[80px] h-[80px] object-cover cursor-pointer border"
+                className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] object-cover cursor-pointer border"
                 onClick={() => handleImageSelect(image.product_image)}
               />
             ))}
@@ -109,18 +113,23 @@ function SingleProductPage() {
         </div>
 
         {/* Right side */}
-        <div className="w-1/2">
-          <h1 className="text-6xl font-bold">{productDetailUser.product_name}</h1>
-          <p className="text-xl text-gray-800 mt-4">IDR {productDetailUser.discounted_price.toLocaleString()}</p>
+        <div className="w-full sm:w-1/2">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold">{productDetailUser.product_name}</h1>
+          <p className="text-lg sm:text-xl text-gray-800 mt-4">IDR {productDetailUser.discounted_price.toLocaleString()}</p>
           <div className="border-b border-gray-300 my-4">Stock: {productDetailUser.user_stock}</div>
-          <p className="text-sm text-gray-600">{productDetailUser.description}</p>
+          <p className="text-sm sm:text-base text-gray-600">{productDetailUser.description}</p>
 
-        <button onClick={(e) => { e.stopPropagation(); handleAddToCart()}}
-        className={`w-full py-3 mt-6 transition-colors duration-200 text-xl ${productDetailUser.user_stock === 0
-        ? 'bg-gray-400 cursor-not-allowed' : 'bg-black text-white font-bold hover:bg-neutral-600'}`}
-        disabled={productDetailUser.user_stock === 0}>
-          {productDetailUser.user_stock === 0 ? "Out of Stock" : "Add to Cart"}
-        </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
+            className={`w-full py-3 mt-6 transition-colors duration-200 text-xl ${
+              productDetailUser.user_stock === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-black text-white font-bold hover:bg-neutral-600'
+            }`}
+            disabled={productDetailUser.user_stock === 0}
+          >
+            {productDetailUser.user_stock === 0 ? "Out of Stock" : "Add to Cart"}
+          </button>
         </div>
       </div>
     </div>

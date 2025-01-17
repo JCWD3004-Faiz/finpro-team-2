@@ -271,10 +271,12 @@ export interface getProductsState {
   sortField: string;
   sortOrder: string;
   search: string;
-  category: string | null;
+  category: string;
+  categories: any[]; // Add this line
   loading: boolean;
   error: string | null;
 }
+
 
 export interface AllUser {
   user_id: number;
