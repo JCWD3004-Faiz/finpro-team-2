@@ -15,6 +15,7 @@ import {
   checkoutCart,
   redeemCartVoucher,
   redeemProductVoucher,
+  setDiscountApplied
 } from "@/redux/slices/cartSlice";
 import {
   Select,
@@ -41,13 +42,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
 }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { cartItems, cartPrice, loading, error, cartVouchers, cartId } =
+  const { cartItems, cartPrice, loading, error, cartVouchers, cartId, isDiscountApplied } =
     useSelector((state: RootState) => state.cart);
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(
     undefined
   );
-  const [isDiscountApplied, setIsDiscountApplied] = useState(false);
   const [isItemClickable, setIsItemClickable] = useState(false);
   const { allUserDiscounts } = useSelector(
     (state: RootState) => state.userDiscounts
@@ -86,7 +86,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     try {
       const result = await dispatch(checkoutCart(user_id)).unwrap();
       const orderId = result.order.order_id;
-      alert("Checkout successful!");
       router.push(`/checkout/${orderId}`);
       onClose();
     } catch (error) {
@@ -109,7 +108,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           cart_id: cartId,
         })
       );
-      setIsDiscountApplied(true);
       setIsDiscountOpen(false);
     }
   };
@@ -127,11 +125,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           cart_item_id,
         })
       );
-      setIsDiscountApplied(true);
       setIsItemClickable(false);
       setIsDiscountOpen(false);
     }
   };
+
+  console.log("discount applied", isDiscountApplied);
 
   return (
     <>
@@ -166,7 +165,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           <p className="text-gray-800">Your cart is empty.</p>
         ) : (
           <div>
-            <ScrollArea className="h-[300px] pr-4">
+            <ScrollArea className="h-[290px] pr-4">
               <div className="text-gray-800 w-full sm:max-w-md flex flex-col">
                 <div className="flex-1 overflow-auto">
                   {cartItems
@@ -243,9 +242,16 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                               <Plus className="h-4 w-4" />
                             </Button>
                           </div>
-                          <p className="font-medium">
-                            {formatCurrency(parseInt(item.product_price)) || ""}
-                          </p>
+                          <div>
+                          {(item?.original_price * item?.quantity) - item?.product_price > 0 && (
+                            <p className="font-medium text-green-700 text-end">
+                              - {formatCurrency(((item?.original_price * item?.quantity) - item?.product_price)) || ""}
+                            </p>
+                          )}
+                            <p className="font-medium text-end">
+                              {formatCurrency(parseInt(item.product_price)) || ""}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -257,7 +263,14 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 <div className="space-y-2">
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span>{formatCurrency(cartPrice) || ""}</span>
+                    <div className="flex flex-col font-semibold">
+                    {cartItems.reduce((acc, item) => acc + parseInt(item?.product_price), 0) - cartPrice > 0 && (
+                      <span className="text-green-700">
+                        - {formatCurrency(cartItems.reduce((acc, item) => acc + parseInt(item?.product_price), 0) - cartPrice) || ""}
+                      </span>
+                    )}
+                      <span>{formatCurrency(cartPrice) || ""}</span>
+                    </div>
                   </div>
                   <div className="flex text-xs">
                     <span>
@@ -271,7 +284,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                           {discountsWithNullInventory[0].min_purchase &&
                             ` on orders above ${discountsWithNullInventory[0].min_purchase}`}
                           {discountsWithNullInventory[0].max_discount &&
-                            `. Maximum discount applied is ${discountsWithNullInventory[0].max_discount}.`}
+                            ` with a maximum discount up to ${discountsWithNullInventory[0].max_discount}.`}
                         </>
                       )}
                       {discountsWithNullInventory[0]?.type === "PERCENTAGE" && (
@@ -282,7 +295,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                           {discountsWithNullInventory[0].min_purchase &&
                             ` on orders above ${formatCurrency(discountsWithNullInventory[0].min_purchase)}`}
                           {discountsWithNullInventory[0].max_discount &&
-                            `. Maximum discount applied is ${formatCurrency(discountsWithNullInventory[0].max_discount)}.`}
+                            ` with a maximum discount up to ${formatCurrency(discountsWithNullInventory[0].max_discount)}.`}
                         </>
                       )}
                     </span>

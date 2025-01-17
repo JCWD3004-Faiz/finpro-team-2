@@ -143,6 +143,11 @@ function ManageAdmins() {
           Manage Store Admins
         </h1>
         <div className="ml-1 mb-2">
+          <Button size="default" onClick={() => router.push({ pathname: '/admin-super/admins/users' })}>
+            View All Users
+          </Button>
+        </div>
+        <div className="ml-1 mb-2">
           <Button size="default" onClick={() => router.push({ pathname: '/admin-super/admins/register' })}>
             <FaUserPlus/>
             Register Admin

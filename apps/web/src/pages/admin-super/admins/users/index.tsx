@@ -87,7 +87,7 @@ function Users() {
       {loading && <LoadingVignette />}
       <div className={`ml-0 ${isSidebarOpen ? "md:ml-64" : ""} md:ml-64 p-6`}>
         <h1 className="text-4xl font-semibold text-gray-900 mb-10 tracking-wide">
-          Users
+          View All Users
         </h1>
         <div>
           <div className="flex flex-col md:flex-row gap-5 justify-between items-center">

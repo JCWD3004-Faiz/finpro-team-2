@@ -59,11 +59,15 @@ const Navbar: React.FC = () => {
                 onClick={toggleMenu}
               />
             </div>
-            <div className="hidden sm:flex font-bold text-2xl text-black">
+            <div className="hidden sm:flex font-bold text-2xl text-black hover:cursor-pointer hover:text-muted-foreground"
+            onClick={() => navigateTo("/")}
+            >
               FRUGMART
             </div>
-            <div className="sm:hidden flex w-full justify-center items-center">
-              <div className="text-black font-bold text-2xl">
+            <div className="sm:hidden flex w-full justify-center items-center hover:cursor-pointer">
+              <div className="text-black font-bold text-2xl hover:text-muted-foreground"
+              onClick={() => navigateTo("/")}
+              >
                 FRUGMART
               </div>
             </div>
@@ -72,19 +76,19 @@ const Navbar: React.FC = () => {
           <div className="sm:flex flex-grow justify-center sm:order-2 hidden">
             <ul className="flex space-x-8 list-none items-center">
               <li
-                className="text-black cursor-pointer"
+                className="text-black cursor-pointer hover:underline"
                 onClick={() => navigateTo("/")}
               >
                 Home
               </li>
               <li
-                className="text-black cursor-pointer"
+                className="text-black cursor-pointer hover:underline"
                 onClick={() => navigateTo("/products-page")}
               >
                 Products
               </li>
               <li
-                className="text-black cursor-pointer"
+                className="text-black cursor-pointer hover:underline"
                 onClick={() => navigateTo("/about-page")}
               >
                 About
@@ -96,24 +100,24 @@ const Navbar: React.FC = () => {
             {accessToken ? (
               <>
                 <FaCartShopping
-                  className="text-black text-3xl cursor-pointer"
+                  className="text-black text-3xl cursor-pointer hover:text-muted-foreground"
                   onClick={toggleCart}
                   title="Cart"
                 />
                 <MdAccountBox
-                  className="text-black text-3xl cursor-pointer"
+                  className="text-black text-3xl cursor-pointer hover:text-muted-foreground"
                   onClick={handleProfileClick}
                   title="Profile"
                 />
                 <RiLogoutBoxFill
-                  className="text-black text-3xl cursor-pointer"
+                  className="text-black text-3xl cursor-pointer hover:text-muted-foreground"
                   onClick={handleLogoutClick}
                   title="Logout"
                 />
               </>
             ) : (
               <RiLoginBoxFill
-                className="text-black text-3xl cursor-pointer"
+                className="text-black text-3xl cursor-pointer hover:text-muted-foreground"
                 onClick={handleLoginClick}
                 title="Login"
               />
