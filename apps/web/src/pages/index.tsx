@@ -1,21 +1,20 @@
-import React from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAppSelector } from '@/redux/store';
 
-const Home = () => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      <h1>Welcome to FRUG!</h1>
-    </div>
-  );
-};
+export default function HomePage() {
+  const router = useRouter();
+  const user = useAppSelector((state) => state.auth.user);
 
-export default Home;
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    } else if (user.role === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/cashier');
+    }
+  }, [user, router]);
 
-
+  return null;
+}

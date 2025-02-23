@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  cashier
+}
+
+enum ShiftStatus {
+  active
+  closed
+}
+
+enum PaymentType {
+  cash
+  debit
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  passwordHash String   @db.VarChar(60)
+  role        UserRole
+  status      String    @default("active")
+  lastActive  DateTime? @updatedAt
+  createdAt   DateTime  @default(now())
+  
+  shifts      Shift[]
+  transactions Transaction[]
+}
+
+model Shift {
+  id          Int       @id @default(autoincrement())
+  cashier     User      @relation(fields: [cashierId], references: [id], onDelete: Cascade)
+  cashierId   Int
+  startTime   DateTime  @default(now())
+  endTime     DateTime?
+  initialCash Decimal   @default(0) @db.Decimal(10,2)
+  finalCash   Decimal?  @db.Decimal(10,2)
+  expectedCash Decimal? @db.Decimal(10,2)
+  cashDifference Decimal? @db.Decimal(10,2)
+  status      ShiftStatus
+  createdAt   DateTime  @default(now())
+
+  transactions Transaction[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  category    String
+  price       Decimal   @db.Decimal(10,2)
+  stock       Int
+  imageUrl    String?
+  isDeleted   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  transactionDetails TransactionDetail[]
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  shift       Shift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId     Int
+  cashier     User      @relation(fields: [cashierId], references: [id], onDelete: Cascade)
+  cashierId   Int
+  totalAmount Decimal   @db.Decimal(10,2)
+  paymentMethod PaymentType
+  debitCardNumber String? @db.VarChar(16)
+  createdAt   DateTime  @default(now())
+
+  transactionDetails TransactionDetail[]
+}
+
+model TransactionDetail {
+  id          Int       @id @default(autoincrement())
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId Int
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   Int
+  quantity    Int
+  price       Decimal   @db.Decimal(10,2)
+}
+
